@@ -56,8 +56,8 @@ public:
 
 #define COUNTING_MATCHES
 
-    bool possible_match(const t_index_vector& iv0,
-                        const t_index_vector& iv1)
+    bool possible_match(const Spine *sp,
+                        const Clause& cl)
 #ifndef COUNTING_MATCHES
                                                     const
 #endif

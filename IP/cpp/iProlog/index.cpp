@@ -100,18 +100,18 @@ namespace iProlog {
  * ("abstraction of which"???)
  * Supposedly, none of these "abstractions" can be -1
  */
-	bool index::possible_match(	const t_index_vector& iv0,
-							    const t_index_vector& iv1)
+	bool index::possible_match(const Spine* sp,
+							   const Clause& cl)
 #ifndef COUNTING_MATCHES
-														 const
+											     const
 #endif
-																{
-		cout << "possible_match(): ... ";
+	{
+	if (!indexing) return true;
 
 	// reasonable candidate for loop unrolling:
 		for (size_t i = 0; i < MAXIND; i++) {
-			cell x = iv0[i];
-			cell y = iv1[i];
+			cell x = sp->index_vector[i];
+			cell y = cl.index_vector[i];
 
 			if (x == cell::tag(cell::V_, 0) || y == cell::tag(cell::V_, 0))
 				continue;
@@ -155,6 +155,8 @@ namespace iProlog {
  * each goal's toplevel subterms." [Engine.java]
  */
     void index::makeIndexArgs(Spine *G, cell goal) {
+		if (!indexing) return;
+
 		if (G->index_vector[0].s_tag() != cell::BAD
 		// || !G->hasGoals()
 		)

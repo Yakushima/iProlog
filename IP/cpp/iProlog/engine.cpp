@@ -53,56 +53,38 @@ Engine::~Engine() { }
  * clause at the top of the new list of goals, in reverse order"
  */
 Spine* Engine::unfold(Spine *G) {
-    if (CellList::isEmpty(G->goals)) {
+    if (CellList::isEmpty(G->goals))
         return nullptr;
-    }
 
-    int saved_trail_top = trail.getTop();
+    int tot = trail.getTop();    // top of trail
     int saved_heap_top = heap.getTop();
     int base = saved_heap_top + 1;
-
     cell goal = CellList::head(G->goals);
-
-    if(indexing) 
-        Ip->makeIndexArgs(G, goal);
-
+    Ip->makeIndexArgs(G, goal);
     size_t last = G->unifiables.size();
 
     for (int k = G->last_clause_tried; k < last; k++) {
-        Clause* C0 = &clauses[G->unifiables[k]];
+        Clause& C0 = clauses[G->unifiables[k]];
 
-        if(indexing)
-            if(!Ip->possible_match(G->index_vector, C0->index_vector))
-                continue;
+        if (Ip->possible_match(G, C0)) {
+            cell b = cell::tag(cell::V_, base - C0.base);
+            cell head = pushHeadtoHeap(b, C0);
+            unify_stack.clear();  // "set up unification stack" [Engine.java]
+            unify_stack.push(head);
+            unify_stack.push(goal);
 
-        int base0 = base - C0->base;
-        cell b = cell::tag(cell::V_, base0);  // TODO - I really need a "heap index(offset)" type
-        cell head = pushHeadtoHeap(b, *C0);
-        unify_stack.clear();  // "set up unification stack" [Engine.java]
-        unify_stack.push(head);
-        unify_stack.push(goal);
- 
-        if (!unify(base)) {
-            unwindTrail(saved_trail_top);            
+            if (unify(base)) {
+                vector<cell> goals = pushBody(b, head, C0);
+                shared_ptr<CellList> tl = CellList::tail(G->goals);
+                G->last_clause_tried = k + 1;
+
+                if (goals.size() == 0 && tl == nullptr)
+                    return answer(tot);
+
+                return new Spine(goals, base, tl, tot, 0, clause_list);
+            }
+            unwindTrail(tot);
             heap.setTop(saved_heap_top);
-            continue;
-        }
-
-        vector<cell> goals = pushBody(b, head, *C0);
-        shared_ptr<CellList> tl = CellList::tail(G->goals);
-        G->last_clause_tried = k + 1;
-        if (goals.size() != 0 || tl != nullptr) {
-            Spine* sp = new Spine(goals
-                                , base
-                                , tl
-                                , saved_trail_top
-                                , 0
-                                , clause_list
-                        );
-            return sp;
-        }
-        else {
-            return answer(saved_trail_top);
         }
     }
     return nullptr;

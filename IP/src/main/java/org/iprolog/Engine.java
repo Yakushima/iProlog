@@ -56,7 +56,7 @@ class Engine {
 
    /* heap - contains code for 'and' clauses and their copies created during execution
    */
-  private int heap[];
+  private int[] heap;
   private int heap_top;
   static int MINSIZE = 1 << 15; // power of 2
 
@@ -73,7 +73,7 @@ class Engine {
   /* spines - stack of abstractions of clauses and goals;
    *    both a choice-point stack and goal stack
    */
-  final private ObStack<Spine> spines = new ObStack<Spine>();
+  final private ObStack<Spine> spines = new ObStack<>();
 
   index Ip;
 
@@ -132,12 +132,12 @@ class Engine {
    * do not mix them up at runtime. Not negating the argument doesn't
    * seem to affect results, and improves performance only slightly (< 5%).
    */
-  final private static int maybe_invert(final int w) {
+  private static int maybe_invert(final int w) {
 	  return w;
 	  // return -w;
   }
 
-  final private static int tag(final int t, final int w) {
+  private static int tag(final int t, final int w) {
     assert t <= BAD;
     assert t >= 0;
     return maybe_invert((w << n_tag_bits) + t);
@@ -146,35 +146,35 @@ class Engine {
   /**
    * Removes tag after (maybe) flipping sign.
    */
-  final static int detag(final int w) {
+  static int detag(final int w) {
     return maybe_invert(w) >> n_tag_bits;
   }
 
   /**
    * Extracts the tag of a cell.
    */
-  final static int tagOf(final int w) {
+  static int tagOf(final int w) {
     return maybe_invert(w) & TAG_MASK;
   }
 
-  private final void makeHeap() {
+  private void makeHeap() {
     makeHeap(MINSIZE);
   }
 
-  private final void makeHeap(final int size) {
+  private void makeHeap(final int size) {
     heap = new int[size];
     clear_heap();
   }
 
-  private final int get_heap_top() {
+  private int get_heap_top() {
     return heap_top;
   }
 
-  private final int set_heap_top(final int top) {
-    return this.heap_top = top;
+  private void set_heap_top(final int top) {
+    this.heap_top = top;
   }
 
-  private final void clear_heap() {
+  private void clear_heap() {
     heap_top = -1;
   }
 
@@ -183,7 +183,7 @@ class Engine {
    * element is assigned. This means top points to the last assigned
    * element - which can be returned with peek().
    */
-  private final void push_to_heap(final int i) {
+  private void push_to_heap(final int i) {
     heap[++heap_top] = i;
   }
 
@@ -196,7 +196,7 @@ class Engine {
    * or when the heap would otherwise overflow from what will be
    * pushed onto it.
    */
-  private final void expand() {
+  private void expand() {
     final int l = heap.length;
     final int[] newstack = new int[l << 1];
 
@@ -223,7 +223,7 @@ class Engine {
   * Expands "Xs lists .." statements to "Xs holds" statements.
   */
 
-  private final static ArrayList<String[]>
+  private static ArrayList<String[]>
   expand_lists_to_holds(final ArrayList<String> words) {
     assert words != null;
     assert words.size() > 0;
@@ -241,16 +241,16 @@ class Engine {
 
     final int l = words.size();
     final int n_elts = l-1;
-    final ArrayList<String[]> an_expansion = new ArrayList<String[]>();
+    final ArrayList<String[]> an_expansion = new ArrayList<>();
     final String V = first_word.substring(2);
 
 // Main.println ("expand_lists_to_holds: l = " + l);
 // Main.println ("expand_lists_to_holds: V = " + V);
 
-String s = "[";
-String sep = "";
-for (int i = 1; i < l; ++i) { s += (sep + words.get(i)); sep = ","; }
-s += "]";
+// String s = "[";
+// String sep = "";
+// for (int i = 1; i < l; ++i) { s += (sep + words.get(i)); sep = ","; }
+// s += "]";
 // Main.println ("expand_lists_to_holds: list = " + s);
 
     String subscript = "";
@@ -281,13 +281,13 @@ s += "]";
   /**
    * Expands, if needed, "lists" statements in sequence of statements.
    */
-  private final static ArrayList<String[]>
+  private static ArrayList<String[]>
   expand_lists_stmts(final ArrayList<ArrayList<String>> Wss) {
 
     // Main.println("\n\nexpand_lists_stmts: entered....");
     // Main.println("  Wss = " + Wss);
 
-    final ArrayList<String[]> Results = new ArrayList<String[]>();
+    final ArrayList<String[]> Results = new ArrayList<>();
     for (final ArrayList<String> Ws : Wss) {
 
       assert Ws.size() > 0;
@@ -311,7 +311,7 @@ s += "]";
     return Results;
   }
 
-  final static IntStack put_ref(String arg,
+  static void put_ref(String arg,
                                 LinkedHashMap<String, IntStack> refs,
                                 int clause_pos) {   // guessing it means clause position
     IntStack Is = refs.get(arg);
@@ -320,7 +320,6 @@ s += "]";
       refs.put(arg, Is);
     }
     Is.push (clause_pos);
-    return Is;
   }
 
   /**
@@ -340,11 +339,11 @@ s += "]";
 
     // Main.println ("clause_asm_list = " + clause_asm_list);
 
-    final ArrayList<Clause> compiled_clauses = new ArrayList<Clause>();
+    final ArrayList<Clause> compiled_clauses = new ArrayList<>();
 
     for (final ArrayList<ArrayList<String>> clause_asm : clause_asm_list) {
 
-      final LinkedHashMap<String, IntStack> refs = new LinkedHashMap<String, IntStack>();
+      final LinkedHashMap<String, IntStack> refs = new LinkedHashMap<>();
       final IntStack cells = new IntStack();
       final IntStack goals = new IntStack();
 
@@ -484,7 +483,7 @@ s += "]";
 
   }
 
-  private static final int[]
+  private static int[]
   toNums(final Clause[] clauses) {
     final int l = clauses.length;
     final int[] cls = new int[l];
@@ -498,7 +497,7 @@ s += "]";
    * Encodes string constants into symbols while leaving
    * other data types untouched.
    */
-  private final int encode(final int t, final String s) {
+  private int encode(final int t, final String s) {
     int w;
     try {
       w = Integer.parseInt(s);
@@ -516,7 +515,7 @@ s += "]";
    * True if cell x is a variable.
    * Assumes that variables are tagged with 0 or 1.
    */
-  final private static boolean isVAR(final int x) {
+  private static boolean isVAR(final int x) {
     //final int t = tagOf(x);
     //return V == t || U == t;
     assert V < 2;
@@ -534,7 +533,7 @@ s += "]";
   /*
    * Sets a heap cell to point to another one.
    */
-  final private void setRef(final int w, final int r) {
+  private void setRef(final int w, final int r) {
     heap[detag(w)] = r;
   }
 
@@ -550,8 +549,7 @@ s += "]";
 
       assert tagOf(href) == V || tagOf(href) == U;
 
-      int x = detag(href);
-
+      // int x = detag(href);
       // Prog.println("   href=" + showCell(href) + " detag(href) = " + x);
 
       setRef(href, href);
@@ -563,7 +561,7 @@ s += "]";
    * until it points to an unbound root variable or some
    * non-variable cell.
    */
-  final private int deref(int x) {
+  private int deref(int x) {
     while (isVAR(x)) {
       final int r = getRef(x);
       if (r == x) { // unbound root variable
@@ -597,7 +595,7 @@ s += "]";
   void ppTrail() {
     for (int i = 0; i <= trail.getTop(); i++) {
       final int t = trail.get(i);
-      // Main.pp("trail[" + i + "]=" + showCell(t) + ":" + showTerm(t));
+        Main.pp("trail[" + i + "]=" + showCell(t) + ":" + showTerm(t));
     }
   }
 
@@ -616,7 +614,7 @@ s += "]";
     final int t = tagOf(x);
     final int w = detag(x);
 
-    Object res = null;
+    Object res;
     switch (t) {
       case C: // symbol
         res = symTab.getSym(w);
@@ -686,7 +684,7 @@ s += "]";
   final String showCell(final int w) {
     final int t = tagOf(w);
     final int val = detag(w);
-    String s = null;
+    String s;
     switch (t) {
       case V:        s = "v:" + val;          break;
       case U:        s = "u:" + val;          break;
@@ -752,7 +750,7 @@ s += "]";
    * Unification algorithm for cells X1 and X2 on unify_stack
    * that also takes care to trail bindings below a given heap address "base".
    */
-  final private boolean unify(final int base) {
+  private boolean unify(final int base) {
     // Prog.println ("  Entering unify(), unify_stack.getTop()=" + unify_stack.getTop());
     while (!unify_stack.isEmpty()) {
       final int x1 = deref(unify_stack.pop());
@@ -814,7 +812,7 @@ s += "]";
     return s;
   }
 
-  final private boolean unify_args(final int w1, final int w2) {
+  private boolean unify_args(final int w1, final int w2) {
     // Prog.println("                Entered unify_args(" + w1 + "," + w2 + ")");
     final int v1 = heap[w1];
     final int v2 = heap[w2];
@@ -876,7 +874,7 @@ s += "]";
    * Also assumes that b has cell structure --
    *  left-shifted by 3, tagged 0 (==V) [???]
    */
-  final private static int relocate(final int b, final int cell) {
+  private static int relocate(final int b, final int cell) {
     assert tagOf(b) == V;
     assert V == 0;
     return tagOf(cell) < 3 ? cell + b : cell;
@@ -886,7 +884,7 @@ s += "]";
    * Pushes slice[from,to] at given base onto the heap.
    * b has cell structure, i.e, index, shifted left 3 bits, with tag 0 (==V)
    */
-  final private void pushCells(final int b, final int from, final int to, final int base) {
+  private void pushCells(final int b, final int from, final int to, final int base) {
   if (false) {
     // Prog.println("");
     // Prog.println("??? pushCells(" + showCell(b) + " from=" + from + " to=" + to
@@ -909,7 +907,7 @@ s += "]";
   /**
    * Pushes slice[from,to] of cells array to heap.
    */
-  final private void pushCells(final int b, final int from, final int to, final int[] cells) {
+  private void pushCells(final int b, final int from, final int to, final int[] cells) {
     ensureSize(to - from);
     for (int i = from; i < to; i++) {
       push_to_heap(relocate(b, cells[i]));
@@ -919,7 +917,7 @@ s += "]";
   /**
    * Copies and relocates the head of clause C from heap to heap.
    */
-  final private int pushHead(final int b, final Clause C) {
+  private int pushHead(final int b, final Clause C) {
 
     // Prog.println("+++ pushHead:" + " b = " + showCell(b)
     //        + " C.neck = " + C.neck
@@ -962,7 +960,7 @@ s += "]";
    * Note that index_vector contains dereferenced cells - this is done once for
    * each goal's toplevel subterms.
    */
-  final private void makeIndexArgs(final Spine G, final int goal) {
+  private void makeIndexArgs(final Spine G, final int goal) {
 
     // Prog.println("makeIndexArgs() entered...");
     if (null != G.index_vector)  // made only once
@@ -987,7 +985,7 @@ s += "]";
     G.unifiables = cs;
   }
 
-  final private int[] getIndexables(final int ref) {
+  private int[] getIndexables(final int ref) {
     final int p = 1 + detag(ref);
     final int n = detag(getRef(ref));
     final int[] index_vector = new int[MAXIND];
@@ -1001,7 +999,7 @@ s += "]";
     return index_vector;
   }
 
-  final private int cell2index(final int cell) {
+  private int cell2index(final int cell) {
     int x = 0;
     final int t = tagOf(cell);
     switch (t) {
@@ -1024,7 +1022,7 @@ s += "]";
    * ("abstraction of which"???)
    * Supposedly, none of these "abstractions" can == -1
    */
-  private final boolean possible_match(final int[] index_vector, final Clause C0) {
+  private boolean possible_match(final int[] index_vector, final Clause C0) {
     for (int i = 0; i < MAXIND; i++) {
       final int x = index_vector[i];
       final int y = C0.index_vector[i];
@@ -1164,7 +1162,7 @@ s += "]";
    * the top of the trail to allow the caller to retrieve
    * more answers by forcing backtracking.
    */
-  final private Spine answer(final int trail_top) {
+  private Spine answer(final int trail_top) {
     return new Spine(spines.get(0).head, trail_top);
   }
 
@@ -1172,7 +1170,7 @@ s += "]";
    * Detects availability of alternative clauses for the
    * top goal of this spine.
    */
-  final private boolean hasClauses(final Spine S) {
+  private boolean hasClauses(final Spine S) {
     // Prog.println("hasClauses: S.base= "+S.base+" S.last_clause_tried=" + S.last_clause_tried + " S.unifiables.length=" + S.unifiables.length);
     return S.last_clause_tried < S.unifiables.length;
   }
@@ -1180,7 +1178,7 @@ s += "]";
   /**
    * True when there are goals left to solve.
    */
-  final private boolean any_goals_left(final Spine S) {
+  private boolean any_goals_left(final Spine S) {
     return !IntList.isEmpty(S.goals);
   }
 
@@ -1190,7 +1188,7 @@ s += "]";
    * creation time - while undoing variable binding
    * up to that point.
    */
-  final private void popSpine() {
+  private void popSpine() {
     final Spine G = spines.pop();
     unwindTrail(G.trail_top);
     set_heap_top(G.base - 1);

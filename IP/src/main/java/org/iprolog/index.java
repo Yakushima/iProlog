@@ -65,8 +65,8 @@ public class index {
 
     final int[] get(final int[] keys) {
         final int l = imaps.length;
-        final ArrayList<IntMap> ms = new ArrayList<IntMap>();
-        final ArrayList<IntMap> vms = new ArrayList<IntMap>();
+        final ArrayList<IntMap> ms = new ArrayList<>();
+        final ArrayList<IntMap> vms = new ArrayList<>();
 
         for (int i = 0; i < l; i++) {
             final int key = keys[i];

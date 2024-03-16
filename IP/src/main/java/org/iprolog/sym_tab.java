@@ -30,7 +30,7 @@ public class sym_tab {
     private final LinkedHashMap<String, Integer> syms; // syms->ints
 
     sym_tab() {
-        syms = new LinkedHashMap<String, Integer>();
+        syms = new LinkedHashMap<>();
         slist = new ArrayList<String>();
     }
 

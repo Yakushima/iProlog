@@ -1,13 +1,13 @@
 
-/**
-Dynamic Stack for int data.
- */
+//
+// Dynamic Stack for int data.
+//
 package org.iprolog;
 import java.util.Arrays;
 
 class IntStack {
 
-  private int stack[];
+  private int[] stack;
 
   private int top;
 
@@ -28,14 +28,12 @@ class IntStack {
     return top;
   }
 
-  final int setTop(final int top) {
-    return this.top = top;
+  final void setTop(final int top) {
+    this.top = top;
   }
 
   final void clear() {
-    //for (int i = 0; i <= top; i++)
-    //stack[i] = 0;
-    top = -1;
+    setTop(-1);
   }
 
   final boolean isEmpty() {
@@ -76,7 +74,7 @@ class IntStack {
   /**
    * dynamic array operation: doubles when full
    */
-  private final void expand() {
+  private void expand() {
     final int l = stack.length;
     final int[] newstack = new int[l << 1];
 
@@ -87,7 +85,7 @@ class IntStack {
   /**
   * dynamic array operation: shrinks to 1/2 if more than than 3/4 empty
   */
-  private final void shrink() {
+  private void shrink() {
     int l = stack.length;
     if (l <= MINSIZE || top << 2 >= l)
       return;

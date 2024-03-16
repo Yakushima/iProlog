@@ -9,7 +9,7 @@ final class IMap<K> implements java.io.Serializable {
 
   IMap() {
 	  System.out.println ("IMap created");
-    map = new HashMap<K, IntMap>();
+    map = new HashMap<>();
   }
 
   public final void clear() {
@@ -70,27 +70,27 @@ final class IMap<K> implements java.io.Serializable {
 
   // specialization for array of int maps
 
-  final static IMap<Integer>[] create(final int l) {
-    final IMap<Integer> first = new IMap<Integer>();
+  static IMap<Integer>[] create(final int l) {
+    final IMap<Integer> first = new IMap<>();
     @SuppressWarnings("unchecked")
     final IMap<Integer>[] imaps = (IMap<Integer>[]) java.lang.reflect.Array.newInstance(first.getClass(), l);
     //new IMap[l];
     imaps[0] = first;
     for (int i = 1; i < l; i++) {
-      imaps[i] = new IMap<Integer>();
+      imaps[i] = new IMap<>();
     }
     return imaps;
   }
 
-  final static boolean put(final IMap<Integer>[] imaps, final int pos, final int key, final int val) {
+  static boolean put(final IMap<Integer>[] imaps, final int pos, final int key, final int val) {
 
     return imaps[pos].put(new Integer(key), val);
   }
 
   final int[] get(index Ip, final int[] keys) {
     final int l = Ip.imaps.length;
-    final ArrayList<IntMap> ms = new ArrayList<IntMap>();
-    final ArrayList<IntMap> vms = new ArrayList<IntMap>();
+    final ArrayList<IntMap> ms = new ArrayList<>();
+    final ArrayList<IntMap> vms = new ArrayList<>();
 
     for (int i = 0; i < l; i++) {
       final int key = keys[i];
@@ -125,11 +125,11 @@ final class IMap<K> implements java.io.Serializable {
     return is;
   }
 
-  final static String show(final IMap<Integer>[] imaps) {
+  static String show(final IMap<Integer>[] imaps) {
     return Arrays.toString(imaps);
   }
 
-  final static String show(final int[] is) {
+  static String show(final int[] is) {
     return Arrays.toString(is);
   }
 

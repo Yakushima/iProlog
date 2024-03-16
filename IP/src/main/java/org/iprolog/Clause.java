@@ -27,7 +27,7 @@ public class Clause {
   boolean adding_args = true; // still needed?
 
   static LinkedList<Clause> say_(Clause... args) {
-    LinkedList<Clause> llc = new LinkedList<Clause>();
+    LinkedList<Clause> llc = new LinkedList<>();
     for (Clause c : args) llc.add (c);
     return llc;
   }
@@ -50,7 +50,6 @@ public class Clause {
  
     // Main.println ("   IN Clause.f__: cl.head is <<<" + cl.head + ">>>");
 
-    assert cl.head != null;
     assert cl.head.is_a_compound();
 
     for (Term t : ts) {
@@ -76,7 +75,7 @@ public class Clause {
       head.takes_this(x); // Change to adding to head??
     else {
       if (body == null) body = x;
-      else body = body.append_elt_to_ll(x, body);
+      else body = Term.append_elt_to_ll(x, body);
     }
     return this;
   }

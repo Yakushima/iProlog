@@ -4,7 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4e7fd721-f198-467d-bea4-bb96364d5a56" name="Default" comment="" />
+    <list default="true" id="4e7fd721-f198-467d-bea4-bb96364d5a56" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cpp/iProlog/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/config.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/iprolog/Clause.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/iprolog/Clause.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/iprolog/Engine.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/iprolog/Engine.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/iprolog/IMap.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/iprolog/IMap.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/iprolog/IntList.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/iprolog/IntList.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/iprolog/IntStack.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/iprolog/IntStack.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/iprolog/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/iprolog/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/iprolog/index.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/iprolog/index.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/iprolog/sym_tab.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/iprolog/sym_tab.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

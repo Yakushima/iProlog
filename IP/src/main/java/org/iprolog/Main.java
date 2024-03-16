@@ -50,9 +50,7 @@ public class Main {
 
     pp("CODE");
     P.ppCode();
-    P.
-
-    pp("RUNNING");
+    P.pp("RUNNING");
     final long t1 = System.nanoTime();
 
     final Stream<Object> S = P.stream();

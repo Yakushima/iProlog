@@ -25,13 +25,16 @@ class Engine {
 
 public:
 
+    static Engine* ep;  // inited in unfold, so that Engine::checkit can see it.
+                        // (Can't init this in Engine ctor)
+
     Spine* query = nullptr;
     int base;
 
     vector<Clause> clauses;     // "Trimmed-down clauses ready to be quickly relocated
                                 //  to the heap" [Engine.java]
                                 // [Not clear what "trimmed-down" means.]
-    vector<int> clause_list; // if no indexing, contains [0..clauses.length-1]
+    vector<ClauseIndex> clause_list; // if no indexing, contains [0..clauses.length-1]
 
     // "Symbol table - made of map (syms) + reverse map from
     //  ints to syms (slist)" [Engine.java]
@@ -51,8 +54,9 @@ public:
  */
     Engine(CellStack&       heap_0,
            vector<Clause>&  clauses_0,
-           sym_tab&         sym_0)
-		                    : heap(heap_0), clauses(clauses_0), symTab(sym_0) {
+           sym_tab&         sym_0,
+           index *Ip        )
+		                    : heap(heap_0), clauses(clauses_0), symTab(sym_0), Ip(Ip) {
 
 	    if (clauses.size() == 0) {
 		    throw logic_error(cstr("clauses: none"));
@@ -70,10 +74,15 @@ public:
 // should try heap-as-class (maybe subclassed from CellStack)
 // to see whether there's a performance penalty
 
-    inline cell   cell_at(int i) const      { return heap.get(i);       }
-    inline void   set_cell(int i, cell v)   { heap.set(i,v);            }
-    inline cell   getRef(cell x)  const     { return cell_at(x.arg());  }
-    inline void   setRef(cell w, cell r)    { set_cell(w.arg(), r);     }
+    static inline cell cell_at(CellStack& h, int i) { return h.get(i);              }
+           inline cell cell_at(int i) const         { return heap.get(i);           }
+
+           inline void set_cell(int i, cell v)      { heap.set(i,v);                }
+
+    static inline cell getRef(CellStack& h, cell x) { return cell_at(h, x.arg());   }
+           inline cell getRef(cell x)  const        { return cell_at(x.arg());      }
+
+           inline void   setRef(cell w, cell r)     { set_cell(w.arg(), r);         }
 
 protected:    CellStack unify_stack;
 
@@ -108,10 +117,25 @@ public:
         return x.as_int() == r.as_int();   // if rel addressing, check if var and arg is zero
     }
 
+    static inline bool isVarLoc_(CellStack& h, cell x) {
+        cell r = getRef(h,x);
+        return x.as_int() == r.as_int();   // if rel addressing, check if var and arg is zero
+    }
+
     inline cell deref(cell x) const {
         while (x.is_var()) {
             cell r = getRef(x);
             if (isVarLoc_(x))
+                break;
+            x = r;
+        }
+        return x;
+    }
+
+    static inline cell deref(CellStack &h, cell x) {
+        while (x.is_var()) {
+            cell r = getRef(h,x);
+            if (isVarLoc_(h,x))
                 break;
             x = r;
         }
@@ -135,7 +159,7 @@ protected:
 
     Spine* unfold(Spine *G);
 
-    vector<int> toNums(vector<Clause> clauses);
+    vector<ClauseIndex> toNums(vector<Clause> clauses);
 
     Clause getQuery();
     Spine* init();

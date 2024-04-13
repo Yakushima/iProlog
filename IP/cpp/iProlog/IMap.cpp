@@ -10,32 +10,109 @@
 
 namespace iProlog {
 
-  bool IMap::put(const Integer* cl_no_p, int dref) {
-      int b = phash(cl_no_p);
-      clause_no_to_int* cl_2_dref = map[b].cl_2_dref;
+    using namespace std;
 
-      if (nullptr == cl_2_dref) {
-          cl_2_dref = new clause_no_to_int();
-          map[b] = bucket(cl_no_p, cl_2_dref);
+  bool IMap::put(Integer *cls_no_box, cell this_cell) {
+#define TR if(1)
+      // assert(map.size() > 0);
+      assert(cls_no_box != nullptr);
+      TR cout << "      IMap::put(cls_no_box->i=" << cls_no_box->as_int() << ", this_cell=" << this_cell.as_int() << ")" << endl;
+      Integer* cell_box = new Integer(this_cell);
+#ifndef UOMAP
+      int b = phash(cell_box);
+#endif
+      TR cout << "      In IMap::put(" << cls_no_box->as_int() << ", cls_no=" << this_cell.as_int() << ")" << endl;
+#ifndef UOMAP
+      if (map[b].uninit()) {
+          // TR cout << "         In IMap::put making bucket ..." << endl;
+          map[b] = bucket(cell_box, cls_no_to_cell());
+          assert(!map[b].uninit());
+          assert(map[b].cell_box != nullptr);
+          assert(map[b].cell_box == cell_box);
+          // TR cout << "==== new IMap entry with intmap size=" << map[b].cls_no_2_cell.size() << endl;
+          // TR cout << "         In IMap::put bucket["<<b<<"] init done, result: " << map[b].show() << endl;
       }
-      return cl_2_dref->add(dref);
+#endif
+      // TR cout << "      In IMap::put, about to insert intmap key as this_cell " << cell_box->as_int() << endl;
+#ifndef UOMAP
+      bool res = map[b].cls_no_2_cell.add_key(cls_no_box->as_int());
+#else
+      cell c = cell_box->as_int();
+
+      cout << "        map.size() == "<< map.size() << endl;
+
+      TRY{
+        if (map.count(c) == 0) {
+            cell c = cell_box->as_int();
+            cls_no_to_cell c2c;
+            map.insert(std::pair<cell, cls_no_to_cell>(c, c2c));
+            cout << "           map.at(" << c.as_int() << ")=" << map.at(c).show() << endl;
+        }
+      } CATCH("Was trying to make new map")
+
+      bool res;
+      TRY{
+        res = map.at(c).add_key(cls_no_box->as_int());
+      } CATCH("Was trying to add key to map")
+
+#endif
+
+#ifndef UOMAP
+      // TR cout << "      In IMap::put: rslt after insert for key=cell " << cell_box->as_int() << ": " << map[b].cls_no_2_cell.show() << endl;
+      // TR cout << "    ... returning from IMap::put(...)" << endl;
+      // TR cout << "    ... with map[" << b << "]=" << map[b].show() << endl;
+      assert(!map[b].uninit());
+#endif
+      TR cout << "      IMap::put(...): returning with get_cell_to_cls_no result " << get_cls_no_to_cell(cell_box).show() << endl;
+
+      return res;
+#undef TR
   }
 
-  clause_no_to_int* IMap::get(const Integer* cl_no_p) const {
-      IntMap<ClauseNumber,int>*s = map[phash(cl_no_p)].cl_2_dref;
-      if (s == nullptr)
-	        s = new clause_no_to_int();
-      return s;
+  cls_no_to_cell IMap::get_cls_no_to_cell(Integer* cell_box) {
+#define TR if(0)
+      assert(cell_box != nullptr);
+#ifndef UOMAP
+      int b = phash(cell_box);
+#endif
+      TR cout << "         **** get_clause_no_to_cell(ip->i=" << cell_box->as_int() << ")"  << endl;
+#ifndef UOMAP
+      if (!map[b].uninit()) {
+          TR cout << "          ***** Got init'ed bucket, with map[" << b << "] intmap: " << map[b].cls_no_2_cell.show() << endl;
+      }
+
+      TRY{ if (map[b].uninit()) {
+                // TR cout << "          Making new cls_no_to_cell to go into map[" << b << "]" << endl;
+                cls_no_to_cell the_intmap = cls_no_to_cell();
+                // TR cout << "          Made blank intmap" << endl;
+                bucket xb = bucket(cell_box, the_intmap);
+                // TR cout << "          Made bucket with it using cell_box->i" << cell_box->as_int() << endl;
+                map[b] = xb;
+                // TR cout << "          assigned to map[" << b << "]" << endl;
+                assert(!map[b].uninit());
+           }
+      } CATCH("    IMap::get - exception on map[b].uninit() test or s = cl_no_to_cell constructor - ")
+#endif
+
+#ifndef UOMAP
+      TR cout << "         ***** get_cls_no_to_cell: result map[" << b << "] intmap:" << map[b].cls_no_2_cell.show() << endl;
+      return map[b].cls_no_2_cell;
+#else
+      return map.at(cell_box->as_int());
+#endif
+#undef TR
   }
 
+#ifndef UOMAP
   // N.B.: O(n)
-  size_t IMap::size() {
+  size_t IMap::amount() const {
     size_t s = 0;
     for (bucket b : map) {
-        s += b.cl_2_dref->size();
+        s += b.cls_no_2_cell.size();
     }
     return s;
   }
+#endif
 
 #if 0
   set<Integer *> IMap::keySet() {
@@ -54,40 +131,54 @@ namespace iProlog {
 
   // "specialization for array of int maps"
 
-  vector<IMap*> IMap::create(int l) {
-      IMap *first = new IMap();
-      vector<IMap*> imaps = vector<IMap*>(l);
+
+  vector<IMap> IMap::create(int l) {
+      IMap first;
+      vector<IMap> imaps = vector<IMap>(l);
       imaps[0] = first;
       for (int i = 1; i < l; i++)
-          imaps[i] = new IMap;
+          imaps[i] = IMap();
       return imaps;
   }
 
+#ifndef UOMAP
   string IMap::show(const bucket &b) {
     string s = "@";
     return s;
   }
+#endif
 
-  string IMap::show() {
-    string s = "{";
+  string IMap::show() const {
+    string s = "IMap:{";
+#ifndef UOMAP
     string sep = "";
     for (int i = 0; i < (int) map.size(); ++i) {
+        if (map[i].uninit())
+            continue;
 	    s += sep;
-	    sep = ",";
-	    s += show(map[i]);
+	    sep = ", ";
+	    s += map[i].show();
     }
+#else
+    for (const std::pair<const cell, cls_no_to_cell>& n : map) {
+        s += "<k:[" + to_string(n.first.as_int());
+        s += "-> v[" + n.second.show();
+        s += ">";
+    }
+#endif
     s += "}";
     return s;
   }
 
-  string IMap::show(const vector<IMap*> &imaps) {
+  string IMap::show(const vector<IMap> &imaps) {
     // return Arrays.toString(imaps); // Java
+      size_t sz = imaps.size();
     string s = "[";
     string sep = "";
-    for (int i = 0; i < imaps.size(); ++i) {
+    for (size_t i = 0; i < sz; ++i) {
 	    s += sep;
 	    sep = ",";
-	    s += imaps[i]->show();
+	    s += imaps[i].show();
     }
     s += "]";
     return s;

@@ -9,12 +9,21 @@
 
 namespace iProlog {
 	template <class int_type> class Inty {
+	private:
 		int_type i;
 	public:
-		inline int as_int() const				{ return i;					}
-		inline int set(int x)					{ i = x;  return i;			}
-		inline bool operator == (Inty x) const  { return i == x.as_int();   }
-		inline bool operator != (Inty x) const  { return i != x.as_int();   }
+
+		inline Inty<int_type>() { i = 0; }
+		Inty<int_type>(int_type x) : Inty<int_type>() { i = x; }
+
+		inline int_type as_int() const { return i; }
+		inline bool operator == (Inty x) const { return i == x.as_int(); }
+		inline bool operator != (Inty x) const { return i != x.as_int(); }
+		inline Inty<int_type> dec() { return Inty<int_type>(i - 1); }
+		// inline Inty<int_type>& operator =(const Inty<int_type>& x) { i = x.as_int(); return *this;  }
+		inline void operator =(const Inty<int_type>& x) { i = x.as_int();  }
+		bool operator<(const Inty<int_type>& x) const { return i < x.as_int(); }
+		bool operator>(const Inty<int_type>& x) const { return i > x.as_int(); }
 	};
 
 } // namespace

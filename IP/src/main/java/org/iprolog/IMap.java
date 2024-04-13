@@ -5,7 +5,7 @@ import java.util.*;
 final class IMap<K> implements java.io.Serializable {
   private static final long serialVersionUID = 1L;
 
-  private final HashMap<K, IntMap> map;
+  public final HashMap<K, IntMap> map;
 
   IMap() {
 	  System.out.println ("IMap created");
@@ -16,6 +16,9 @@ final class IMap<K> implements java.io.Serializable {
     map.clear();
   }
 
+  // In the Java code, this is called with key an int,
+  // but it apparently gets boxed (a new Integer)
+  // when passed.
   final boolean put(final K key, final int val) {
     IntMap vals = map.get(key);
     if (null == vals) {
@@ -30,6 +33,7 @@ final class IMap<K> implements java.io.Serializable {
     if (null == s) {
       s = new IntMap();
     }
+    // Main.pp("------- IMap.get(" + key + ") =" + s.toString());
     return s;
   }
 
@@ -123,6 +127,20 @@ final class IMap<K> implements java.io.Serializable {
     }
     java.util.Arrays.sort(is);
     return is;
+  }
+
+  String show() {
+    String s = "";
+    Set<Map.Entry<K,IntMap>> S = map.entrySet();
+    for (Map.Entry<K,IntMap> me: S) {
+      s += "      <<< ";
+      s += "key: " + me.getKey() + " ";
+      IntMap v = me.getValue();
+      s += "val: " + v;
+
+      s += " >>>\n";
+    }
+    return s;
   }
 
   static String show(final IMap<Integer>[] imaps) {

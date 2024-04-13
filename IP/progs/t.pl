@@ -1,4 +1,5 @@
 good(Person) :- nice(Person).
-nice(me).
 nice(you).
+nice(her).
+nice(him).
 goal(P) :- good(P).

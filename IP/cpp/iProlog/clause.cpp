@@ -15,6 +15,7 @@ namespace iProlog {
 
     Clause::Clause(int len_0, vector<cell> skeleton_0, int base_0, int neck_0, t_index_vector iv) {
         skeleton = skeleton_0;
+        assert(skeleton.size() > 0);
         base = base_0;
         len = len_0;
         neck = neck_0;
@@ -23,6 +24,7 @@ namespace iProlog {
 
     Clause::Clause(int len_0, vector<cell> skeleton_0, int base_0, int neck_0) {
         skeleton = skeleton_0;
+        assert(skeleton.size() > 0);
         base = base_0;
         len = len_0;
         neck = neck_0;

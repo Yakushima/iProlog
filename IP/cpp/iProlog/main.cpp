@@ -99,9 +99,11 @@ cell encode(int t, const string s) {
         w = stoi(s);
     }
     catch (const std::invalid_argument& e) {
-        if (t == cell::C_)
-            w = int(sym.addSym(s).as_int());
-        else {
+        if (t == cell::C_) {
+            Integer* I = sym.addSym(s);
+            w = I->as_int();
+        }
+    else {
             cstr err = string("bad number form in encode=") + t + ":" + s + ", [" + e.what() + "]";
             throw logic_error(err);
         }
@@ -334,24 +336,28 @@ vector<Clause> dload(const cstr s) {
             cerr << "Must supply name of a program in directory " << test_directory << endl;
             exit(-1);
         }
+
         try {
             string fname;
-            bool print_ans;
+            bool print_ans = true;
 
             fname = argv[1];
-            print_ans = argc == 3 ? string(argv[2]) == "true" : false;
+            // print_ans = argc == 3 ? string(argv[2]) == "true" : false;
 
             string pl_nl = test_directory + fname + ".nl";
 
             cout << "==============================================================" << endl;
 
-	    string source = file2string(pl_nl);
-	    vector<Clause> clauses = dload(source);
+            cell bad = cell::BAD;
+            cls_no_to_cell::init(ClauseNumber(0).as_int(), bad.as_int());
 
-	    Prog *p = new Prog(heap,clauses,sym); // any index-building done there
+	        string source = file2string(pl_nl);
+	        vector<Clause> clauses = dload(source);
 
-if(indexing)
-	    cout << p->showIMaps() << endl;
+            Prog* p = new Prog(heap, clauses, sym, nullptr); // any index-building done there
+
+            if (indexing)
+                cout << p->show_index() << endl;
 
             p->ppCode();
 
@@ -382,9 +388,74 @@ cout << "---------------------------------------" << endl;
         return 0;
     }
 
+    void test_IntMap() {
+        IntMap im;
+        cout << endl << "************** test_IntMap() ***********************************" << endl;
+
+        for (int i = 0; i < 1000; ++i) {
+            im.add_key(i);
+            im.put(i, i + 1);
+            int v = im.get(i);
+            assert(v == i + 1);
+            cout << ".";
+        }
+
+        cout << "************** END test_IntMap() ***********************************" << endl;
+    }
+
+    void test_IMap() {
+#define TR if(1)
+        cout << "************** test_IMap() ***********************************" << endl;
+        IMap x;
+        cell c = cell::tag(cell::V_, 3);
+        ClauseNumber cls_no = 7;
+
+        Integer* cls_no_box = new Integer(cls_no);
+        Integer* cell_box = new Integer(c);
+
+        TR cout << "===== calling x.put(cellbox->i=" << cell_box->as_int() <<", cls_no=" << cls_no_box->as_int() << endl;
+
+        x.put(cls_no_box, c);
+
+        cls_no_to_cell the_intmap = x.get_cls_no_to_cell(cell_box);
+        TR cout << " got intmap, capacity=" << the_intmap.capacity() << endl;
+        TR cout << "the_intmap: " << the_intmap.show() << endl;
+
+        TR cout << "Imap x is now " << x.show() << endl;
+  
+        assert(the_intmap.contains(cls_no_box->as_int()));
+
+        cout << endl << "************** END test_IMap() ***********************************" << endl;
+    }
+
+    Engine* ep = nullptr;
+    void set_engine(void* e) { ep = (Engine *) e;  }
+
+    void checkit_() {
+#define TR if(0)
+        if (!integrity_check) return;
+        cout << "checkit..." << endl;
+        if (indexing) {
+            assert(ep->Ip != nullptr);
+            for (int i = 0; i < ep->clauses.size(); ++i) {
+                TRY{
+                    cell hd = ep->clauses.at(i).skeleton.at(0);
+                    assert(ep->clauses[i].base >= 0);
+                    assert(ep->clauses[i].base < ep->heap.size());
+                } CATCH("blowing up in check it")
+            }
+        }
+#undef TR
+    }
+
 } // end iProlog
 
+
+
 int main(int argc, char* argv[]) {
+    // iProlog::test_IntMap();
+    iProlog::test_IMap();
+
 	return iProlog::do_with(argc, argv);
 }
 

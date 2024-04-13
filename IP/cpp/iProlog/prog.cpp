@@ -30,9 +30,8 @@ namespace iProlog {
         return O.toString();
     }
 
-    string Prog::showIMaps() const {
-       cout << "INDEX" << endl;
-       return IMap::show(Ip->imaps);
+    string Prog::show_index() const {
+        return Ip->show_index();
     }
 
 Object Prog::exportTerm(cell x) const {
@@ -93,7 +92,7 @@ Object Prog::exportTerm(cell x) const {
 		pp("pp(syms):");
 		cout << "syms.size()=" << syms.syms.size() << endl;
 		for (auto &kv : syms.syms)
-			cout << "   " << kv.first << "," << kv.second.as_int() << endl;
+			cout << "   " << kv.first << "," << kv.second << endl;
 	}
 
         void Prog::ppGoals(const shared_ptr<CellList> bs) const {
@@ -127,18 +126,31 @@ Object Prog::exportTerm(cell x) const {
  * an external representation of symbols, numbers and variables." [HHG doc]
  */
     void Prog::run(bool print_ans) {
+#define TR if(0)
+        TR cout << "Prog::run(print_ans=" << print_ans << ")" << endl;
+
+        set_engine(this);   // for static checkit, usable in other scopes(?)
+        checkit();
+        TR cout << "After first checkit() cal" << endl;
         int ctr = 0;
         for (;; ctr++) {
-            auto A = exportTerm(ask());
-            if (A.type == Object::e_nullptr)
+            cell r = ask();
+            checkit();
+            TR cout << "Prog::run: r=ask()=" << r.as_int() << "; r tag=" << cell::tagSym(r.s_tag()) << " r.arg()=" << r.arg() << endl;
+            auto A = exportTerm(r);
+            if (A.type == Object::e_nullptr) {
+                if (print_ans)
+                    TR cout << "Breaking ask loop with [" << ctr << "] " <<  "*** ANSWER=" <<  showTerm(A) << endl;
                 break;
+            }
             if (print_ans)
-                pp(cstr("[") + ctr + "] " + "*** ANSWER=" + showTerm(A));
+                cout << "[" << ctr << "] " << "*** ANSWER=" << showTerm(A) << endl;
         }
         pp(cstr("TOTAL ANSWERS=") + ctr);
 if(indexing)
         pp(cstr("n_matches=") + Engine::Ip->n_matches);
         pp(cstr("n_alloced=") + CellList::alloced());
+#undef TR
     }
 
     void Prog::ppCode() const {

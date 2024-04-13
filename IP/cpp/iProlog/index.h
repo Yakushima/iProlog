@@ -39,20 +39,16 @@ public:
    * the set of clauses [indicated by clause number]
    * where the indexable element occurs in that argument position."
    */
-    // should be array<IMap*,MAXIND> imaps?
-    vector<IMap*> imaps;
+    vector<IMap> imaps;
 
   /* "The clauses having variables in an indexed argument position are also
    * collected in a separate set for each argument position."
    */
-   // should be array<IMap<>*,MAXIND> var_maps?
-    vector<clause_no_to_int> var_maps;
+    vector<cls_no_to_cell> var_maps;
 
     long n_matches;
 
-    Engine* eng;
-
-    index(Engine *e);
+    index(CellStack &heap, vector<Clause>& clauses);
 
 #define COUNTING_MATCHES
 
@@ -65,28 +61,23 @@ public:
 
     void put(const t_index_vector& iv, ClauseNumber clause_no);
 
-    void makeIndexArgs(Spine *G, cell goal);
+    void makeIndexArgs(CellStack &heap, Spine *G, cell goal);
 
-    // "int" because result i indices into clause array, not ClauseNumbers
-    vector<int> matching_clauses(const vector<ClauseNumber>& unifiables);
+    vector<ClauseIndex> matching_clauses_(t_index_vector& iv);
 
-#ifdef INTY_ON
-    static inline ClauseNumber to_clause_no(int i)       { Inty x; x.set(i + 1); return x;  }
+    static inline ClauseNumber to_clause_no(ClauseIndex i) { ClauseNumber x(i.as_int()+1); return x; }
 
-    static inline bool is_not_cl_no(ClauseNumber cl_no)  { return cl_no.as_int() == 0;      }
-#else
-    static inline ClauseNumber to_clause_no(int i) { return i+1; }
+    static inline bool is_cls_no(ClauseNumber cls_no) { return cls_no.as_int() != 0; }
 
-    static inline bool is_not_cl_no(ClauseNumber cl_no) { return cl_no == 0; }
-#endif
+    static inline ClauseIndex  to_clause_idx(ClauseNumber cl_no) { return cl_no.dec(); }
 
-    static inline int  to_clause_idx(ClauseNumber cl_no) { return cl_no - 1; }
+    t_index_vector getIndexables(CellStack &heap, cell goal);
 
-    t_index_vector getIndexables(cell goal);
-
-    cell cell2index(cell c) const;
+    cell cell2index(CellStack &, cell c) const;
 
     string show(const t_index_vector& iv) const;
+
+    string show_index() const;
 };
 
 } // namespace

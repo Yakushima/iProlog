@@ -80,29 +80,40 @@ namespace iProlog {
         inline void push(cell i) {
             if (++top >= capacity())
                 expand();
-
-            stack[top] = i;
+            TRY{
+                stack[top] = i;
+            } CATCH("Blowing up in push(cell i)")
         }
 
         inline cell pop() {
-            cell r = stack[top--];
+            cell r;
+            TRY{
+                r = stack[top--];
+            } CATCH("Blowing up in pop()")
             shrink();
             return r;
         }
 
         inline cell get(int i) const {
-            return stack[i];
+            TRY{
+                return stack.at(i);
+            } CATCH("Blowing up in get(int i)")
         }
 
         inline void set(int i, cell val) {
-            stack[i] = val;
+            TRY{
+                cell dummy = stack.at(i);
+                stack[i] = val;
+            } CATCH("Blowing up in set(int i, cell val)")
         }
 
         inline CellStack &operator=(CellStack c) {
             if (c.size() > capacity()) abort();
             // memcpy if it ever matters
             for (int i = 0; i < c.size(); ++i)
-                stack[i] = c.stack[i];
+                TRY{
+                    stack[i] = c.stack.at(i);
+                } CATCH ("Blowing up in =")
             top = c.top;
 	        return *this;
         }
@@ -171,8 +182,10 @@ namespace iProlog {
 		    cell::cp_cells(b,srcp,dstp,count);
 	    }
 	    else
-		    for (int i = from; i < upto; i++)
-		        heap.push(heap.get(base + i).relocated_by(b));
+            for (int i = from; i < upto; i++) {
+                checkit();
+                heap.push(heap.get(base + i).relocated_by(b));
+            }
 	}
 
 	/**

@@ -23,17 +23,19 @@ namespace iProlog {
 		void pp(const string s) const;
 		void pp(sym_tab &sym) const;
 		void ppTrail();
-		Prog(CellStack& heap,
-			vector<Clause>& clauses,
-			sym_tab& sym)
-				: Engine(heap, clauses, sym) {
-					if (indexing)
-						Ip = new index(this);
-		};
+		Prog(CellStack& heap_0,
+			vector<Clause>& clauses_0,
+			sym_tab& sym_0,
+			index *Ip_0)
+			: Engine(heap_0, clauses_0, sym_0, Ip_0) {
+
+			if (indexing)
+				Ip = new index(heap_0, clauses_0);
+		}
 
         string showTermCell(cell x) const;
         string showTerm(Object O) const;
-        string showIMaps() const;
+		string show_index() const;
         Object exportTerm(cell c) const;
 
 	private:

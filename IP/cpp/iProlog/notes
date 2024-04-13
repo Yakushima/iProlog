@@ -1,11 +1,27 @@
+fix output so that I don't get "goal(V17)" but the actual answer
+make sure first-bit cell tagging still works
+make sure raw vectors still work
+clean out all the exception handling
+clean out most of the traces
+clean out most of the checkit() calls, maybe leave at beginnings
+fix up IntMap -- go to buckets
+memory leaks, esp Spine stack
+try 16-bit cell ints
+review idea of relative addressing
+look at raw hashmap implementation
+look at how to put spines on heap
+figure out CellList threading
+figure out where to stack unify_list
+make unification not use C++ stack???
+   goal is at most two stacks, growing from
+   a base heap forward, and from the end
+   of available space backward
+external compiled form -- just symtab & "bytecode"
+
+
 Roadmap to iProlog with 4K of RAM, 32K of flash
 
 Goal: "Soft-realtime Natural Language Logic Programming on a Picosatellite"
-
-Bugs: indexing isn't working the same as in the Java code, slowing it
-
-Speedups: go back to spine stack rather than ptr array to Spines because
-	  "new" is eating up cycles
 
 Get relative addressing working
    - besides speedup, may make binary code more compressible
@@ -16,22 +32,16 @@ Put dload et al. in separate C++ class or prog.h/cpp
    - download ASCII opcodes to MSP/CC430
 
 Try to make unfold & unify[_args] "stackless"
-   - stacks needed to be threaded into heap:
+   - stacks that could b threaded into heap:
 	- C++ code stack
 	- ustack
 	- spine stack
+	- CellList
 
 Dispense with indexing, at least at first
    - implement as callbacks, for full orthogonality?
    - custom indexer?
    - how to "heapify" it?
-
-Try compression
-   - probably need new "opcode" to trigger inflate
-   - larger (32K) code space enables dictionary compression
-   - but split of flash/RAM adddress space a problem
-
-Try 16-bit cells
 
 Binary output from compiler
    - endianess perhaps indicated in a header
@@ -46,64 +56,15 @@ Find out whether CC430 can write to its own flash
    - need some control flow analysis to be sure of
      what to dump and how soon to dump it
 
+Try compression
+   - probably need new "opcode" to trigger inflate
+   - larger (32K) code space enables dictionary compression
+   - but split of flash/RAM adddress space a problem
+
+Optimize "deterministic" clauses
+   - maybe extend to threaded code?
+
 ------------------------------------------------------------
-
-vmaps - vector of IntMaps
-   v = "variable" or "value"?
-
-   index(clauses, vmaps):
-    for i 0.. < length of all clauses c
-      put(IMap[] imaps, IntMap[] vmaps, int keys[](=c.xs), int val=i+1)
-                                                          // $$$ UGLY INC
-	clause's xs (int array of deref'd cells--"index vector")
-	for i = 0 to < length of imaps
-	  if key[i] not 0 (0 is "marking variable positions")
-	     put key,val pair in imaps at pos = i
-	       (so i is the clause number=clause index+1?)
-	         IMap::put allocates a new Integer(key) for hash
-		 key is from deref'd cells in head
-		 clauses[val-1] is the clause that has that cell
-	  else ("variable position")
-	     add key,val pair to IntMap at i in vmaps
-	     so "vmaps" is var maps
-	--could all be done with index into clauses + val param
-	 so for each clause, it's
-	    mapping
-	      from 
-	        a unique Integer object
-	          created from the deref'd cell value
-	      to
-	        the clause /number/
-	 (starting at 1, i.e., not to its off-by-1 /index/ in clauses[])
-
-	 "keys":: "the index vector containing dereferenced constants,
-	  numbers or array sizes as extracted from the outermost
-	  term of the head of the clause, with zero values
-	  marking variable positions."
-  iprolog:
-     just passes clauses[i].index_elts and val Int(i+1)
-
-int[] IMap get(int[] keys -- deref'd cells)
-     for i = 0 to < length of imaps (== # of clauses?)
-                                    what if len > len of keys???
-				    maybe this can't happen--
-				    imaps length <= MAXIND?
-        if not a variable cell (key[i] != 0)
-          make an IntMap
-	    with new Integer
-	      based on key=deref'd cell
-	 (I guess this will always make a new IntMap)
-	add it to "ms"
-	add vmaps[i] to "vms"
-     make IntMap vectors ims of ms.size, vims of vms.size
-     initialize IntMaps of ims from ms.get(i)
-     initialize IntMaps of vims from vms.get(i)
-
-     make cs = IMap's intersection of ims and vims
-     from each in cs
-        subtract 1 where (presumably) the $$$ UGLY INC added
-     sort the result
-     return it
 
 cell2index does a getRef -- maybe bad news for the idea
 of relative addressing in heap cells

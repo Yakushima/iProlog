@@ -12,60 +12,106 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include "cell.h"
 #include "index.h"
 #include "IntMap.h"
 #include "Integer.h"
 
+#define UOMAP  // should be in config.h
+
 namespace iProlog {
 
     using namespace std; 
 
-    typedef int ClauseNumber; /* 1 ... clause array size */
-    typedef IntMap<ClauseNumber, int> clause_no_to_int;
+    static const unsigned NBUCKETS_2_exp = 2;
+    static const int NBUCKETS = 1 << NBUCKETS_2_exp;
+    static const int NBUCKETS_mask = NBUCKETS - 1;
+
+    struct CellHash
+    {
+        std::size_t operator()(const cell& s) const noexcept
+        {
+            return NBUCKETS_mask & (s.as_int() ^ (s.as_int() >> 8));
+        }
+    };
+
+
+    // 3rd arg: free_key, 4th no_value
+    // currently cell value is initialized with 666
+    // this could overlap valid cell values
+    typedef IntMap
+#ifdef TEMPL_INTMAP
+        <cell, ClauseNumber>
+#endif
+                    cls_no_to_cell;
 
 class IMap {
-
-        static const unsigned NBUCKETS_2_exp = 4;
+#ifdef UOMAP
+public:
+    unordered_map<cell, cls_no_to_cell, CellHash> map;
+#else
+        static const unsigned NBUCKETS_2_exp = 2;
         static const int NBUCKETS = 1 << NBUCKETS_2_exp;
-        static const int NBUCKETS_mask = NBUCKETS + 1;
+        static const int NBUCKETS_mask = NBUCKETS - 1;
 
-        // Should parameterize this further to avoid sizeof(pointer) = 8
-        // periodicity on 128-bit machines
          static int phash(const Integer *s) {
-             size_t x = (size_t) s;
-             return NBUCKETS_mask  & ((x >> 10) ^ (x >> 2));
+             // size_t x = (size_t) s;
+             // return NBUCKETS_mask  & ((x >> 10) ^ (x >> 2));
+             // cout << "                 phash: s->as_int() =" << s->as_int() << endl;
+             return NBUCKETS_mask & (s->as_int() ^ (s->as_int() >> 8));
          }
 
+         /* I might have this wrong. The IMap bucket should
+         * perhaps contain a list of cell_box / cls_no_to pairs
+         * rather than just being such a pair.
+         */
          struct bucket {
-             const Integer* cl_no_p;             ////// why Integer *?????????????????????????
+             Integer*       cell_box;
+             cls_no_to_cell cls_no_2_cell;
 
-             // IntMap<ClauseNumber, int>* cl_2_dref;
-             clause_no_to_int* cl_2_dref;
+             bucket() : cell_box(nullptr) { cls_no_2_cell = cls_no_to_cell(); }
+             bucket(Integer* ip, cls_no_to_cell im) : cell_box(ip), cls_no_2_cell(im) { }
+             inline bool uninit() const { return cell_box == nullptr;  }
 
-             bucket() { cl_no_p = nullptr; cl_2_dref = nullptr; }
-             bucket(const Integer* cl_no_p, clause_no_to_int* cl_2_dref) : cl_no_p(cl_no_p), cl_2_dref(cl_2_dref) {}
+             string show() const {
+                 string s = "<";
+                 if (cell_box == nullptr)
+                     s += "_";
+                 else
+                     s += to_string(cell_box->as_int());
+                 s += ":" + cls_no_2_cell.show();
+                 s += ">";
+                 return s;
+             }
          };
-     
-         vector<bucket> map;
-public:
-      IMap() {
-            map = vector<bucket>(NBUCKETS);
-            map.clear();
-      }
-      inline void clear() { map.clear(); }
-      bool put(const Integer* cl_no_p, int vec_elt);
-      clause_no_to_int* get(const Integer* cl_no_p) const;
-      static vector<IMap*> create(int l);
-      size_t size();
+         array<bucket, NBUCKETS> map;
+#endif
 
-// refactor out, for micro version, or keep but
-// conditionally compiled for that version:
+public:
+#ifdef UOMAP
+    IMap() {
+        cout << "================ Entered IMap ctor ===============" << endl;
+        map.reserve(NBUCKETS);
+    }
+#endif
+      // static vector<IMap> create(int l);
+
+    static vector<IMap> create(int l);
+
+      bool put(Integer* cls_no_box, cell this_cell);
+      cls_no_to_cell get_cls_no_to_cell(Integer* cellbox);
+      size_t amount() const;
+
+// refactor out in a subclass, for micro version
+// or keep it here, but conditionally compiled for that version:
 
       string toString() const;
-      string show();
-      static string show(const vector<IMap*> &imaps);
+      string show() const;
+      static string show(const vector<IMap> &imaps);
+#ifndef UOMAP
       static string show(const bucket &b);
+#endif
       static string show(const vector<Integer *> is);
 };
 } // end namespace

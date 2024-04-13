@@ -9,6 +9,8 @@
 #include "Inty.h"
 #include <limits.h>
 
+#include <iostream>
+
 // C++ 20 will have machine instructions generated for rotr and rotl
 // which may permit faster tag extract (thus smaller-footprint tag comparison)
 // for the hi-order tag styles.
@@ -21,8 +23,8 @@ namespace iProlog {
 
     public:
 	static const int bitwidth = CHAR_BIT * sizeof(int);
-        cell() { set(0); }
-        cell(int x) { set(x); }
+        cell() : Inty<cell_int>(0) { }
+        cell(int x) : Inty<cell_int>(x) { }
         static inline cell nonval() { return cell(-1); }; // IFFY
 
     // hi_order_tag=1 -> a bit slower on 32-bit, probably because gcc
@@ -30,7 +32,7 @@ namespace iProlog {
     //      comparisons to constants that require more bits
     //      to express.
     //      Eventually try on 16-bit arch
-    static const int use_sign_bit = 0;
+    static const int use_sign_bit = USE_SIGN_BIT;
 
     static const int n_tag_bits = 3;
     static const int n_ref_tags = 3;
@@ -135,6 +137,7 @@ namespace iProlog {
         if (t == C_) return "C";
         if (t == N_) return "N";
         if (t == A_) return "A";
+        if (t == BAD) return "!";
         return "?";
     }
 

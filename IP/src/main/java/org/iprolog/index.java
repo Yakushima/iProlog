@@ -38,47 +38,56 @@ public class index {
         final IMap<Integer>[] imaps = IMap.create(vmaps.length);
         for (int i = 0; i < clauses.length; i++) {
             final Clause c = clauses[i];
-
-            // Prog.println ("C["+i+"]="+c.toString());
-            put(imaps, vmaps, c.index_vector, i + 1); // $$$ UGLY INC
-
+            put(imaps, vmaps, c.index_vector, i + 1); // $$$ UGLY INC - convert to clause no
         }
-        Main.pp("INDEX");
+        Main.pp("INDEX: imaps");
+        Main.pp(show(imaps));
         Main.pp(IMap.show(imaps));
+        Main.pp("INDEX: vmaps");
         Main.pp(Arrays.toString(vmaps));
         Main.pp("");
         return imaps;
     }
 
-    private void put(final IMap<Integer>[] imaps, final IntMap[] vss, final int[] keys, final int val) {
+    private void put(final IMap<Integer>[] imaps, final IntMap[] vss, final int[] index_vec, final int cl_no) {
         for (int i = 0; i < imaps.length; i++) {
-            final int key = keys[i];
-            if (key != 0) {
-                Main.pp("put: keys[" + i + "] -- IMap.put(imaps," + i + "," + key + "," + val + ")");
-                IMap.put(imaps, i, key, val);
+            final int drefd = index_vec[i];
+            if (drefd != 0) {  // != tag(V,0)
+                Main.pp("put: index_vec[" + i + "] -- IMap.put(imaps, drefd=" + i + "," + drefd + "," + cl_no + ")");
+                IMap.put(imaps, i, drefd, cl_no);
             } else {
-                Main.pp("put: keys[" + i + "] -- vss[" + i + "].add(" + val + ")");
-                vss[i].add(val);
+                Main.pp("put: index_vec[" + i + "] -- vss[" + i + "].add(" + cl_no + ")");
+                vss[i].add(cl_no);
             }
         }
     }
 
-    final int[] get(final int[] keys) {
+    final int[] matching_clauses(final int[] iv) {
         final int l = imaps.length;
         final ArrayList<IntMap> ms = new ArrayList<>();
         final ArrayList<IntMap> vms = new ArrayList<>();
 
+        // Main.println ("matching_clauses: entering iv loop");
         for (int i = 0; i < l; i++) {
-            final int key = keys[i];
-            if (0 == key) {
-                continue;
+            // Main.println ("  ["+i+"]="+iv[i]);
+            final int vec_elt = iv[i];
+            if (0 == vec_elt) { // index vectors are null-terminated if < MAXIND
+                continue;       // [MT: but then why the "continue" rather than
+                                // "break"?
             }
-            //Main.pp("i=" + i + " ,key=" + key);
-            final IntMap m = imaps[i].get(new Integer(key));
-            //Main.pp("m=" + m);
+            final IntMap m = imaps[i].get(new Integer(vec_elt));
+            // Main.pp("m=" + m);
             ms.add(m);
             vms.add(vmaps[i]);
         }
+
+        // Main.pp("");
+        // Main.pp ("  matching_clauses: ms[0.." + ms.size() + "]");
+        // for (int i = 0; i < ms.size(); ++i) Main.pp ("    ["+i+"]: "+ms.get(i).toString());
+        // Main.pp ("  matching_clauses: vms[0.." + vms.size() + "]");
+        // for (int i = 0; i < vms.size(); ++i) Main.pp ("    ["+i+"]: "+vms.get(i).toString());
+        // Main.pp("");
+
         final IntMap[] ims = new IntMap[ms.size()];
         final IntMap[] vims = new IntMap[vms.size()];
 
@@ -88,16 +97,29 @@ public class index {
             final IntMap vim = vms.get(i);
             vims[i] = vim;
         }
-
+/*
+        Main.pp("");
+        Main.pp("  matching_clauses: ims[0.." + ims.length + "]");
+        for (int i = 0; i < ims.length; ++i)
+            Main.pp("     [" + i + "]: " + ims[i].toString());
+        Main.pp("  matching_clauses: vims[0.." + vims.length + "]");
+        for (int i = 0; i < vims.length; ++i)
+            Main.pp("     [" + i + "]: " + vims[i].toString());
+        Main.pp("");
+*/
         // Main.pp("-------ims=" + Arrays.toString(ims));
         // Main.pp("-------vims=" + Arrays.toString(vims));
 
         final IntStack cs = IntMap.intersect(ims, vims); // $$$ add vmaps here
         final int[] is = cs.toArray();
         for (int i = 0; i < is.length; i++) {
-            is[i] = is[i] - 1;
+            is[i] = is[i] - 1;  // compensate for "$$$ UGLY INC"-- back to clause index
         }
         java.util.Arrays.sort(is);
+
+        // for (int i = 0; i < is.length; ++i) Main.println ("     is[" + i + "] = " + is[i]);
+
+        // Main.println("matching_clauses: exiting safely");
         return is;
     }
 
@@ -120,5 +142,16 @@ public class index {
         }
         // Prog.println("*** possible match found");
         return true;
+    }
+
+    public static String show(IMap<Integer>[] imaps) {
+        String s = "";
+        s += "IMaps.show():\n";
+        for (int i = 0; i < imaps.length; ++i) {
+            IMap<Integer> im = imaps[i];
+
+            s += "  [" + i + "] = \n" + im.show() + "\n";
+        }
+        return s;
     }
 }

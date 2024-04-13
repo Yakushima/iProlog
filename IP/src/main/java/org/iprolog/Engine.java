@@ -424,11 +424,7 @@ class Engine {
             // for (int i = 0; i < cells.size(); ++i) Prog.println(showCell(cells.get(i)));
             // Prog.println ("refs.size()=" + refs.size());
 
-    final Iterator<IntStack> K = refs.values().iterator();
-
-    while (K.hasNext()) {
-      final IntStack Is = K.next();
-
+    for (IntStack Is : refs.values()) {
       // finding the A among refs
       int leader = -1;
       for (final int j : Is.toArray()) {
@@ -453,7 +449,7 @@ class Engine {
         }
       } else {
 
-                // Prog.println("=============== leader found" + leader);
+        // Prog.println("=============== leader found" + leader);
 
         for (final int i : Is.toArray()) {
           if (i == leader) {
@@ -981,7 +977,7 @@ class Engine {
 
     if (Ip.is_empty())
       return;
-    final int[] cs = Ip.get(index_vector);
+    final int[] cs = Ip.matching_clauses(index_vector);
     G.unifiables = cs;
   }
 
@@ -989,13 +985,13 @@ class Engine {
     final int p = 1 + detag(ref);
     final int n = detag(getRef(ref));
     final int[] index_vector = new int[MAXIND];
-    Main.pp ("getIndexables: n=" + n);
+    Main.pp ("getIndexables: n=" + n + " ref="+ref);
     for (int i = 0; i < MAXIND && i < n; i++) {
       final int cell = deref(heap[p + i]);
-      Main.pp("  getIndexables: c=" + showCell(cell) + " cell2index=" + showCell(cell2index(cell)));
       index_vector[i] = cell2index(cell);
-      Main.pp("getIndexables: index_vector["+i+"] = "+index_vector[i]);
+      Main.pp("  index_vector[" + i + "] for cell c=" + showCell(cell) + " is " + showCell(index_vector[i]));
     }
+    Main.pp("\n");
     return index_vector;
   }
 
@@ -1084,7 +1080,7 @@ class Engine {
       final Clause C0 = clauses[G.unifiables[k]];
 
       // Prog.println ("C0.base=" + C0.base);
-      // Prog.println ("     " + showHeap("heab before pushHead"));
+      // Prog.println ("     " + showHeap("heap before pushHead"));
 
       if (!Ip.possible_match(G.index_vector, C0))
           continue;

@@ -239,7 +239,6 @@ public class Prog extends Engine implements Spliterator<Object> {
       pp(showTerm(IntList.head(bs)));
       bs = IntList.tail(bs);
     }
-
   }
 
   // from Engine

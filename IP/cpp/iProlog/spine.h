@@ -66,7 +66,7 @@ namespace iProlog {
 					 // index elements ("based on regs" [HHG] but no regs)
                      // "int[] regs: dereferenced goal registers" [HHG doc]
                      // Comments in Engine.java suggest that xs is regs
-            unifiables = vector<int>(0);
+            unifiables = vector<ClauseNumber>(0);
         }
 
         /**
@@ -78,7 +78,7 @@ namespace iProlog {
             shared_ptr<CellList> goals_0,        // was gs/goal_stack [Java]
             int trail_top_0,
             int last_clause_tried_0,
-            vector<int> unifiables_0); // was cs [Java]
+            vector<ClauseNumber> unifiables_0); // was cs [Java]
 
         /**
          * "Creates a specialized spine returning an answer 

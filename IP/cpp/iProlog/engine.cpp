@@ -53,6 +53,9 @@ Engine::~Engine() { }
  * clause at the top of the new list of goals, in reverse order"
  */
 Spine* Engine::unfold(Spine *G) {
+#define TR if(0)
+    assert(G != nullptr);
+
     if (CellList::isEmpty(G->goals))
         return nullptr;
 
@@ -60,15 +63,38 @@ Spine* Engine::unfold(Spine *G) {
     int saved_heap_top = heap.getTop();
     int base = saved_heap_top + 1;
     cell goal = CellList::head(G->goals);
-    Ip->makeIndexArgs(G, goal);
+
+    TR cout << "unfold: goal=" << goal.as_int() << " goal.tag= " << goal.s_tag() << " goal.arg = " << goal.arg() << endl;
+    TR cout << "unfold: about to call makeIndexArgs with current G->unifiables[0]=" << G->unifiables[0].as_int() << endl;
+
+    Ip->makeIndexArgs(heap, G, goal);
+
+    if (G->unifiables.size() > 0)
+        TR cout << "unfold: after makeIndexArgs with current G->unifiables[0]=" << G->unifiables[0].as_int() << endl;
+
     size_t last = G->unifiables.size();
 
+    TR cout << "G->last_clause_tried=" << G->last_clause_tried << endl;
     for (int k = G->last_clause_tried; k < last; k++) {
-        Clause& C0 = clauses[G->unifiables[k]];
+        TR cout << "G->unifiables[" << k << "]=" << G->unifiables[k].as_int() << endl;
+
+        Clause& C0 = clauses[G->unifiables[k].as_int()];
+
+        assert(C0.skeleton.size() > 0);
+        TR cout << "xxxx1: " << C0.skeleton.at(0).as_int() << endl;
 
         if (Ip->possible_match(G, C0)) {
+            TR cout << "xxxx2: " << C0.skeleton.at(0).as_int() << endl;
+            TR cout << "xxxx3: " << C0.skeleton.at(0).as_int() << endl;
+
             cell b = cell::tag(cell::V_, base - C0.base);
+
+            TR cout << "xxxx4: " << C0.skeleton.at(0).as_int() << endl;
+            TR cout << "with possible match, base = " << base << " C0.base = " << C0.base << " b.arg()= " << b.arg() << " last=" << last << endl;
+            assert(C0.skeleton.size() > 0);
+
             cell head = pushHeadtoHeap(b, C0);
+ 
             unify_stack.clear();  // "set up unification stack" [Engine.java]
             unify_stack.push(head);
             unify_stack.push(goal);
@@ -88,6 +114,7 @@ Spine* Engine::unfold(Spine *G) {
         }
     }
     return nullptr;
+#undef TR
 }
 
 bool Engine::unify(int base) {
@@ -171,11 +198,13 @@ void Engine::clear() {
 }
 
     //    was iota(clause_list.begin(), clause_list.end(), 0);
-    vector<int> Engine::toNums(vector<Clause> clauses) {
+    vector<ClauseIndex> Engine::toNums(vector<Clause> clauses) {
         int l = (int) clauses.size();
-        vector<int> cls = vector<int>(l);
-        for (int i = 0; i < l; i++) 
-            cls[i] = i;
+        vector<ClauseIndex> cls = vector<ClauseIndex>(l);
+        for (int i = 0; i < l; i++) {
+            ClauseIndex x(i);
+            cls[i] = x;
+        }
         return cls;
     }
 
@@ -235,11 +264,13 @@ bool Engine::hasClauses(const Spine* S) const {
  * an external representation of symbols, numbers and variables." [HHG doc]
  */
 cell Engine::ask() {
+    set_engine(this);   // for static checkit, usable in other scopes(?)
+    checkit();
     query = yield();
     if (nullptr == query)
-	return cell::null();
+	    return cell::null();
 
-    auto ans = answer(query->trail_top);
+    Spine *ans = answer(query->trail_top);
 
     cell res = ans->head;
     unwindTrail(query->trail_top);
@@ -353,10 +384,30 @@ vector<cell> Engine::pushBody(cell b, cell head, const Clause &C) {
  * Copies and relocates the head of clause C from heap to heap.
  */
 cell Engine::pushHeadtoHeap(cell b, const Clause& C) {
+#define TR if(0)
+    TR cout << "push HeadtoHeap entered" << endl;
+    cell head;
+    checkit();
+    assert(C.skeleton.size() > 0);
+    TRY{
+    head = C.skeleton.at(0);
+    } CATCH("pushHeadoHeap botch")
+    TRY{
+    checkit();
     CellStack::pushCells(heap, b, 0, C.neck, C.base);
-    cell head = C.skeleton[0];
+    checkit();
+    } CATCH ("pushcells")
+    assert(C.skeleton.size() > 0);
+
+    TRY{
+        checkit();
+        TR cout << "...checkit: now trying to access C.skeleton[0]..." << endl;
+        head = C.skeleton.at(0);
+    } CATCH("C.skeleton[0] access")
     cell reloc_head = head.relocated_by(b);
     return reloc_head;
+#undef TR
 }
+
 
 } // namespace

@@ -24,5 +24,17 @@ namespace iProlog {
     inline cstr operator+(cstr s, int i) { return s + to_string(i); }
     inline cstr operator+(cstr s, size_t i) { return s + to_string(i); }
     inline cstr operator+(cstr s, long i) { return s + to_string(i); }
+
+#ifdef TRY_CATCHING
+#define TRY try
+#define CATCH(s) catch (exception &e__) { cout<<"!!!"<<s<<": "<<e__.what()<<endl; abort(); }
+#else
+#define TRY
+#define CATCH(S)
+#endif
+
+    void set_engine(void *ep);
+    void checkit();
+
 }
 

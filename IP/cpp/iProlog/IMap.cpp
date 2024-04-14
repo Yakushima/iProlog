@@ -19,22 +19,17 @@ namespace iProlog {
 
       cout << "        map.size() == "<< map.size() << endl;
 
-      TRY{
-        if (map.count(this_cell) == 0) {
-            cls_no_to_cell c2c;
-            map.insert(std::pair<cell, cls_no_to_cell>(this_cell, c2c));
-            cout << "           map.at(" << this_cell.show() << ")=" << map.at(this_cell).show() << endl;
-        }
-      } CATCH("Was trying to make new map")
+    if (map.count(this_cell) == 0) {
+        cls_no_to_cell c2c;
+        map.insert(std::pair<cell, cls_no_to_cell>(this_cell, c2c));
+        cout << "           map.at(" << this_cell.show() << ")=" << map.at(this_cell).show() << endl;
+    }
 
-      bool res;
-      TRY{
-        res = map.at(this_cell).add_key(cls_no.as_int());
-      } CATCH("Was trying to add key to map")
+    bool res = map.at(this_cell).add_key(cls_no.as_int());
 
       TR cout << "      IMap::put(...): returning with get_cell_to_cls_no result " << get_cls_no_to_cell(this_cell).show() << endl;
 
-      return res;
+    return res;
 #undef TR
   }
 

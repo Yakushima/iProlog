@@ -60,11 +60,9 @@ namespace iProlog {
 #define TR if(0)
 		for (int i = 0; i < clauses.size(); ++i) {
 			TR cout << "index constr: i=" << i << endl;
-			TRY{
 				cell hd = clauses.at(i).skeleton.at(0);
-				TR cout << "clauses[" << i << "].base = " << clauses[i].base << endl;
+			TR cout << "clauses[" << i << "].base = " << clauses[i].base << endl;
 				clauses[i].index_vector = getIndexables(heap, hd);
-			} CATCH("Blowing up in inex(heap, clauses init phase 1")
 		}
 
 	  // was vcreate in Java version:
@@ -245,7 +243,6 @@ namespace iProlog {
 		TR cout << "intersect0(m.size()=" << m.size() << ", maps.size()=" << maps.size()
 			<< ", vmaps.size()=" << vmaps.size() << ", cls_nos.size()=" << cls_nos.size() << ")" << endl;
 
-		TRY {
 			for (int k = 0; k < m.capacity(); k += m.stride()) {
 				if (m.is_free(k))
 					continue;
@@ -276,7 +273,6 @@ namespace iProlog {
 					cls_nos.push_back(cn);
 				}
 			}
-		} CATCH("exception caught in intersect0()")
 #undef TR
 	}
 
@@ -308,7 +304,6 @@ namespace iProlog {
 				continue;
 			}
 			else {
-				TRY{
 				  TR cout << "imaps.at(" << i << ")=" << imaps.at(i).show() << " i=" << i << endl;
 				  TR cout << " in imaps[" << i <<"], count for vec elt " << iv[i].as_int() << " is " << imaps[i].map.count(iv[i]) << endl;
 					cls_no_to_cell m = imaps[i].map[iv[i]];  // get_cls_no_to_cell(ip);
@@ -316,7 +311,6 @@ namespace iProlog {
 					ms.emplace_back(m);  // ms will start empty
 					vms.emplace_back(var_maps.at(i));
 				  TR cout << "  matching_clauses() iv loop: imaps[" << i << "] pushing " << endl;
-				} CATCH("Blowing up in pushing to ms & vsms")
 			}
 		TR cout << " matching_clauses: exited iv loop, ms.size()=" << ms.size() << " vms.size()=" << vms.size() << endl;
 
@@ -340,9 +334,6 @@ namespace iProlog {
 		}
 		vector<ClauseNumber> cs; // "$$$ add vmaps here"
 		// cs: receives the clause numbers:
-		TRY{
-
-		assert(cs.size() == 0);
 
 		// was IntMap.java intersect, expanded here:
 
@@ -350,7 +341,7 @@ namespace iProlog {
 			for (int i = 0; i < ims.size(); ++i) TR cout << "   [" << i << "]: " << ims[i].show() << endl;
 			TR cout << "  vims: " << endl;
 			for (int i = 0; i < vims.size(); ++i) TR cout << "   [" << i << "]: " << vims[i].show() << endl;
-		} CATCH("!!!! in ims/vms readout: ")
+
 			TR cout << "intersect0(ims[0], ims, vims, cs)" << endl;
 			intersect0(ims[0], ims, vims, cs);
 			TR cout << "&&&& after first intersect0, r=[";

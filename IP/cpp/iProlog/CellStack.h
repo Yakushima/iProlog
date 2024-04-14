@@ -184,7 +184,12 @@ namespace iProlog {
 	    else
             for (int i = from; i < upto; i++) {
                 checkit();
+                cout << "pushCells: heap.get(" << base + i << ")."
+                    << "relocated_by(" << b.show() << ")="
+                    << heap.get(base + i).relocated_by(b).show()
+                    << endl;
                 heap.push(heap.get(base + i).relocated_by(b));
+
             }
 	}
 

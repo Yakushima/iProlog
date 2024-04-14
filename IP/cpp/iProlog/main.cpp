@@ -100,8 +100,7 @@ cell encode(int t, const string s) {
     }
     catch (const std::invalid_argument& e) {
         if (t == cell::C_) {
-            Integer* I = sym.addSym(s);
-            w = I->as_int();
+            w = sym.addSym(s);
         }
     else {
             cstr err = string("bad number form in encode=") + t + ":" + s + ", [" + e.what() + "]";
@@ -410,22 +409,20 @@ cout << "---------------------------------------" << endl;
         cell c = cell::tag(cell::V_, 3);
         ClauseNumber cls_no = 7;
 
-        Integer* cls_no_box = new Integer(cls_no);
-        Integer* cell_box = new Integer(c);
+        TR cout << "===== calling x.put(cls_no_box=" << cls_no.as_int() <<", cell=" << c.show() << endl;
 
-        TR cout << "===== calling x.put(cellbox->i=" << cell_box->as_int() <<", cls_no=" << cls_no_box->as_int() << endl;
+        x.put(cls_no, c);
 
-        x.put(cls_no_box, c);
-
-        cls_no_to_cell the_intmap = x.get_cls_no_to_cell(cell_box);
+        cls_no_to_cell the_intmap = x.get_cls_no_to_cell(c);
         TR cout << " got intmap, capacity=" << the_intmap.capacity() << endl;
         TR cout << "the_intmap: " << the_intmap.show() << endl;
 
         TR cout << "Imap x is now " << x.show() << endl;
   
-        assert(the_intmap.contains(cls_no_box->as_int()));
+        assert(the_intmap.contains(cls_no.as_int()));
 
         cout << endl << "************** END test_IMap() ***********************************" << endl;
+#undef TR
     }
 
     Engine* ep = nullptr;

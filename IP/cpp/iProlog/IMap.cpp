@@ -12,16 +12,16 @@ namespace iProlog {
 
     using namespace std;
 
-  bool IMap::put(Integer *cls_no_box, cell this_cell) {
+  bool IMap::put(ClauseNumber cls_no, cell this_cell) {
 #define TR if(1)
       // assert(map.size() > 0);
-      assert(cls_no_box != nullptr);
-      TR cout << "      IMap::put(cls_no_box->i=" << cls_no_box->as_int() << ", this_cell=" << this_cell.as_int() << ")" << endl;
-      Integer* cell_box = new Integer(this_cell);
+
+      TR cout << "      IMap::put(cls_no_box->i=" << cls_no.as_int() << ", this_cell=" << this_cell.show() << ")" << endl;
+
 #ifndef UOMAP
       int b = phash(cell_box);
 #endif
-      TR cout << "      In IMap::put(" << cls_no_box->as_int() << ", cls_no=" << this_cell.as_int() << ")" << endl;
+      TR cout << "      In IMap::put(" << cls_no.as_int() << ", this_cell=" << this_cell.show() << ")" << endl;
 #ifndef UOMAP
       if (map[b].uninit()) {
           // TR cout << "         In IMap::put making bucket ..." << endl;
@@ -33,49 +33,47 @@ namespace iProlog {
           // TR cout << "         In IMap::put bucket["<<b<<"] init done, result: " << map[b].show() << endl;
       }
 #endif
-      // TR cout << "      In IMap::put, about to insert intmap key as this_cell " << cell_box->as_int() << endl;
+      // TR cout << "      In IMap::put, about to insert intmap key as this_cell " << cls_no_box->as_int() << endl;
 #ifndef UOMAP
       bool res = map[b].cls_no_2_cell.add_key(cls_no_box->as_int());
 #else
-      cell c = cell_box->as_int();
 
       cout << "        map.size() == "<< map.size() << endl;
 
       TRY{
-        if (map.count(c) == 0) {
-            cell c = cell_box->as_int();
+        if (map.count(this_cell) == 0) {
             cls_no_to_cell c2c;
-            map.insert(std::pair<cell, cls_no_to_cell>(c, c2c));
-            cout << "           map.at(" << c.as_int() << ")=" << map.at(c).show() << endl;
+            map.insert(std::pair<cell, cls_no_to_cell>(this_cell, c2c));
+            cout << "           map.at(" << this_cell.show() << ")=" << map.at(this_cell).show() << endl;
         }
       } CATCH("Was trying to make new map")
 
       bool res;
       TRY{
-        res = map.at(c).add_key(cls_no_box->as_int());
+        res = map.at(this_cell).add_key(cls_no.as_int());
       } CATCH("Was trying to add key to map")
 
 #endif
 
 #ifndef UOMAP
-      // TR cout << "      In IMap::put: rslt after insert for key=cell " << cell_box->as_int() << ": " << map[b].cls_no_2_cell.show() << endl;
+      // TR cout << "      In IMap::put: rslt after insert for key=cell " << cell_box->show << ": " << map[b].cls_no_2_cell.show() << endl;
       // TR cout << "    ... returning from IMap::put(...)" << endl;
       // TR cout << "    ... with map[" << b << "]=" << map[b].show() << endl;
       assert(!map[b].uninit());
 #endif
-      TR cout << "      IMap::put(...): returning with get_cell_to_cls_no result " << get_cls_no_to_cell(cell_box).show() << endl;
+      TR cout << "      IMap::put(...): returning with get_cell_to_cls_no result " << get_cls_no_to_cell(this_cell).show() << endl;
 
       return res;
 #undef TR
   }
 
-  cls_no_to_cell IMap::get_cls_no_to_cell(Integer* cell_box) {
+  cls_no_to_cell IMap::get_cls_no_to_cell(cell cx) {
 #define TR if(0)
-      assert(cell_box != nullptr);
+
 #ifndef UOMAP
       int b = phash(cell_box);
 #endif
-      TR cout << "         **** get_clause_no_to_cell(ip->i=" << cell_box->as_int() << ")"  << endl;
+      TR cout << "         **** get_clause_no_to_cell(cx=" << cx.show() << ")"  << endl;
 #ifndef UOMAP
       if (!map[b].uninit()) {
           TR cout << "          ***** Got init'ed bucket, with map[" << b << "] intmap: " << map[b].cls_no_2_cell.show() << endl;
@@ -98,7 +96,7 @@ namespace iProlog {
       TR cout << "         ***** get_cls_no_to_cell: result map[" << b << "] intmap:" << map[b].cls_no_2_cell.show() << endl;
       return map[b].cls_no_2_cell;
 #else
-      return map.at(cell_box->as_int());
+      return map.at(cx);
 #endif
 #undef TR
   }
@@ -184,7 +182,7 @@ namespace iProlog {
     return s;
   }
 
-  string IMap::show(vector<Integer *> is) {
+  string IMap::show(vector<int> is) {
       string s = "{";
       for (int i = 0; i < is.size(); ++i)
           s += "<stub>";

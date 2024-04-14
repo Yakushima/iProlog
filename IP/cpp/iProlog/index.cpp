@@ -166,11 +166,10 @@ namespace iProlog {
 				// INDEX PARTLY FAILED BEFORE WHEN CELL SIGN BIT ON
 				// Probably because 0 is tag(V_,0) with sign bit off
 
-				// "new Integer" only to randomize hash table placement
 				TR cout << "    about to call imaps[" << arg_pos << "]->put(new Integer("
 					<< cls_no.as_int() << "),  vec_elt=" << vec_elt.as_int() << " )" << endl;
-				Integer* ip = new Integer(cls_no);
-				imaps[arg_pos].put(ip, vec_elt);
+
+				imaps[arg_pos].put(cls_no, vec_elt);
 			}
 			else { // this can include vec_elt == cell::BAD case, but maybe that's OK
 				/* "If [var_maps[arg_pos]] denotes the set of clauses
@@ -319,10 +318,9 @@ namespace iProlog {
 			}
 			else {
 				TRY{
-					Integer * ip = new Integer(iv[i]);
-				  TR cout << "imaps.at(" << i << ")=" << imaps.at(i).show() << " i=" << i << " ip = " << ip->as_int() << endl;
+				  TR cout << "imaps.at(" << i << ")=" << imaps.at(i).show() << " i=" << i << endl;
 				  TR cout << " in imaps[" << i <<"], count for vec elt " << iv[i].as_int() << " is " << imaps[i].map.count(iv[i]) << endl;
-					cls_no_to_cell m = imaps[i].map[ip->as_int()];  // get_cls_no_to_cell(ip);
+					cls_no_to_cell m = imaps[i].map[iv[i]];  // get_cls_no_to_cell(ip);
 				  TR cout << "  m=" << m.show() << endl;
 					ms.emplace_back(m);  // ms will start empty
 					vms.emplace_back(var_maps.at(i));

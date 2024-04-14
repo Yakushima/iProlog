@@ -141,6 +141,13 @@ namespace iProlog {
         return "?";
     }
 
+    string show() {
+        string s = tagSym(s_tag());
+        s += ":";
+        s += to_string(arg());
+        return s;
+    }
+
   };
 
 } /* end namespace*/

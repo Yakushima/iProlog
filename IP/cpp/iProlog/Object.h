@@ -3,7 +3,6 @@
 #include <vector>
 #include <string>
 #include "defs.h"
-#include "Integer.h"
 
 namespace iProlog {
 
@@ -11,13 +10,13 @@ namespace iProlog {
 
         struct Object {
             enum { e_nullptr, e_integer, e_string, e_vector } type;
-            Integer i;
+            int i;
             string s;
             vector<Object> v;
 
             Object() : type(e_nullptr), i(0), s("") {}
 
-            Integer& operator =(const Integer j) { i = j; type = e_integer; return i; }
+            int& operator =(const int j) { i = j; type = e_integer; return i; }
             explicit Object(int i) : type(e_integer), i(i) {}
 
             string& operator =(const string s_new) { type = e_string, s = s_new; return s; }

@@ -122,6 +122,8 @@ bool Engine::unify(int base) {
         cell x1 = deref(unify_stack.pop());
         cell x2 = deref(unify_stack.pop());
 
+        // cout << "unify: x1=" << x1.as_int() << ",x2=" << x2.as_int() << endl;
+
         if (x1.as_int() != x2.as_int()) {
             int t1 = x1.s_tag();
             int t2 = x2.s_tag();
@@ -154,6 +156,7 @@ bool Engine::unify(int base) {
             }
         }
     }
+    // cout << "unify succeeded" << endl;
     return true;
 }
 
@@ -374,8 +377,10 @@ vector<cell> Engine::pushBody(cell b, cell head, const Clause &C) {
     if (is_raw)
 	    cell::cp_cells (b, C.skeleton.data()+1, goals.data()+1, l-1);
     else
-        for (int k = 1; k < l; k++)
+        for (int k = 1; k < l; k++) {
             goals[k] = C.skeleton[k].relocated_by(b);
+            cout << "pushBody: goals[" << k << "]=" << goals[k].as_int() << endl;
+        }
     return goals;
 }
 
@@ -391,7 +396,7 @@ cell Engine::pushHeadtoHeap(cell b, const Clause& C) {
     assert(C.skeleton.size() > 0);
     TRY{
     head = C.skeleton.at(0);
-    } CATCH("pushHeadoHeap botch")
+    } CATCH("pushHeadtoHeap botch")
     TRY{
     checkit();
     CellStack::pushCells(heap, b, 0, C.neck, C.base);

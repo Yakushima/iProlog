@@ -40,11 +40,12 @@ Object Prog::exportTerm(cell x) const {
 	    return Object();
 
     x = deref(x);
+    cout << "exportTerm: x=" << x.show() << endl;
     int w = x.arg();
 
     switch (x.s_tag()) {
     case cell::C_: return Object(symTab.getSym(w));
-    case cell::N_: return Object(Integer(w));
+    case cell::N_: return Object(w);
     case cell::V_: return Object(cstr("V") + w);
         /*case U_:*/
     case cell::R_: {

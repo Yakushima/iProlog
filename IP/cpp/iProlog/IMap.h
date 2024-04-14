@@ -16,7 +16,6 @@
 #include "cell.h"
 #include "index.h"
 #include "IntMap.h"
-#include "Integer.h"
 
 #define UOMAP  // should be in config.h
 
@@ -91,7 +90,6 @@ public:
 public:
 #ifdef UOMAP
     IMap() {
-        cout << "================ Entered IMap ctor ===============" << endl;
         map.reserve(NBUCKETS);
     }
 #endif
@@ -99,8 +97,8 @@ public:
 
     static vector<IMap> create(int l);
 
-      bool put(Integer* cls_no_box, cell this_cell);
-      cls_no_to_cell get_cls_no_to_cell(Integer* cellbox);
+      bool put(ClauseNumber, cell this_cell);
+      cls_no_to_cell get_cls_no_to_cell(cell cx);
       size_t amount() const;
 
 // refactor out in a subclass, for micro version
@@ -112,6 +110,6 @@ public:
 #ifndef UOMAP
       static string show(const bucket &b);
 #endif
-      static string show(const vector<Integer *> is);
+      static string show(const vector<int> is);
 };
 } // end namespace

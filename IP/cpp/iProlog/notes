@@ -1,3 +1,5 @@
+verification:
+
 fix output so that I don't get "goal(V17)" but the actual answer
 make sure first-bit cell tagging still works
 make sure raw vectors still work
@@ -6,6 +8,7 @@ clean out most of the traces
 clean out most of the checkit() calls, maybe leave at beginnings
 fix up IntMap -- go to buckets
 memory leaks, esp Spine stack
+
 try 16-bit cell ints
 review idea of relative addressing
 look at raw hashmap implementation

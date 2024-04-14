@@ -155,7 +155,6 @@
     <ClInclude Include="RelocStack.h" />
     <ClInclude Include="IMap.h" />
     <ClInclude Include="index.h" />
-    <ClInclude Include="Integer.h" />
     <ClInclude Include="CellList.h" />
     <ClInclude Include="IntMap.h" />
     <ClInclude Include="Object.h" />

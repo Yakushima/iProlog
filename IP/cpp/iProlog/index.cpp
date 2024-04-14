@@ -119,10 +119,6 @@ namespace iProlog {
 	{
 	if (!indexing) return true;
 
-	checkit();
-
-	assert(cl.skeleton.size() > 0);
-
 	// reasonable candidate for loop unrolling:
 		for (size_t i = 0; i < MAXIND; i++) {
 			cell x = sp->index_vector[i];
@@ -200,7 +196,7 @@ namespace iProlog {
     void index::makeIndexArgs(CellStack &heap, Spine *G, cell goal) {
 #define TR if(0)
 		if (!indexing) return;
-		checkit();
+
 		if (G->index_vector.at(0).s_tag() != cell::BAD
 		// || !G->hasGoals()
 		)
@@ -244,9 +240,7 @@ namespace iProlog {
 		vector<cls_no_to_cell>& vmaps,
 		vector<ClauseNumber>& cls_nos) {
 #define TR if(0)
-
 		assert(vmaps.size() <= maps.size());
-		checkit();
 
 		TR cout << "intersect0(m.size()=" << m.size() << ", maps.size()=" << maps.size()
 			<< ", vmaps.size()=" << vmaps.size() << ", cls_nos.size()=" << cls_nos.size() << ")" << endl;
@@ -279,9 +273,7 @@ namespace iProlog {
 				if (found) {
 					TR cout << "   at data[" << k << "] found key=" << cn.as_int() << " to push to result" << endl;
 					TR cout << "   before push cls_nos.size() == " << cls_nos.size() << endl;
-					checkit();
 					cls_nos.push_back(cn);
-					checkit();
 				}
 			}
 		} CATCH("exception caught in intersect0()")
@@ -294,7 +286,6 @@ namespace iProlog {
 	vector<ClauseIndex> index::matching_clauses_(t_index_vector& iv) {
 #define TR if(0)
 		TR cout << "Entering matching_clauses" << endl;
-		checkit();
 
 		vector<cls_no_to_cell> ms;
 		vector<cls_no_to_cell> vms;
@@ -327,8 +318,6 @@ namespace iProlog {
 				  TR cout << "  matching_clauses() iv loop: imaps[" << i << "] pushing " << endl;
 				} CATCH("Blowing up in pushing to ms & vsms")
 			}
-		checkit();
-
 		TR cout << " matching_clauses: exited iv loop, ms.size()=" << ms.size() << " vms.size()=" << vms.size() << endl;
 
 		TR cout << endl;
@@ -349,7 +338,6 @@ namespace iProlog {
 			ims[i] = ms.at(i);
 			vims[i] = vms.at(i);
 		}
-		checkit();
 		vector<ClauseNumber> cs; // "$$$ add vmaps here"
 		// cs: receives the clause numbers:
 		TRY{
@@ -386,9 +374,7 @@ namespace iProlog {
 				*
 				* I.e., respect standard Prolog clause ordering.
 				*/
-
 			std::sort(is.begin(), is.end());
-			checkit();
 
 			TR cout << " is:" << endl;
 

@@ -267,8 +267,10 @@ bool Engine::hasClauses(const Spine* S) const {
  * an external representation of symbols, numbers and variables." [HHG doc]
  */
 cell Engine::ask() {
+#if 0
     set_engine(this);   // for static checkit, usable in other scopes(?)
     checkit();
+#endif
     query = yield();
     if (nullptr == query)
 	    return cell::null();
@@ -392,23 +394,8 @@ cell Engine::pushHeadtoHeap(cell b, const Clause& C) {
 #define TR if(0)
     TR cout << "push HeadtoHeap entered" << endl;
     cell head;
-    checkit();
-    assert(C.skeleton.size() > 0);
-    TRY{
     head = C.skeleton.at(0);
-    } CATCH("pushHeadtoHeap botch")
-    TRY{
-    checkit();
     CellStack::pushCells(heap, b, 0, C.neck, C.base);
-    checkit();
-    } CATCH ("pushcells")
-    assert(C.skeleton.size() > 0);
-
-    TRY{
-        checkit();
-        TR cout << "...checkit: now trying to access C.skeleton[0]..." << endl;
-        head = C.skeleton.at(0);
-    } CATCH("C.skeleton[0] access")
     cell reloc_head = head.relocated_by(b);
     return reloc_head;
 #undef TR

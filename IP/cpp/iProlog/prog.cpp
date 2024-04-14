@@ -129,14 +129,13 @@ Object Prog::exportTerm(cell x) const {
     void Prog::run(bool print_ans) {
 #define TR if(0)
         TR cout << "Prog::run(print_ans=" << print_ans << ")" << endl;
-
+#if 0
         set_engine(this);   // for static checkit, usable in other scopes(?)
         checkit();
-        TR cout << "After first checkit() cal" << endl;
+#endif
         int ctr = 0;
         for (;; ctr++) {
             cell r = ask();
-            checkit();
             TR cout << "Prog::run: r=ask()=" << r.as_int() << "; r tag=" << cell::tagSym(r.s_tag()) << " r.arg()=" << r.arg() << endl;
             auto A = exportTerm(r);
             if (A.type == Object::e_nullptr) {

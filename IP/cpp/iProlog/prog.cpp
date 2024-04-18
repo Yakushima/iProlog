@@ -34,35 +34,6 @@ namespace iProlog {
         return Ip->show_index();
     }
 
-Object Prog::exportTerm(cell x) const {
-
-    if (x == cell::tag(cell::BAD,0))
-	    return Object();
-
-    x = deref(x);
-    cout << "exportTerm: x=" << x.show() << endl;
-    int w = x.arg();
-
-    switch (x.s_tag()) {
-    case cell::C_: return Object(symTab.getSym(w));
-    case cell::N_: return Object(w);
-    case cell::V_: return Object(cstr("V") + w);
-        /*case U_:*/
-    case cell::R_: {
-                 cell a = cell_at(w);
-                 if (!a.is_offset()) throw logic_error(cstr("*** should be A, found=") + showCell(a));
-                 int n = a.arg();
-                 vector<Object> args;
-                 for (int k = w + 1; n-- > 0; k++)
-                     args.push_back(exportTerm(cell_at(k)));
-                 return Object(args);
-                }
-        default:
-                    throw logic_error(cstr("*BAD TERM*") + showCell(x));
-    }
-}
-
-
     string Prog::showCells(int base, int len) const {
 	string buf;
 	for (int k = 0; k < len; k++) {
@@ -127,7 +98,7 @@ Object Prog::exportTerm(cell x) const {
  * an external representation of symbols, numbers and variables." [HHG doc]
  */
     void Prog::run(bool print_ans) {
-#define TR if(0)
+#define TR if(1)
         TR cout << "Prog::run(print_ans=" << print_ans << ")" << endl;
 #if 0
         set_engine(this);   // for static checkit, usable in other scopes(?)
@@ -135,14 +106,10 @@ Object Prog::exportTerm(cell x) const {
 #endif
         int ctr = 0;
         for (;; ctr++) {
-            cell r = ask();
-            TR cout << "Prog::run: r=ask()=" << r.as_int() << "; r tag=" << cell::tagSym(r.s_tag()) << " r.arg()=" << r.arg() << endl;
-            auto A = exportTerm(r);
-            if (A.type == Object::e_nullptr) {
-                if (print_ans)
-                    TR cout << "Breaking ask loop with [" << ctr << "] " <<  "*** ANSWER=" <<  showTerm(A) << endl;
+            Object A = ask();
+            TR cout << "Prog::run: r=ask()=" << A.toString() << endl;
+            if (A.type == Object::e_nullptr)
                 break;
-            }
             if (print_ans)
                 cout << "[" << ctr << "] " << "*** ANSWER=" << showTerm(A) << endl;
         }

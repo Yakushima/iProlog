@@ -95,6 +95,11 @@ namespace iProlog {
         }
 
         inline void set(int i, cell val) {
+#if 0 // for tracing a bug
+            if (i == 5 && val.arg() == 5 && val.s_tag() == cell::V_)
+                abort();
+#endif
+            cout << "  CellStack::set(i=" << i << ", val=" << val.show() << endl;
                 stack[i] = val;
         }
 
@@ -158,6 +163,7 @@ namespace iProlog {
 	 * b has cell structure, i.e, index, shifted, with tag V_
 	 */
 	static inline void pushCells(CellStack &heap, cell b, int from, int upto, int base) {
+#define TR if(0)
         assert(upto >= from);
 	    int count = upto - from;
         if (count == 0)
@@ -172,13 +178,14 @@ namespace iProlog {
 	    }
 	    else
             for (int i = from; i < upto; i++) {
-                cout << "pushCells: heap.get(" << base + i << ")."
+                TR cout << "pushCells: heap.get(" << base + i << ")."
                     << "relocated_by(" << b.show() << ")="
                     << heap.get(base + i).relocated_by(b).show()
                     << endl;
                 heap.push(heap.get(base + i).relocated_by(b));
 
             }
+#undef TR
 	}
 
 	/**

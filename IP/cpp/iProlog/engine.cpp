@@ -76,41 +76,40 @@ Spine* Engine::unfold(Spine *G) {
 
     TR cout << "G->last_clause_tried=" << G->last_clause_tried << endl;
     for (int k = G->last_clause_tried; k < last; k++) {
-        TR cout << "G->unifiables[" << k << "]=" << G->unifiables[k].as_int() << endl;
+        cout << "G->unifiables[" << k << "]=" << G->unifiables[k].as_int() << endl;
 
         Clause& C0 = clauses[G->unifiables[k].as_int()];
 
-        assert(C0.skeleton.size() > 0);
-        TR cout << "xxxx1: " << C0.skeleton.at(0).as_int() << endl;
+        if (!Ip->possible_match(G, C0))
+            continue;
 
-        if (Ip->possible_match(G, C0)) {
-            TR cout << "xxxx2: " << C0.skeleton.at(0).as_int() << endl;
-            TR cout << "xxxx3: " << C0.skeleton.at(0).as_int() << endl;
-
-            cell b = cell::tag(cell::V_, base - C0.base);
-
-            TR cout << "xxxx4: " << C0.skeleton.at(0).as_int() << endl;
-            TR cout << "with possible match, base = " << base << " C0.base = " << C0.base << " b.arg()= " << b.arg() << " last=" << last << endl;
-            assert(C0.skeleton.size() > 0);
-
-            cell head = pushHeadtoHeap(b, C0);
+        cell b = cell::tag(cell::V_, base - C0.base);
+        cell head = pushHeadtoHeap(b, C0);
  
-            unify_stack.clear();  // "set up unification stack" [Engine.java]
-            unify_stack.push(head);
-            unify_stack.push(goal);
+        unify_stack.clear();  // "set up unification stack" [Engine.java]
+        unify_stack.push(head);
+        unify_stack.push(goal);
 
-            if (unify(base)) {
-                vector<cell> goals = pushBody(b, head, C0);
-                shared_ptr<CellList> tl = CellList::tail(G->goals);
-                G->last_clause_tried = k + 1;
-
-                if (goals.size() == 0 && tl == nullptr)
-                    return answer(tot);
-
-                return new Spine(goals, base, tl, tot, 0, clause_list);
-            }
+        if (!unify(base)) {
             unwindTrail(tot);
             heap.setTop(saved_heap_top);
+            continue;
+        }
+
+        vector<cell> goals = pushBody(b, head, C0);
+        cout << "$$$$$$$$$$$ goals after pushBody:" << endl;
+        for (int i = 0; i < goals.size(); ++i)
+            cout << " " << showCell(goals[i]) << endl;
+        shared_ptr<CellList> tl = CellList::tail(G->goals);
+        G->last_clause_tried = k + 1;
+
+        if (goals.size() != 0 || tl != nullptr) {
+            TR cout << "unfold: returning with full (non-answer) Spine" << endl;
+            return new Spine(goals, base, tl, tot, 0, clause_list);
+        }
+        else {
+            cout << "unfold: trail_top=" << tot << " returning answer" << endl;
+            return answer(tot);
         }
     }
     return nullptr;
@@ -248,6 +247,45 @@ bool Engine::hasClauses(const Spine* S) const {
     return S->last_clause_tried < S->unifiables.size();
 }
 
+Object Engine::exportTerm(cell x) const {
+#define TR if(0)
+    if (x == cell::tag(cell::BAD, 0))
+        return Object();
+
+    x = deref(x);
+    cout << "exportTerm: x=" << x.show() << endl;
+    int w = x.arg();
+
+    switch (x.s_tag()) {
+    case cell::C_: return Object(symTab.getSym(w));
+    case cell::N_: return Object(w);
+    case cell::V_: return Object(cstr("V") + w);
+        /*case U_:*/
+    case cell::R_: {
+        cout << "R_: " << endl;
+        cell a = cell_at(w);
+        if (!a.is_offset())
+            throw logic_error(cstr("*** should be A, found=") + showCell(a));
+        int n = a.arg();
+        vector<Object> arr;
+        int k = w + 1;   // "offset to embedded array" [Engine.java]
+        for (int i = 0; i < n; i++) {
+            int j = k + i;
+            cell c = cell_at(j);
+            cout << "cell_at(" << j << ")=" << c.show() << endl;
+            Object o = exportTerm(c);
+            cout << "exportTerm(cell " << c.show() << ")="
+                << exportTerm(c).toString() << endl;
+            arr.push_back(o);
+        }
+        return Object(arr);
+    }
+    default:
+        throw logic_error(cstr("*BAD TERM*") + showCell(x));
+    }
+#undef TR
+}
+
 /**
  * ask - "Retrieves an answer and ensures the engine can be resumed
  * by unwinding the trail of the query Spine.
@@ -261,30 +299,36 @@ bool Engine::hasClauses(const Spine* S) const {
  * up to where bindings of the variables will have to be undone,
  * before resuming execution." [HHG doc]
  * 
+ * MISTAKEN CHANGE:
  * Moving to prog.cpp: "It also unpacks the actual answer term
  * (by calling the method exportTerm) to a tree representation of a term,
  * consisting of recursively embedded arrays hosting as leaves,
  * an external representation of symbols, numbers and variables." [HHG doc]
  */
-cell Engine::ask() {
+Object Engine::ask() {
+#define TR if(1)
 #if 0
     set_engine(this);   // for static checkit, usable in other scopes(?)
     checkit();
 #endif
     query = yield();
     if (nullptr == query)
-	    return cell::null();
+	    return Object();
 
+    TR cout << "ask: query->trail_top=" << query->trail_top << endl;
     Spine *ans = answer(query->trail_top);
-
-    cell res = ans->head;
+    cout << "yield: " << ans->show() << endl;
+    cell result = ans->head;
+    /////////////////////////
+    Object R = exportTerm(result);
     unwindTrail(query->trail_top);
     delete ans;
 
     // delete query;   // leaky to delete this?
     query = nullptr;
 
-    return res;
+    return R;
+#undef TR
 }
 /**
  * unwindTrail - "Removes binding for variable cells
@@ -367,23 +411,27 @@ string Engine::showCell(cell w) const {
  * when returned, contains references to the toplevel spine of the clause."
  */
 vector<cell> Engine::pushBody(cell b, cell head, const Clause &C) {
+#define TR if(1)
     int l = (int)C.skeleton.size();
     vector<cell> goals(l);
-
+#if 0
     if (C.len == C.neck)
         return goals;
-
+#endif
     CellStack::pushCells(heap, b, C.neck, C.len, C.base);
 
     goals[0] = head;
+    cout << "pushBody: goals[0]=" << head.show() << endl;
     if (is_raw)
 	    cell::cp_cells (b, C.skeleton.data()+1, goals.data()+1, l-1);
     else
         for (int k = 1; k < l; k++) {
             goals[k] = C.skeleton[k].relocated_by(b);
-            cout << "pushBody: goals[" << k << "]=" << goals[k].as_int() << endl;
+            TR cout << "pushBody: goals[" << k << "]="
+                    << goals[k].as_int() << endl;
         }
     return goals;
+#undef TR
 }
 
 
@@ -393,9 +441,8 @@ vector<cell> Engine::pushBody(cell b, cell head, const Clause &C) {
 cell Engine::pushHeadtoHeap(cell b, const Clause& C) {
 #define TR if(0)
     TR cout << "push HeadtoHeap entered" << endl;
-    cell head;
-    head = C.skeleton.at(0);
     CellStack::pushCells(heap, b, 0, C.neck, C.base);
+    cell head = C.skeleton.at(0);
     cell reloc_head = head.relocated_by(b);
     return reloc_head;
 #undef TR

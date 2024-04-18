@@ -16,6 +16,7 @@
 #include "index.h"
 #include "clause.h"
 #include "sym_tab.h"
+#include "Object.h"
 
 namespace iProlog {
 
@@ -77,7 +78,10 @@ public:
     static inline cell cell_at(CellStack& h, int i) { return h.get(i);              }
            inline cell cell_at(int i) const         { return heap.get(i);           }
 
-           inline void set_cell(int i, cell v)      { heap.set(i,v);                }
+           inline void set_cell(int i, cell v)      {
+               cout << "calling heap.set(i=" << i << ", v=" << v.show() << ")" << endl;
+               heap.set(i,v);
+           }
 
     static inline cell getRef(CellStack& h, cell x) { return cell_at(h, x.arg());   }
            inline cell getRef(cell x)  const        { return cell_at(x.arg());      }
@@ -167,7 +171,8 @@ protected:
     void popSpine();
 
     Spine* yield();
-    cell ask();
+    Object ask();
+    Object exportTerm(cell c) const;
 
     void ppc(const Clause&);
 

@@ -36,7 +36,6 @@ namespace iProlog {
         string showTermCell(cell x) const;
         string showTerm(Object O) const;
 		string show_index() const;
-        Object exportTerm(cell c) const;
 
 	private:
 		static string maybeNull(const Object& O);

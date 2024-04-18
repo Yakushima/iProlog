@@ -109,11 +109,11 @@ class IntMap implements java.io.Serializable {
         final int val = map.get(key);
         // Main.println ("       at maps[" + i + "]");
         if (NO_VALUE == val) {
-          Main.println ("         at maps[" + i + "]  map.get(" + key + ") == NO_VALUE");
+          // Main.println ("         at maps[" + i + "]  map.get(" + key + ") == NO_VALUE");
           final IntMap vmap = vmaps[i];
           final int vval = vmap.get(key);
           if (NO_VALUE == vval) {
-            Main.println ("         at vmaps[" + i + "] vmap.get(" + key + ") == NO_VALUE, break from i-loop");
+            // Main.println ("         at vmaps[" + i + "] vmap.get(" + key + ") == NO_VALUE, break from i-loop");
             found = false;
             break;
           }

@@ -70,4 +70,22 @@ class Spine {
     // Prog.println("\n     *** in Spine(h,tt): spine.base = " + this.base + " spine.kount=" + this.k + "\n");
     this.unifiables = null;
   }
+
+  String show() {
+    String s = "Spine: {";
+    s += "\n  head=" + head;
+    s += "\n  base=" + base;
+    if (goals == null)
+      s += "\n  goals=<null>";
+    else
+      s += "\n  goals=" + goals.toString();
+    s += "\n  trail_top=" + trail_top;
+    s += "\n  last_clause_tried=" + last_clause_tried;
+    if (unifiables == null)
+      s += "\n  unifiables=<null>";
+    else
+      s += "\n  unifiables=" + unifiables.toString();
+    s += "\n}";
+    return s;
+  }
 }

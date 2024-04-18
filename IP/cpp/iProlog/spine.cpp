@@ -44,4 +44,22 @@ namespace iProlog {
             index_vector[i] = cell::BAD;
     }
 
+    string Spine::show() const {
+        string s = "Spine: {";
+        s += "\n  head=" + to_string(head.as_int());
+        s += "\n  base=" + to_string(base);
+        if (goals == nullptr)
+            s += "\n  goals=<null>";
+        else
+            s += "\n  goals=<stub>" /* + goals.show()*/;
+        s += "\n  trail_top=" + to_string(trail_top);
+        s += "\n  last_clause_tried=" + to_string(last_clause_tried);
+        if (unifiables.empty())
+            s += "\n  unifiables=<null>";
+        else
+            s += "\n  unifiables=<stub>" /* + unifiables.show()*/;
+        s += "\n}";
+        return s;
+    }
+
 } // end namespace

@@ -99,14 +99,14 @@ cell encode(int t, const string s) {
         w = stoi(s);
     }
     catch (const std::invalid_argument& e) {
-        if (t == cell::C_) {
-            w = sym.addSym(s);
-        }
-    else {
+        if (t == cell::C_)
+            w = int(sym.addSym(s));
+        else {
             cstr err = string("bad number form in encode=") + t + ":" + s + ", [" + e.what() + "]";
             throw logic_error(err);
         }
     }
+    // cout << " encode: w=" << w << " returning " << cell::tag(t, w).as_int() << endl;
     return cell::tag(t, w);
 }
 
@@ -335,28 +335,26 @@ vector<Clause> dload(const cstr s) {
             cerr << "Must supply name of a program in directory " << test_directory << endl;
             exit(-1);
         }
-
         try {
             string fname;
-            bool print_ans = true;
+            bool print_ans;
 
             fname = argv[1];
-            // print_ans = argc == 3 ? string(argv[2]) == "true" : false;
+            print_ans = argc == 3 ? string(argv[2]) == "true" : false;
 
             string pl_nl = test_directory + fname + ".nl";
 
             cout << "==============================================================" << endl;
 
-            cell bad = cell::BAD;
-            cls_no_to_cell::init(ClauseNumber(0).as_int(), bad.as_int());
+	    string source = file2string(pl_nl);
+	    vector<Clause> clauses = dload(source);
 
-	        string source = file2string(pl_nl);
-	        vector<Clause> clauses = dload(source);
+        index* Ip = nullptr;
 
-            Prog* p = new Prog(heap, clauses, sym, nullptr); // any index-building done there
+        if (indexing)
+            Ip = new index(heap, clauses);
 
-            if (indexing)
-                cout << p->show_index() << endl;
+	        Prog *p = new Prog(heap,clauses,sym,Ip); // any index-building done there
 
             p->ppCode();
 
@@ -409,7 +407,7 @@ cout << "---------------------------------------" << endl;
         cell c = cell::tag(cell::V_, 3);
         ClauseNumber cls_no = 7;
 
-        TR cout << "===== calling x.put(cls_no_box=" << cls_no.as_int() <<", cell=" << c.show() << endl;
+        TR cout << "===== calling x.put(cellbox->i=" << c.as_int() <<", cls_no=" << cls_no.as_int() << endl;
 
         x.put(cls_no, c);
 
@@ -447,12 +445,7 @@ cout << "---------------------------------------" << endl;
 
 } // end iProlog
 
-
-
 int main(int argc, char* argv[]) {
-    // iProlog::test_IntMap();
-    iProlog::test_IMap();
-
 	return iProlog::do_with(argc, argv);
 }
 

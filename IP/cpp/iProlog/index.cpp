@@ -261,7 +261,7 @@ namespace iProlog {
 						TR cout << "         at maps[" << i << "]  map.get(" << cn.as_int() << ") == NO_VALUE" << endl;
 						ClauseNumber vcval = vmaps[i].get(cn.as_int());
 						if (vcval == cls_no_to_cell::no_value()) {
-							cout << "         at vmaps[" << i << "] vmap.get(" << cn.as_int() << ") == NO_VALUE, break from i-loop" << endl;
+							TR cout << "         at vmaps[" << i << "] vmap.get(" << cn.as_int() << ") == NO_VALUE, break from i-loop" << endl;
 							found = false;
 							break;
 						}
@@ -280,7 +280,7 @@ namespace iProlog {
 	 * This translation is from IMap.get, with ArrayList for ms & vms 
 	 */
 	vector<ClauseIndex> index::matching_clauses_(t_index_vector& iv) {
-#define TR if(0)
+#define TR if(1)
 		TR cout << "Entering matching_clauses" << endl;
 
 		vector<cls_no_to_cell> ms;
@@ -288,7 +288,7 @@ namespace iProlog {
 		TR cout << " matching_clauses: entering iv loop" << endl;
 
 		for (int i = 0; i < imaps.size(); i++)
-			if (iv[i].as_int()==0 || iv[i] == cell::BAD) { // "index vectors are null-terminated if < MAXIND"
+			if (iv[i].as_int() == 0 || iv[i] == cell::BAD) { // "index vectors are null-terminated if < MAXIND"
 
 				// This was "== 0" in Java code. In that code, since V_ cells
 				// are never zero (even though V_ == 0) zero may be a kind of null-

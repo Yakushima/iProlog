@@ -13,7 +13,7 @@ namespace iProlog {
     using namespace std;
 
   bool IMap::put(ClauseNumber cls_no, cell this_cell) {
-#define TR if(1)
+#define TR if(0)
       TR cout << "      IMap::put(cls_no_box->i=" << cls_no.as_int() << ", this_cell=" << this_cell.show() << ")" << endl;
       TR cout << "      In IMap::put(" << cls_no.as_int() << ", this_cell=" << this_cell.show() << ")" << endl;
 

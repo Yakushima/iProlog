@@ -45,7 +45,7 @@ namespace iProlog {
 
 	// Some way to pass these on compiler command line????
 
-	const int MAXIND = 0;       // "number of index args" [Engine.java]
+	const int MAXIND = 3;       // "number of index args" [Engine.java]
 	const int START_INDEX = 1;	// "if # of clauses < START_INDEX,
 								// turn off indexing" [Engine.java]
 

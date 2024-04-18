@@ -280,7 +280,7 @@ namespace iProlog {
 	 * This translation is from IMap.get, with ArrayList for ms & vms 
 	 */
 	vector<ClauseIndex> index::matching_clauses_(t_index_vector& iv) {
-#define TR if(1)
+#define TR if(0)
 		TR cout << "Entering matching_clauses" << endl;
 
 		vector<cls_no_to_cell> ms;

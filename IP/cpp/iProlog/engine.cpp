@@ -76,7 +76,7 @@ Spine* Engine::unfold(Spine *G) {
 
     TR cout << "G->last_clause_tried=" << G->last_clause_tried << endl;
     for (int k = G->last_clause_tried; k < last; k++) {
-        cout << "G->unifiables[" << k << "]=" << G->unifiables[k].as_int() << endl;
+        TR cout << "G->unifiables[" << k << "]=" << G->unifiables[k].as_int() << endl;
 
         Clause& C0 = clauses[G->unifiables[k].as_int()];
 
@@ -97,9 +97,9 @@ Spine* Engine::unfold(Spine *G) {
         }
 
         vector<cell> goals = pushBody(b, head, C0);
-        cout << "$$$$$$$$$$$ goals after pushBody:" << endl;
-        for (int i = 0; i < goals.size(); ++i)
-            cout << " " << showCell(goals[i]) << endl;
+        TR cout << "$$$$$$$$$$$ goals after pushBody:" << endl;
+        // for (int i = 0; i < goals.size(); ++i)
+        //    cout << " " << showCell(goals[i]) << endl;
         shared_ptr<CellList> tl = CellList::tail(G->goals);
         G->last_clause_tried = k + 1;
 
@@ -253,7 +253,7 @@ Object Engine::exportTerm(cell x) const {
         return Object();
 
     x = deref(x);
-    cout << "exportTerm: x=" << x.show() << endl;
+    TR cout << "exportTerm: x=" << x.show() << endl;
     int w = x.arg();
 
     switch (x.s_tag()) {
@@ -262,7 +262,7 @@ Object Engine::exportTerm(cell x) const {
     case cell::V_: return Object(cstr("V") + w);
         /*case U_:*/
     case cell::R_: {
-        cout << "R_: " << endl;
+        TR cout << "R_: " << endl;
         cell a = cell_at(w);
         if (!a.is_offset())
             throw logic_error(cstr("*** should be A, found=") + showCell(a));
@@ -272,9 +272,9 @@ Object Engine::exportTerm(cell x) const {
         for (int i = 0; i < n; i++) {
             int j = k + i;
             cell c = cell_at(j);
-            cout << "cell_at(" << j << ")=" << c.show() << endl;
+            TR cout << "cell_at(" << j << ")=" << c.show() << endl;
             Object o = exportTerm(c);
-            cout << "exportTerm(cell " << c.show() << ")="
+            TR cout << "exportTerm(cell " << c.show() << ")="
                 << exportTerm(c).toString() << endl;
             arr.push_back(o);
         }
@@ -306,7 +306,7 @@ Object Engine::exportTerm(cell x) const {
  * an external representation of symbols, numbers and variables." [HHG doc]
  */
 Object Engine::ask() {
-#define TR if(1)
+#define TR if(0)
 #if 0
     set_engine(this);   // for static checkit, usable in other scopes(?)
     checkit();
@@ -317,7 +317,7 @@ Object Engine::ask() {
 
     TR cout << "ask: query->trail_top=" << query->trail_top << endl;
     Spine *ans = answer(query->trail_top);
-    cout << "yield: " << ans->show() << endl;
+    TR cout << "yield: " << ans->show() << endl;
     cell result = ans->head;
     /////////////////////////
     Object R = exportTerm(result);
@@ -411,17 +411,14 @@ string Engine::showCell(cell w) const {
  * when returned, contains references to the toplevel spine of the clause."
  */
 vector<cell> Engine::pushBody(cell b, cell head, const Clause &C) {
-#define TR if(1)
+#define TR if(0)
     int l = (int)C.skeleton.size();
     vector<cell> goals(l);
-#if 0
-    if (C.len == C.neck)
-        return goals;
-#endif
+
     CellStack::pushCells(heap, b, C.neck, C.len, C.base);
 
     goals[0] = head;
-    cout << "pushBody: goals[0]=" << head.show() << endl;
+    TR cout << "pushBody: goals[0]=" << head.show() << endl;
     if (is_raw)
 	    cell::cp_cells (b, C.skeleton.data()+1, goals.data()+1, l-1);
     else

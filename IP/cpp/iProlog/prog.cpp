@@ -98,7 +98,7 @@ namespace iProlog {
  * an external representation of symbols, numbers and variables." [HHG doc]
  */
     void Prog::run(bool print_ans) {
-#define TR if(1)
+#define TR if(0)
         TR cout << "Prog::run(print_ans=" << print_ans << ")" << endl;
 #if 0
         set_engine(this);   // for static checkit, usable in other scopes(?)

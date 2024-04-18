@@ -95,11 +95,6 @@ namespace iProlog {
         }
 
         inline void set(int i, cell val) {
-#if 0 // for tracing a bug
-            if (i == 5 && val.arg() == 5 && val.s_tag() == cell::V_)
-                abort();
-#endif
-            cout << "  CellStack::set(i=" << i << ", val=" << val.show() << endl;
                 stack[i] = val;
         }
 

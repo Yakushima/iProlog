@@ -91,7 +91,11 @@ namespace iProlog {
         }
 
         inline cell get(int i) const {
-                return stack.at(i);
+#ifdef RAW
+                return stack[i];
+#else
+                return stack.at(i); // bounds-checked
+#endif
         }
 
         inline void set(int i, cell val) {
@@ -102,7 +106,7 @@ namespace iProlog {
             if (c.size() > capacity()) abort();
             // memcpy if it ever matters
             for (int i = 0; i < c.size(); ++i)
-                    stack[i] = c.stack.at(i);
+                    stack[i] = c.get(i);
             top = c.top;
 	        return *this;
         }

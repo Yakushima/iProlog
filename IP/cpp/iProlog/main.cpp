@@ -385,9 +385,9 @@ cout << "---------------------------------------" << endl;
         return 0;
     }
 
-    void test_IntMap() {
-        IntMap im;
-        cout << endl << "************** test_IntMap() ***********************************" << endl;
+    void test_IntSet() {
+        IntSet im;
+        cout << endl << "************** test_IntSet() ***********************************" << endl;
 
         for (int i = 0; i < 1000; ++i) {
             im.add_key(i);
@@ -397,7 +397,7 @@ cout << "---------------------------------------" << endl;
             cout << ".";
         }
 
-        cout << "************** END test_IntMap() ***********************************" << endl;
+        cout << "************** END test_IntSet() ***********************************" << endl;
     }
 
     void test_IMap() {
@@ -411,13 +411,13 @@ cout << "---------------------------------------" << endl;
 
         x.put(cls_no, c);
 
-        cls_no_to_cell the_intmap = x.get_cls_no_to_cell(c);
-        TR cout << " got intmap, capacity=" << the_intmap.capacity() << endl;
-        TR cout << "the_intmap: " << the_intmap.show() << endl;
+        cls_no_to_cell the_intset = x.get_cls_no_to_cell(c);
+        TR cout << " got intset, capacity=" << the_intset.capacity() << endl;
+        TR cout << "the_intset: " << the_intset.show() << endl;
 
         TR cout << "Imap x is now " << x.show() << endl;
   
-        assert(the_intmap.contains(cls_no.as_int()));
+        assert(the_intset.contains(cls_no.as_int()));
 
         cout << endl << "************** END test_IMap() ***********************************" << endl;
 #undef TR

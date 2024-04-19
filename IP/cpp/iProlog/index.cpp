@@ -140,9 +140,9 @@ namespace iProlog {
 	 * How does this work with matching clauses in indexing?
 	/*
 	final boolean put(final K key, final int val) {
-		IntMap vals = map.get(key);
+		IntSet vals = map.get(key);
 		if (null == vals) {
-			vals = new IntMap();
+			vals = new IntSet();
 			map.put(key, vals);
 		}
 		return vals.add(val);
@@ -338,14 +338,14 @@ namespace iProlog {
 		// was IntMap.java intersect, expanded here:
 
 			TR cout << "  ims: " << endl;
-			for (int i = 0; i < ims.size(); ++i) TR cout << "   [" << i << "]: " << ims[i].show() << endl;
+			// for (int i = 0; i < ims.size(); ++i) TR cout << "   [" << i << "]: " << ims[i].show() << endl;
 			TR cout << "  vims: " << endl;
-			for (int i = 0; i < vims.size(); ++i) TR cout << "   [" << i << "]: " << vims[i].show() << endl;
+			// for (int i = 0; i < vims.size(); ++i) TR cout << "   [" << i << "]: " << vims[i].show() << endl;
 
 			TR cout << "intersect0(ims[0], ims, vims, cs)" << endl;
 			intersect0(ims[0], ims, vims, cs);
 			TR cout << "&&&& after first intersect0, r=[";
-			for (int i = 0; i < cs.size(); ++i) TR cout << cs[i].as_int() << " ";
+			// for (int i = 0; i < cs.size(); ++i) TR cout << cs[i].as_int() << " ";
 			TR cout << "]" << endl;
 			TR cout << "intersect0(vims[0], ims, vims, cs)" << endl;
 			intersect0(vims[0], ims, vims, cs);
@@ -369,8 +369,7 @@ namespace iProlog {
 
 			TR cout << " is:" << endl;
 
-			for (int i = 0; i < is.size(); ++i)
-				TR cout << "    is[" << i << "] = " << is.at(i).as_int() << endl;
+			// for (int i = 0; i < is.size(); ++i) TR cout << "    is[" << i << "] = " << is.at(i).as_int() << endl;
 
 			TR cout << "matching_clauses: exiting safely" << endl;
 

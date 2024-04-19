@@ -32,11 +32,11 @@ namespace iProlog {
 	 *    save a little space. The fast-copy cell heap-to-heap relocation may
 	 *    end up in this class eventually.
 	 * "if (is_raw)..." ensures that code code gets checked by the
-	 * compiler, except there there's an #ifdef conditional
+	 * compiler, except there there's some #ifdef conditional
 	 * compilation. Constant-folding and dead code elimination
 	 * does the rest.
 	 */
-// #define RAW
+#define RAW
 #ifdef RAW
 	const bool is_raw = true;
 #else

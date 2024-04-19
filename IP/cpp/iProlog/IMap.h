@@ -15,7 +15,7 @@
 #include <unordered_map>
 #include "cell.h"
 #include "index.h"
-#include "IntMap.h"
+#include "IntSet.h"
 
 namespace iProlog {
 
@@ -37,11 +37,7 @@ namespace iProlog {
     // 3rd arg: free_key, 4th no_value
     // currently cell value is initialized with 666
     // this could overlap valid cell values
-    typedef IntMap
-#ifdef TEMPL_INTMAP
-        <cell, ClauseNumber>
-#endif
-                    cls_no_to_cell;
+    typedef IntSet cls_no_to_cell;
 
 class IMap {
 public:

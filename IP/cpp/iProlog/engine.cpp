@@ -325,6 +325,7 @@ Object Engine::ask() {
     delete ans;
 
     // delete query;   // leaky to delete this?
+    delete query;
     query = nullptr;
 
     return R;

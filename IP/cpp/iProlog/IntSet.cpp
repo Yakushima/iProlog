@@ -1,5 +1,7 @@
 
 
+// Was IntMap.java; Tarau uses it as an intset, hence the "666"
+// value in the key-value pairs.
 
 #include <list>
 #include <algorithm>
@@ -10,23 +12,14 @@
 #include "IMap.h"
 
 namespace iProlog {
-#if 0
-	Key_ IntMap::FREE_KEY = Key_(0);
-	Value_ IntMap::NO_VALUE = Value_(0);
 
-#ifdef TEMPL_INTMAP
 
-	template class IntMap<ClauseNumber, cell>;
-#endif
-
-#endif
-
-    void IntMap::alloc(size_t cap) {
+    void IntSet::alloc(size_t cap) {
         m_data = vector<int>(cap * stride());
     }
 
 
-    IntMap::IntMap(int size, float fillFactor) {
+    IntSet::IntSet(int size, float fillFactor) {
         if (fillFactor <= 0 || fillFactor >= 1)
             throw new logic_error("FillFactor must be in (0, 1)");
         if (size <= 0)
@@ -44,7 +37,7 @@ namespace iProlog {
         m_size = 0;
     }
 
-    void IntMap::rehash(int newCapacity) {
+    void IntSet::rehash(int newCapacity) {
         cout << "                      !!!!!!!!!!!!! calling rehash !!!!!!!!!!!!!!!!!!" << endl;
         m_threshold = (int)(newCapacity / 2 * m_fillFactor);
         m_mask = newCapacity / 2 - 1;
@@ -64,11 +57,11 @@ namespace iProlog {
         }
     }
 
-    int IntMap::get(int key) {
+    int IntSet::get(int key) {
 #define TR if(0)
         int ptr = (phiMix(key) & m_mask) << 1;
 
-        TR cout << "      IntMap::get(" << key << "), ptr=" << ptr << " m_data.size()=" << m_data.size() << " m_mask=" << m_mask << endl;
+        TR cout << "      IntSet::get(" << key << "), ptr=" << ptr << " m_data.size()=" << m_data.size() << " m_mask=" << m_mask << endl;
 
         if (key == FREE_KEY) {
             int r = m_hasFreeKey ? m_freeValue : NO_VALUE;
@@ -102,9 +95,9 @@ namespace iProlog {
 #undef TR
     }
 
-    int IntMap::put(int key, int value) {
+    int IntSet::put(int key, int value) {
 #define TR if(0)
-        TR cout << "       IntMap::put(key=" << key << ", value=" << value << ")" << endl;
+        TR cout << "       IntSet::put(key=" << key << ", value=" << value << ")" << endl;
 
         if (key == FREE_KEY) {
             int ret = m_freeValue;
@@ -167,7 +160,7 @@ namespace iProlog {
     }
 
 #if 0 // not called
-    int IntMap::remove(int key) {
+    int IntSet::remove(int key) {
         if (key == FREE_KEY) {
             if (!m_hasFreeKey)
                 return NO_VALUE;
@@ -201,7 +194,7 @@ namespace iProlog {
         }
     }
 
-    int IntMap::shiftKeys(int pos) {
+    int IntSet::shiftKeys(int pos) {
         // Shift entries with the same hash.
         int last, slot;
         int k;
@@ -234,7 +227,7 @@ namespace iProlog {
  * @param x a long integer smaller than or equal to 2<sup>62</sup>.
  * @return the least power of two greater than or equal to the specified value.
  */
-    long IntMap::nextPowerOfTwo(long x) {
+    long IntSet::nextPowerOfTwo(long x) {
         if (x == 0)
             return 1;
         x--;
@@ -254,8 +247,8 @@ namespace iProlog {
      * @return the minimum possible size for a backing array.
      * @throws IllegalArgumentException if the necessary size is larger than 2<sup>30</sup>.
      */
-    int IntMap::arraySize(int expected, float f) {
-        long s = std::max(2L, IntMap::nextPowerOfTwo((long)ceil(expected / f)));
+    int IntSet::arraySize(int expected, float f) {
+        long s = std::max(2L, IntSet::nextPowerOfTwo((long)ceil(expected / f)));
         if (s > 1 << 30) {
             string emsg = "Too large " + expected;
             // emsg += " expected elements with load factor " + f;
@@ -267,13 +260,13 @@ namespace iProlog {
     //taken from FastUtil
     static const int INT_PHI = 0x9E3779B9;
 
-    int IntMap::phiMix(int x) {
+    int IntSet::phiMix(int x) {
         int h = x * INT_PHI;
         return h ^ h >> 16;
     }
 
     // @Override
-string IntMap::show() const {
+string IntSet::show() const {
     //return java.util.Arrays.toString(m_data);
     string b = "{";
     int l = m_data_length;

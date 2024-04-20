@@ -64,10 +64,10 @@ namespace iProlog {
 		}
 
 	  // was vcreate in Java version:
-		var_maps = vector<cls_no_to_cell>(MAXIND);
+		var_maps = vector<cls_no_set>(MAXIND);
 
 		for (int arg_pos = 0; arg_pos < MAXIND; arg_pos++) {
-			var_maps[arg_pos] = cls_no_to_cell();
+			var_maps[arg_pos] = cls_no_set();
 		}
 	  // end vcreate inlined
 
@@ -216,9 +216,9 @@ namespace iProlog {
      * having variables in predicate positions (if any)." [HHG/ICLP 2017]
      */
 	void intersect0(
-		const cls_no_to_cell & m,
-		const vector<cls_no_to_cell>& maps,
-		const vector<cls_no_to_cell>& vmaps,
+		const cls_no_set& m,
+		const vector<cls_no_set>& maps,
+		const vector<cls_no_set>& vmaps,
 		vector<ClauseNumber>& cls_nos) {
 #define TR if(0)
 
@@ -232,9 +232,9 @@ namespace iProlog {
 			bool found = true;
 			for (int i = 1; i < maps.size(); i++) {
 				ClauseNumber v = maps[i].get(cn.as_int());
-				if (v == ClauseNumber(cls_no_to_cell::no_value())) {
+				if (v == ClauseNumber(cls_no_set::no_value())) {
 					ClauseNumber vcval = vmaps[i].get(cn.as_int());
-					if (vcval == cls_no_to_cell::no_value()) {
+					if (vcval == cls_no_set::no_value()) {
 						found = false;
 						break;
 					}
@@ -253,8 +253,8 @@ namespace iProlog {
 #define TR if(0)
 		TR cout << "Entering matching_clauses" << endl;
 
-		vector<cls_no_to_cell> ms;
-		vector<cls_no_to_cell> vms;
+		vector<cls_no_set> ms;
+		vector<cls_no_set> vms;
 		TR cout << " matching_clauses: entering iv loop" << endl;
 
 		for (int i = 0; i < imaps.size(); i++)
@@ -274,7 +274,7 @@ namespace iProlog {
 				continue;
 			}
 			else {
-				cls_no_to_cell m = imaps[i].map[iv[i]];  // get_cls_no_to_cell(ip);
+				cls_no_set m = imaps[i].map[iv[i]];  // cls_no_set(ip);
 				ms.emplace_back(m);  // ms will start empty
 				vms.emplace_back(var_maps[i]);
 			}

@@ -411,7 +411,7 @@ cout << "---------------------------------------" << endl;
 
         x.put(cls_no, c);
 
-        cls_no_to_cell the_intset = x.get_cls_no_to_cell(c);
+        cls_no_set the_intset = x.get_cls_no_set(c);
         TR cout << " got intset, capacity=" << the_intset.capacity() << endl;
         TR cout << "the_intset: " << the_intset.show() << endl;
 

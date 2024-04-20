@@ -15,15 +15,15 @@ namespace iProlog {
   bool IMap::put(ClauseNumber cls_no, cell this_cell) {
 #define TR if(0)
     if (map.count(this_cell) == 0) {
-        cls_no_to_cell c2c;
-        map.insert(std::pair<cell, cls_no_to_cell>(this_cell, c2c));
+        cls_no_set x;
+        map.insert(std::pair<cell, cls_no_set>(this_cell, x));
     }
 
     return map[this_cell].add_key(cls_no.as_int());
 #undef TR
   }
 
-  cls_no_to_cell IMap::get_cls_no_to_cell(cell cx) {
+  cls_no_set IMap::get_cls_no_set(cell cx) {
 #define TR if(0)
       return map[cx];
 #undef TR
@@ -46,7 +46,7 @@ namespace iProlog {
 
   string IMap::show() const {
     string s = "IMap:{";
-    for (const std::pair<const cell, cls_no_to_cell>& n : map) {
+    for (const std::pair<const cell, cls_no_set>& n : map) {
         s += "<k:[" + to_string(n.first.as_int());
         s += "-> v[" + n.second.show();
         s += ">";

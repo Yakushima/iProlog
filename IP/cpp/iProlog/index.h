@@ -44,7 +44,7 @@ public:
   /* "The clauses having variables in an indexed argument position are also
    * collected in a separate set for each argument position."
    */
-    vector<cls_no_to_cell> var_maps;
+    vector<cls_no_set> var_maps;
 
     long n_matches;
 

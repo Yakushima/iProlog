@@ -33,15 +33,11 @@ namespace iProlog {
         }
     };
 
-
-    // 3rd arg: free_key, 4th no_value
-    // currently cell value is initialized with 666
-    // this could overlap valid cell values
-    typedef IntSet cls_no_to_cell;
+    typedef IntSet cls_no_set;
 
 class IMap {
 public:
-    unordered_map<cell, cls_no_to_cell, CellHash> map;
+    unordered_map<cell, cls_no_set, CellHash> map;
 
     static const unsigned NBUCKETS_2_exp = 2;
     static const int NBUCKETS = 1 << NBUCKETS_2_exp;
@@ -56,7 +52,7 @@ public:
     static vector<IMap> create(int l);
 
       bool put(ClauseNumber, cell this_cell);
-      cls_no_to_cell get_cls_no_to_cell(cell cx);
+      cls_no_set get_cls_no_set(cell cx);
       size_t amount() const;
 
 // refactor out in a subclass, for micro version

@@ -275,40 +275,36 @@ namespace iProlog {
 			}
 			else {
 				cls_no_to_cell m = imaps[i].map[iv[i]];  // get_cls_no_to_cell(ip);
-					ms.emplace_back(m);  // ms will start empty
-					vms.emplace_back(var_maps[i]);
+				ms.emplace_back(m);  // ms will start empty
+				vms.emplace_back(var_maps[i]);
 			}
 
-		vector<cls_no_to_cell> ims = vector<cls_no_to_cell>(ms.size());
-		vector<cls_no_to_cell> vims = vector<cls_no_to_cell>(vms.size());
-
-		for (int i = 0; i < ms.size(); i++) { // ims.length in Java code
-			ims[i] = ms[i];
-			vims[i] = vms[i];
-		}
 		vector<ClauseNumber> cs; // "$$$ add vmaps here"
 
 		// was IntMap.java intersect, expanded here:
-			intersect0(ims[0], ims, vims, cs);
-			intersect0(vims[0], ims, vims, cs);
+		intersect0(ms[0], ms, vms, cs);
+		intersect0(vms[0], ms, vms, cs);
 
-			// is: clause numbers converted to indices
-			vector<ClauseIndex> is;  /*= cs.toArray() in Java, emulated here but
-										* with conversion to indices. Could
-										* probably be done on-the-fly in intersect0. */
+		// is: clause numbers converted to indices
+		vector<ClauseIndex> is;	  /*= cs.toArray() in Java, emulated here but
+									* with conversion to indices. Could
+									* probably be done on-the-fly in intersect0. */
+		if (cs.size() == 0)
+			return is;
+		is.reserve(cs.size());
+		for (int i = 0; i < cs.size(); ++i)
+			is.push_back(to_clause_idx(cs[i]));
 
-			for (int i = 0; i < cs.size(); ++i)
-				is.push_back(to_clause_idx(cs[i]));
-
-			/* "Finally we sort the resulting set of clause numbers and
-			 * hand it over to the main Prolog engine for unification
-			 * and possible unfolding in case of success."
-			 *
-			 * I.e., respect standard Prolog clause ordering.
-			 */
+		/* "Finally we sort the resulting set of clause numbers and
+			* hand it over to the main Prolog engine for unification
+			* and possible unfolding in case of success."
+			*
+			* I.e., respect standard Prolog clause ordering.
+			*/
+		if (is.size() > 1)
 			std::sort(is.begin(), is.end());
 
-			return is;
+		return is;
 #undef TR
 	}
 

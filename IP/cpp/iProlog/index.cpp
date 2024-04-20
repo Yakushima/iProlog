@@ -59,10 +59,8 @@ namespace iProlog {
     index::index(CellStack &heap, vector<Clause>& clauses) {
 #define TR if(0)
 		for (int i = 0; i < clauses.size(); ++i) {
-			TR cout << "index constr: i=" << i << endl;
-				cell hd = clauses.at(i).skeleton.at(0);
-			TR cout << "clauses[" << i << "].base = " << clauses[i].base << endl;
-				clauses[i].index_vector = getIndexables(heap, hd);
+			cell hd = clauses[i].skeleton.at(0);
+			clauses[i].index_vector = getIndexables(heap, hd);
 		}
 
 	  // was vcreate in Java version:
@@ -151,7 +149,6 @@ namespace iProlog {
 
 	void index::put(const t_index_vector &iv, ClauseNumber cls_no) {
 #define TR if(0)
-		cout << "    index::put(iv, cls_no)" << endl;
 		for (int arg_pos = 0; arg_pos < MAXIND; arg_pos++) {
 			cell vec_elt = iv[arg_pos];
 
@@ -160,9 +157,6 @@ namespace iProlog {
 				// INDEX PARTLY FAILED BEFORE WHEN CELL SIGN BIT ON
 				// Probably because 0 is tag(V_,0) with sign bit off
 
-				TR cout << "    about to call imaps[" << arg_pos << "]->put(new Integer("
-					<< cls_no.as_int() << "),  vec_elt=" << vec_elt.as_int() << " )" << endl;
-
 				imaps[arg_pos].put(cls_no, vec_elt);
 			}
 			else { // this can include vec_elt == cell::BAD case, but maybe that's OK
@@ -170,18 +164,10 @@ namespace iProlog {
 				 * having variables in position [arg_pos], then any of them
 				 * can also unify with our goal element"
 				 */
-				TR cout << "    *** var_maps[" << arg_pos << "].add_key(cls_no->i=" << cls_no.as_int() << ")" << endl;
 				var_maps[arg_pos].add_key(cls_no.as_int());
 				assert(var_maps[arg_pos].contains(cls_no.as_int()));
-				TR cout << "    *** var_maps[" << arg_pos << "] is now " << var_maps[arg_pos].show() << endl;
 			}
 		}
-
-		TR cout << "\n    &&&&& imaps & var_maps in index::put after processing:" << endl;
-		TR cout << this->show_index() << endl;
-		TR cout << "    &&&&&&" << endl;
-
-		cout << "    index::put exiting........" << endl;
 #undef TR
     }
 
@@ -195,8 +181,8 @@ namespace iProlog {
 #define TR if(0)
 		if (!indexing) return;
 
-		if (G->index_vector.at(0).s_tag() != cell::BAD
-		// || !G->hasGoals()
+		if (G->index_vector[0].s_tag() != cell::BAD
+		 || !G->hasGoals()
 		)
 			return;
 
@@ -210,10 +196,7 @@ namespace iProlog {
 			G->index_vector[arg_pos] = cell2index(heap,arg_val);
 		}
 
-		TR cout << "in makeIndexArgs, before matching_clauses call, G->unifiables[0]=" << G->unifiables[0].as_int() << endl;
 		G->unifiables = matching_clauses_(G->index_vector);
-		if (G->unifiables.size() > 0)
-			TR cout << "in makeIndexArgs, AFTER matching_clauses call, G->unifiables[0]=" << G->unifiables[0].as_int() << endl;
 #undef TR
     }
 
@@ -233,46 +216,33 @@ namespace iProlog {
      * having variables in predicate positions (if any)." [HHG/ICLP 2017]
      */
 	void intersect0(
-		cls_no_to_cell & m,
-		vector<cls_no_to_cell>& maps,
-		vector<cls_no_to_cell>& vmaps,
+		const cls_no_to_cell & m,
+		const vector<cls_no_to_cell>& maps,
+		const vector<cls_no_to_cell>& vmaps,
 		vector<ClauseNumber>& cls_nos) {
 #define TR if(0)
-		assert(vmaps.size() <= maps.size());
 
-		TR cout << "intersect0(m.size()=" << m.size() << ", maps.size()=" << maps.size()
-			<< ", vmaps.size()=" << vmaps.size() << ", cls_nos.size()=" << cls_nos.size() << ")" << endl;
-
-			for (int k = 0; k < m.capacity(); k += m.stride()) {
-				if (m.is_free(k))
-					continue;
+		TR cout << "m.capacity()=" << m.capacity() << endl;
+		for (int k = 0; k < m.capacity(); k += m.stride()) {
+			if (m.is_free(k))
+				continue;
 	
-				ClauseNumber cn = m.get_key_at(k);
+			ClauseNumber cn = m.get_key_at(k);
 	
-				TR cout << "    ***nonzero cn=" << cn.as_int() << " m.is_free(cn.as_int()=" << m.is_free(cn.as_int()) << endl;
-				TR cout << "   cn=m.get_key_at(" << k << ")=" << cn.as_int() << endl;
-				TR cout << "     ....not free, check if in maps[0.." << maps.size() << "]" << endl;
-
-				bool found = true;
-				for (int i = 1; i < maps.size(); i++) {
-					ClauseNumber v = maps[i].get(cn.as_int());
-					TR cout << "       at maps[" << i << "] v=" << v.as_int() << endl;
-					if (v == ClauseNumber(cls_no_to_cell::no_value())) {
-						TR cout << "         at maps[" << i << "]  map.get(" << cn.as_int() << ") == NO_VALUE" << endl;
-						ClauseNumber vcval = vmaps[i].get(cn.as_int());
-						if (vcval == cls_no_to_cell::no_value()) {
-							TR cout << "         at vmaps[" << i << "] vmap.get(" << cn.as_int() << ") == NO_VALUE, break from i-loop" << endl;
-							found = false;
-							break;
-						}
+			bool found = true;
+			for (int i = 1; i < maps.size(); i++) {
+				ClauseNumber v = maps[i].get(cn.as_int());
+				if (v == ClauseNumber(cls_no_to_cell::no_value())) {
+					ClauseNumber vcval = vmaps[i].get(cn.as_int());
+					if (vcval == cls_no_to_cell::no_value()) {
+						found = false;
+						break;
 					}
 				}
-				if (found) {
-					TR cout << "   at data[" << k << "] found key=" << cn.as_int() << " to push to result" << endl;
-					TR cout << "   before push cls_nos.size() == " << cls_nos.size() << endl;
-					cls_nos.push_back(cn);
-				}
 			}
+			if (found)
+				cls_nos.push_back(cn);
+		}
 #undef TR
 	}
 
@@ -304,50 +274,22 @@ namespace iProlog {
 				continue;
 			}
 			else {
-				  TR cout << "imaps.at(" << i << ")=" << imaps.at(i).show() << " i=" << i << endl;
-				  TR cout << " in imaps[" << i <<"], count for vec elt " << iv[i].as_int() << " is " << imaps[i].map.count(iv[i]) << endl;
-					cls_no_to_cell m = imaps[i].map[iv[i]];  // get_cls_no_to_cell(ip);
-				  TR cout << "  m=" << m.show() << endl;
+				cls_no_to_cell m = imaps[i].map[iv[i]];  // get_cls_no_to_cell(ip);
 					ms.emplace_back(m);  // ms will start empty
-					vms.emplace_back(var_maps.at(i));
-				  TR cout << "  matching_clauses() iv loop: imaps[" << i << "] pushing " << endl;
+					vms.emplace_back(var_maps[i]);
 			}
-		TR cout << " matching_clauses: exited iv loop, ms.size()=" << ms.size() << " vms.size()=" << vms.size() << endl;
-
-		TR cout << endl;
-		TR cout << "  matching_clauses: ms[0.." << ms.size() << "]" << endl;
-		for (int i = 0; i < ms.size(); ++i)
-			TR cout << "     [" << i << "]: " << ms[i].show() << endl;
-		TR cout << "  matching_clauses: vms[0.." << vms.size() << "]" << endl;
-		for (int i = 0; i < vms.size(); ++i)
-			TR cout << "     [" << i << "]: " << vms[i].show() << endl;
-		TR cout << endl;
 
 		vector<cls_no_to_cell> ims = vector<cls_no_to_cell>(ms.size());
 		vector<cls_no_to_cell> vims = vector<cls_no_to_cell>(vms.size());
-		assert(ims.size() == vims.size());
-		assert(ims.size() > 0);
 
 		for (int i = 0; i < ms.size(); i++) { // ims.length in Java code
-			ims[i] = ms.at(i);
-			vims[i] = vms.at(i);
+			ims[i] = ms[i];
+			vims[i] = vms[i];
 		}
 		vector<ClauseNumber> cs; // "$$$ add vmaps here"
-		// cs: receives the clause numbers:
 
 		// was IntMap.java intersect, expanded here:
-
-			TR cout << "  ims: " << endl;
-			// for (int i = 0; i < ims.size(); ++i) TR cout << "   [" << i << "]: " << ims[i].show() << endl;
-			TR cout << "  vims: " << endl;
-			// for (int i = 0; i < vims.size(); ++i) TR cout << "   [" << i << "]: " << vims[i].show() << endl;
-
-			TR cout << "intersect0(ims[0], ims, vims, cs)" << endl;
 			intersect0(ims[0], ims, vims, cs);
-			TR cout << "&&&& after first intersect0, r=[";
-			// for (int i = 0; i < cs.size(); ++i) TR cout << cs[i].as_int() << " ";
-			TR cout << "]" << endl;
-			TR cout << "intersect0(vims[0], ims, vims, cs)" << endl;
 			intersect0(vims[0], ims, vims, cs);
 
 			// is: clause numbers converted to indices
@@ -356,22 +298,15 @@ namespace iProlog {
 										* probably be done on-the-fly in intersect0. */
 
 			for (int i = 0; i < cs.size(); ++i)
-				is.push_back(to_clause_idx(cs.at(i)));
-
+				is.push_back(to_clause_idx(cs[i]));
 
 			/* "Finally we sort the resulting set of clause numbers and
-				* hand it over to the main Prolog engine for unification
-				* and possible unfolding in case of success."
-				*
-				* I.e., respect standard Prolog clause ordering.
-				*/
+			 * hand it over to the main Prolog engine for unification
+			 * and possible unfolding in case of success."
+			 *
+			 * I.e., respect standard Prolog clause ordering.
+			 */
 			std::sort(is.begin(), is.end());
-
-			TR cout << " is:" << endl;
-
-			// for (int i = 0; i < is.size(); ++i) TR cout << "    is[" << i << "] = " << is.at(i).as_int() << endl;
-
-			TR cout << "matching_clauses: exiting safely" << endl;
 
 			return is;
 #undef TR

@@ -121,7 +121,7 @@
       <ConformanceMode>true</ConformanceMode>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
-      <Optimization>MinSpace</Optimization>
+      <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

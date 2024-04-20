@@ -14,30 +14,18 @@ namespace iProlog {
 
   bool IMap::put(ClauseNumber cls_no, cell this_cell) {
 #define TR if(0)
-      TR cout << "      IMap::put(cls_no_box->i=" << cls_no.as_int() << ", this_cell=" << this_cell.show() << ")" << endl;
-      TR cout << "      In IMap::put(" << cls_no.as_int() << ", this_cell=" << this_cell.show() << ")" << endl;
-
-      cout << "        map.size() == "<< map.size() << endl;
-
     if (map.count(this_cell) == 0) {
         cls_no_to_cell c2c;
         map.insert(std::pair<cell, cls_no_to_cell>(this_cell, c2c));
-        cout << "           map.at(" << this_cell.show() << ")=" << map.at(this_cell).show() << endl;
     }
 
-    bool res = map.at(this_cell).add_key(cls_no.as_int());
-
-      TR cout << "      IMap::put(...): returning with get_cell_to_cls_no result " << get_cls_no_to_cell(this_cell).show() << endl;
-
-    return res;
+    return map[this_cell].add_key(cls_no.as_int());
 #undef TR
   }
 
   cls_no_to_cell IMap::get_cls_no_to_cell(cell cx) {
 #define TR if(0)
-      TR cout << "         **** get_clause_no_to_cell(cx=" << cx.show() << ")"  << endl;
-
-      return map.at(cx);
+      return map[cx];
 #undef TR
   }
 

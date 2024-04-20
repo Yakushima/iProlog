@@ -13,40 +13,40 @@
 
 namespace iProlog {
 
+    // https://stackoverflow.com/questions/108318/how-can-i-test-whether-a-number-is-a-power-of-2)
 
-    void IntSet::alloc(size_t cap) {
-        m_data = vector<int>(cap * stride());
+    bool is_a_power_of_2(int size) {
+        return size > 0 && (size & (size - 1)) == 0;
     }
 
+    IntSet::IntSet() {
 
-    IntSet::IntSet(int size, float fillFactor) {
-        if (fillFactor <= 0 || fillFactor >= 1)
-            throw new logic_error("FillFactor must be in (0, 1)");
-        if (size <= 0)
-            throw new logic_error("Size must be positive!");
-        int capacity = arraySize(size, fillFactor);
+        const int capacity = init_len;
+
+        assert(is_a_power_of_2(capacity));
+           
+        // int capacity = arraySize(size, fillFactor_pc);
         alloc(capacity);
         m_mask = capacity - 1;
         m_mask2 = capacity * 2 - 1;
-        m_fillFactor = fillFactor;
 
         m_data_length = capacity * 2;
-        m_data = vector<int>(m_data_length);
+        m_data = Vec(m_data_length);
 
-        m_threshold = (int)(capacity * fillFactor);
+        m_threshold = (capacity * m_fillFactor_pc)/100;
         m_size = 0;
     }
 
     void IntSet::rehash(int newCapacity) {
         cout << "                      !!!!!!!!!!!!! calling rehash !!!!!!!!!!!!!!!!!!" << endl;
-        m_threshold = (int)(newCapacity / 2 * m_fillFactor);
+        m_threshold = (int)(newCapacity / 2 * ((float)m_fillFactor_pc/100));
         m_mask = newCapacity / 2 - 1;
         m_mask2 = newCapacity - 1;
 
         int oldCapacity = m_data_length;
-        vector<int> oldData = m_data;
+        Vec oldData = m_data;
 
-        m_data = vector<int>(newCapacity);
+        m_data = Vec(newCapacity);
         m_size = m_hasFreeKey ? 1 : 0;
 
         for (int i = 0; i < oldCapacity; i += 2) {
@@ -57,7 +57,7 @@ namespace iProlog {
         }
     }
 
-    int IntSet::get(int key) {
+    int IntSet::get(int key) const {
 #define TR if(0)
         int ptr = (phiMix(key) & m_mask) << 1;
 
@@ -198,7 +198,7 @@ namespace iProlog {
         // Shift entries with the same hash.
         int last, slot;
         int k;
-        vector<int> data = m_data;
+        Vec data = m_data;
         while (true) {
             pos = (last = pos) + 2 & m_mask2;
             while (true) {
@@ -218,6 +218,7 @@ namespace iProlog {
     }
 #endif
 
+#if 0
     /** Taken from FastUtil implementation */
 
 /** Return the least power of two greater than or equal to the specified value.
@@ -239,6 +240,9 @@ namespace iProlog {
         return (x | x >> 32) + 1;
     }
 
+
+    // always init with size = 2^n for n >= 0
+
     /** Returns the least power of two smaller than or equal to 2<sup>30</sup>
      * and larger than or equal to <code>Math.ceil( expected / f )</code>.
      *
@@ -247,8 +251,8 @@ namespace iProlog {
      * @return the minimum possible size for a backing array.
      * @throws IllegalArgumentException if the necessary size is larger than 2<sup>30</sup>.
      */
-    int IntSet::arraySize(int expected, float f) {
-        long s = std::max(2L, IntSet::nextPowerOfTwo((long)ceil(expected / f)));
+    int IntSet::arraySize(int expected, int f_pc) {
+        long s = std::max(2L, IntSet::nextPowerOfTwo((long)ceil(expected / ((float) f_pc/100))));
         if (s > 1 << 30) {
             string emsg = "Too large " + expected;
             // emsg += " expected elements with load factor " + f;
@@ -256,14 +260,8 @@ namespace iProlog {
         }
         return (int)s;
     }
+#endif
 
-    //taken from FastUtil
-    static const int INT_PHI = 0x9E3779B9;
-
-    int IntSet::phiMix(int x) {
-        int h = x * INT_PHI;
-        return h ^ h >> 16;
-    }
 
     // @Override
 string IntSet::show() const {

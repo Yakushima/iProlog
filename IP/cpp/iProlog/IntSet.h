@@ -26,7 +26,11 @@
 
 #include "IMap.h"
 
+// #define RAW_VEC
+
 namespace iProlog {
+
+    typedef vector<int> Vec;
 
     using namespace std;
 
@@ -44,8 +48,15 @@ namespace iProlog {
         static const  int FREE_KEY = 0;
         static const  int NO_VALUE = 0;
 
+        static const  int init_len = (1 << 2);
+
+        /** Fill factor, must be between (0 and 100) */
+        static const int m_fillFactor_pc = 75;
+        /** We will resize a map once it reaches this size */
+        int m_threshold;
+
         /** Keys and values */
-        vector<int> m_data;
+        Vec m_data;
         int m_data_length;
     private:
         /** Do we have 'free' key in the map? */
@@ -53,10 +64,6 @@ namespace iProlog {
         /** Value of 'free' key */
         int m_freeValue;
 
-        /** Fill factor, must be between (0 and 1) */
-        float m_fillFactor;
-        /** We will resize a map once it reaches this size */
-        int m_threshold;
         /** Current map size */
         int m_size;
 
@@ -65,9 +72,9 @@ namespace iProlog {
         int m_mask2;
     public:
         // adding for index.cpp:
-        int capacity() const         { return m_data_length;         }
-        int stride() const           { return 2;                     }
-        inline int get_key_at(int i) { return m_data[i];             }
+        inline int capacity() const         { return m_data_length;         }
+        inline int stride() const           { return 2;                     }
+        inline int get_key_at(int i) const { return m_data[i];             }
         inline bool is_free(int i) const { return m_data[i] == FREE_KEY; }
         inline static int no_value() { return NO_VALUE; }
 
@@ -76,35 +83,41 @@ namespace iProlog {
             // NO_VALUE = no_val;
         }
 
-        IntSet() : IntSet(1 << 2) { }
+        inline void alloc(size_t cap) {
+            m_data = Vec(cap * stride());
+        }
 
-        // ****** Make resizing/rehashing irrelevant for now
-        // IntSet() : IntSet(1 << 5) { }
-
-
-        IntSet(int size) : IntSet(size, 0.75f) { }
-        IntSet(int size, float fillFactor);
+        IntSet();
 
     public:
         // "for use as IntSet" - Paul Tarau
 
-        inline bool contains(int key) { return NO_VALUE != get(key);         }
+        inline bool contains(int key) const { return NO_VALUE != get(key);         }
         inline bool add_key(int key)  { return NO_VALUE != put(key, 666);    }
         inline bool delete_(int key)  { return NO_VALUE != remove(key);      }
         inline bool isEmpty() const   { return 0 == m_size;                  }
-        inline int  size()            { return m_size;                       }
+        inline int  size() const      { return m_size;                       }
 
-        int get(int key);
+        int get(int key) const;
         int put(int key, int value);
         int remove(int key);
 
     private:
+#if 0
         static long nextPowerOfTwo(long x);
-        static int arraySize(int expected, float f);
+        static int arraySize(int expected, int f_pc);
+#endif
         int shiftKeys(int pos);
         void rehash(int newCapacity);
-        int phiMix(int x);
-        void alloc(size_t cap);
+
+        //taken from FastUtil
+        static const int INT_PHI = 0x9E3779B9;
+
+        inline int phiMix(int x) const {
+            int h = x * INT_PHI;
+            return h ^ h >> 16;
+        }
+
     public:
         string show() const;
   };

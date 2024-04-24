@@ -21,6 +21,7 @@ public class index {
         boolean is_empty() { return imaps.length == 0; }
 
         public static IntMap[] vcreate(final int l) {
+            Main.println ("vcreate(" + l + ")");
             final IntMap[] vss = new IntMap[l];
             for (int i = 0; i < l; i++) {
                 vss[i] = new IntMap();
@@ -67,7 +68,8 @@ public class index {
         final ArrayList<IntMap> ms = new ArrayList<>();
         final ArrayList<IntMap> vms = new ArrayList<>();
 
-        // Main.println ("matching_clauses: entering iv loop");
+        // Main.println(" ==== matching_clauses: start iv loop, imaps.length=" + imaps.length);
+
         for (int i = 0; i < l; i++) {
             // Main.println ("  ["+i+"]="+iv[i]);
             final int vec_elt = iv[i];
@@ -75,11 +77,16 @@ public class index {
                 continue;       // [MT: but then why the "continue" rather than
                                 // "break"?
             }
+            // Main.println("  iv[" + i + "]=" + vec_elt);
+
             final IntMap m = imaps[i].get(new Integer(vec_elt));
-            // Main.pp("m=" + m);
+            // Main.println("  ms  << " + m);
             ms.add(m);
+            // Main.println("  vms << " + vmaps[i]);
             vms.add(vmaps[i]);
         }
+
+        // Main.println(" ==== matching_clauses: rest of processing");
 
         // Main.pp("");
         // Main.pp ("  matching_clauses: ms[0.." + ms.size() + "]");
@@ -119,7 +126,8 @@ public class index {
 
         // for (int i = 0; i < is.length; ++i) Main.println ("     is[" + i + "] = " + is[i]);
 
-        // Main.println("matching_clauses: exiting safely");
+        // Main.println(" ==== matching_clauses: exiting");
+        // Main.println("");
         return is;
     }
 

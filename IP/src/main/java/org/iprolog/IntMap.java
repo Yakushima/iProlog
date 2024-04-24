@@ -97,6 +97,7 @@ class IntMap implements java.io.Serializable {
     Main.println("intersect0(m.size()=" + m.size() + ", maps.size()=" + maps.length
             + ", vmaps.size()=" + vmaps.length + ", cls_nos.size()=" + r.size() + ")")
  */
+    // Main.println ("data.length=" + data.length);
     for (int k = 0; k < data.length; k += 2) {
       boolean found = true;
       final int key = data[k];
@@ -104,6 +105,7 @@ class IntMap implements java.io.Serializable {
         // Main.println("   at data[" + k + "] hit FREE_KEY");
         continue;
       }
+
       for (int i = 1; i < maps.length; i++) {
         final IntMap map = maps[i];
         final int val = map.get(key);
@@ -135,11 +137,15 @@ class IntMap implements java.io.Serializable {
     // for (int i = 0; i < vmaps.length; ++i) Main.println ("  ["+i+"]: " + vmaps[i].toString());
     // Main.println("intersect0(maps[0], maps, vmaps, r):");
     // for (int i = 0; i < maps.length; ++i) maps[i].toString();
+    // Main.println ("maps[0].size()=" + maps[0].m_size);
     intersect0(maps[0], maps, vmaps, r);
     // Main.println("&&&& after first intersect0, r=" + r.toString());
     // Main.println("intersect0[vmaps[0], maps, vmaps, r):");
+    // Main.println ("vmaps[0].size()=" + vmaps[0].m_size);
     intersect0(vmaps[0], maps, vmaps, r);
-    // Main.println ("intersect: r = " + r.toString());
+    // Main.println ("  intersection: " + r.toString());
+
+
     return r;
   }
 
@@ -337,7 +343,7 @@ class IntMap implements java.io.Serializable {
         }
         first = false;
         // b.append(" cl_no(???): " +(v - 1));
-        b.append("#" + v + "->c" + m_data[i+1]);
+        b.append(v /* + "->" + m_data[i+1] */);
       }
     }
     b.append("}");

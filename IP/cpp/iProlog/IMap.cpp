@@ -47,9 +47,8 @@ namespace iProlog {
   string IMap::show() const {
     string s = "IMap:{";
     for (const std::pair<const cell, cls_no_set>& n : map) {
-        s += "<k:[" + to_string(n.first.as_int());
-        s += "-> v[" + n.second.show();
-        s += ">";
+        s += " key: " + to_string(n.first.as_int());
+        s += "val: " + n.second.show();
     }
     s += "}";
     return s;

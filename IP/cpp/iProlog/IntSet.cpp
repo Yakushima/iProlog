@@ -38,7 +38,8 @@ namespace iProlog {
     }
 
     void IntSet::rehash(int newCapacity) {
-        cout << "                      !!!!!!!!!!!!! calling rehash !!!!!!!!!!!!!!!!!!" << endl;
+        cout << "           !!!!!!!!!!!!! calling rehash, newCapacity="
+             << to_string(newCapacity) << " !!!!!!!!!!!!!!!!!!" << endl;
         m_threshold = (int)(newCapacity / 2 * ((float)m_fillFactor_pc/100));
         m_mask = newCapacity / 2 - 1;
         m_mask2 = newCapacity - 1;
@@ -47,6 +48,7 @@ namespace iProlog {
         Vec oldData = m_data;
 
         m_data = Vec(newCapacity);
+        m_data_length = newCapacity;
         m_size = m_hasFreeKey ? 1 : 0;
 
         for (int i = 0; i < oldCapacity; i += 2) {
@@ -277,9 +279,14 @@ string IntSet::show() const {
                 b += ", ";
             }
             first = false;
+#if 0
             b += "[" + to_string(i);
-            b += "]:#" + to_string(v);
-            b += "->c" + to_string(m_data[i + 1]);
+            b += "]:#";
+#endif
+            b += to_string(v);
+#if 0
+            b += "->" + to_string(m_data[i + 1]);
+#endif
         }
     }
     b += "}";

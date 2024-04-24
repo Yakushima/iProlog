@@ -27,7 +27,7 @@ namespace iProlog {
 
     struct CellHash
     {
-        std::size_t operator()(const cell& s) const noexcept
+        inline std::size_t operator()(const cell& s) const noexcept
         {
             return NBUCKETS_mask & (s.as_int() ^ (s.as_int() >> 8));
         }

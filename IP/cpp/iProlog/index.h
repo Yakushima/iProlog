@@ -50,8 +50,6 @@ public:
 
     index(CellStack &heap, vector<Clause>& clauses);
 
-#define COUNTING_MATCHES
-
     bool possible_match(const Spine *sp,
                         const Clause& cl)
 #ifndef COUNTING_MATCHES
@@ -77,7 +75,7 @@ public:
 
     string show(const t_index_vector& iv) const;
 
-    string show_index() const;
+    string show() const;
 };
 
 } // namespace

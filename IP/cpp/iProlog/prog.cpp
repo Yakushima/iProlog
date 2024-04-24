@@ -31,7 +31,7 @@ namespace iProlog {
     }
 
     string Prog::show_index() const {
-        return Ip->show_index();
+        return Ip->show();
     }
 
     string Prog::showCells(int base, int len) const {
@@ -99,6 +99,7 @@ namespace iProlog {
  */
     void Prog::run(bool print_ans) {
 #define TR if(0)
+        const int MAX_OUTPUT_LINES = 5;
         TR cout << "Prog::run(print_ans=" << print_ans << ")" << endl;
 #if 0
         set_engine(this);   // for static checkit, usable in other scopes(?)
@@ -110,7 +111,7 @@ namespace iProlog {
             TR cout << "Prog::run: r=ask()=" << A.toString() << endl;
             if (A.type == Object::e_nullptr)
                 break;
-            if (print_ans)
+            if (ctr < MAX_OUTPUT_LINES && print_ans)
                 cout << "[" << ctr << "] " << "*** ANSWER=" << showTerm(A) << endl;
         }
         pp(cstr("TOTAL ANSWERS=") + ctr);

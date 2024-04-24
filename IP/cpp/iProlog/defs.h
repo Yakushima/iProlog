@@ -7,6 +7,7 @@
 #include <climits>
 #include <stdexcept>
 #include <stdint.h>
+#define NDEBUG
 #include <assert.h>
 
 #include "config.h"

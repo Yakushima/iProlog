@@ -54,11 +54,13 @@ namespace iProlog {
 	const int INTMAP_INIT_SIZE = (1 << 2);
 	const float INTMAP_FILL_FACTOR = 0.75f;
 
-	#define USE_SIGN_BIT false;
+#define USE_SIGN_BIT false;
 
 	const bool integrity_check = false;
 	void checkit_();
 	inline void checkit() { if (integrity_check) checkit_(); }
+
+#define COUNTING_MATCHES
 
 #define TRY_CATCHING
 

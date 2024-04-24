@@ -1071,6 +1071,7 @@ class Engine {
     makeIndexArgs(G, goal);
 
     final int last = G.unifiables.length;
+    // Main.println ("unfold: last=" + last);
     // G.last_clause_tried: "index of the last clause [that]
           // the top goal of [this] Spine [G]
           // has tried to match so far " [HHG doc]
@@ -1089,9 +1090,9 @@ class Engine {
       // Prog.println ("C0.base=" + C0.base);
       // Prog.println ("     " + showHeap("heap before pushHead"));
 
-      if (!Ip.possible_match(G.index_vector, C0))
+        if (!Ip.possible_match(G.index_vector, C0))
           continue;
-      else
+        else
           ++n_matches;
 
       // Prog.println("??????? possible match? ???????");
@@ -1274,7 +1275,7 @@ class Engine {
    */
   public void run() {
     long ctr = 0L;
-    int MAX_OUTPUT_LINES = 500;
+    int MAX_OUTPUT_LINES = 5;
 
     // Prog.println(" &&&& run(): spines.peek().last_clause_tried=" + spines.peek().last_clause_tried);
 

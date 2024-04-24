@@ -318,8 +318,37 @@ vector<Clause> dload(const cstr s) {
         q = make_shared<CellList>(h);
     }
 
+    void vec_bench()
+    {
+        using namespace chrono;
+        auto b = steady_clock::now();
+        cout << "vectors benchmark" << endl;
+        ///////////////
+        cout << "after run" << endl;
+        auto e = steady_clock::now();
+        long long d = duration_cast<milliseconds>(e - b).count();
+        cout << "done in " << std::dec << duration_cast<milliseconds>(e - b).count() << endl;
+        cout << "or " << (double)d / 1000 << endl;
+    }
+
+    void int_bench()
+    {
+        using namespace chrono;
+        auto b = steady_clock::now();
+        cout << "before run" << endl;
+        //////////////
+        cout << "after run" << endl;
+        auto e = steady_clock::now();
+        long long d = duration_cast<milliseconds>(e - b).count();
+        cout << "done in " << std::dec << duration_cast<milliseconds>(e - b).count() << endl;
+        cout << "or " << (double)d / 1000 << endl;
+    }
+
     int do_with(int argc, char* argv[])
     {
+        vec_bench();
+        int_bench();
+
         cout << "...starting execution of " << argv[0] << endl;
         // Tag tests:
 #if 0
@@ -351,23 +380,25 @@ vector<Clause> dload(const cstr s) {
 
         index* Ip = nullptr;
 
-        if (indexing)
+        if (indexing) {
             Ip = new index(heap, clauses);
+            cout << Ip->show() << endl;
+        }
 
-	        Prog *p = new Prog(heap,clauses,sym,Ip); // any index-building done there
+	    Prog *p = new Prog(heap,clauses,sym,Ip); // any index-building done there
 
-            p->ppCode();
+        p->ppCode();
 
-            { using namespace chrono;
-            auto b = steady_clock::now();
-            cout << "before run" << endl;
-            p->run(print_ans);
-            cout << "after run" << endl;
-            auto e = steady_clock::now();
-            long long d = duration_cast<milliseconds>(e - b).count();
-            cout << "done in " << std::dec << duration_cast<milliseconds>(e - b).count() << endl;
-            cout << "or " << (double)d / 1000 << endl;
-            }
+        { using namespace chrono;
+        auto b = steady_clock::now();
+        cout << "before run" << endl;
+        p->run(print_ans);
+        cout << "after run" << endl;
+        auto e = steady_clock::now();
+        long long d = duration_cast<milliseconds>(e - b).count();
+        cout << "done in " << std::dec << duration_cast<milliseconds>(e - b).count() << endl;
+        cout << "or " << (double)d / 1000 << endl;
+        }
 
             cout << p->stats() << endl;
 

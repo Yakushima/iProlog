@@ -79,6 +79,8 @@ final class IMap<K> implements java.io.Serializable {
     @SuppressWarnings("unchecked")
     final IMap<Integer>[] imaps = (IMap<Integer>[]) java.lang.reflect.Array.newInstance(first.getClass(), l);
     //new IMap[l];
+    if (Engine.MAXIND == 0)
+      return imaps;
     imaps[0] = first;
     for (int i = 1; i < l; i++) {
       imaps[i] = new IMap<>();

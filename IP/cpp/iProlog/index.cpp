@@ -182,7 +182,7 @@ namespace iProlog {
 		if (!indexing) return;
 
 		if (G->index_vector[0].s_tag() != cell::BAD
-		 || !G->hasGoals()
+		  || !G->hasGoals()
 		)
 			return;
 
@@ -216,32 +216,35 @@ namespace iProlog {
      * having variables in predicate positions (if any)." [HHG/ICLP 2017]
      */
 	void intersect0(
-		const cls_no_set& m,
+		const cls_no_set& m,      // maps[0] or vmaps[0]
 		const vector<cls_no_set>& maps,
 		const vector<cls_no_set>& vmaps,
 		vector<ClauseNumber>& cls_nos) {
 #define TR if(0)
+		assert(vmaps.size() == maps.size());
 
-		TR cout << "m.capacity()=" << m.capacity() << endl;
+		TR cout << "intersect0: m.capacity()=" << m.capacity() << endl;
+
 		for (int k = 0; k < m.capacity(); k += m.stride()) {
-			if (m.is_free(k))
-				continue;
-	
-			ClauseNumber cn = m.get_key_at(k);
-	
-			bool found = true;
-			for (int i = 1; i < maps.size(); i++) {
-				ClauseNumber v = maps[i].get(cn.as_int());
-				if (v == ClauseNumber(cls_no_set::no_value())) {
-					ClauseNumber vcval = vmaps[i].get(cn.as_int());
-					if (vcval == cls_no_set::no_value()) {
-						found = false;
-						break;
+				if (!m.is_free(k)) {
+
+					ClauseNumber cn = m.get_key_at(k);
+
+					bool found = true;
+					for (int i = 1; i < maps.size(); i++) {
+						ClauseNumber v = maps[i].get(cn.as_int());
+						TR cout << "   v = " << v.as_int() << endl;
+						if (v == ClauseNumber(cls_no_set::no_value())) {
+							ClauseNumber vcval = vmaps[i].get(cn.as_int());
+							if (vcval == cls_no_set::no_value()) {
+								found = false;
+								break;
+							}
+						}
 					}
+					if (found)
+						cls_nos.push_back(cn);
 				}
-			}
-			if (found)
-				cls_nos.push_back(cn);
 		}
 #undef TR
 	}
@@ -255,7 +258,7 @@ namespace iProlog {
 
 		vector<cls_no_set> ms;
 		vector<cls_no_set> vms;
-		TR cout << " matching_clauses: entering iv loop" << endl;
+		TR cout << " ==== matching_clauses: start iv loop, imaps.size()=" << imaps.size() << endl;
 
 		for (int i = 0; i < imaps.size(); i++)
 			if (iv[i].as_int() == 0 || iv[i] == cell::BAD) { // "index vectors are null-terminated if < MAXIND"
@@ -263,7 +266,7 @@ namespace iProlog {
 				// This was "== 0" in Java code. In that code, since V_ cells
 				// are never zero (even though V_ == 0) zero may be a kind of null-
 				// terminator for index vectors that are shorter than MAXIND.
-				// This works because V_ cells can't be at index 0 in the heap.
+				// This works because V_ cells can't be at index 0 in the heapf.
 				// 
 				// This complicates the idea of changing to relative addressing
 				// in variables, with a zero offset indicating that dereferencing
@@ -274,23 +277,44 @@ namespace iProlog {
 				continue;
 			}
 			else {
+				TR cout << "  iv[" << i << "]=" << to_string(iv[i].as_int()) << endl;
 				cls_no_set m = imaps[i].map[iv[i]];  // cls_no_set(ip);
+				TR cout << "  ms  << " << m.show() << endl;
 				ms.emplace_back(m);  // ms will start empty
+				TR cout << "  vms << " << var_maps[i].show() << endl;
 				vms.emplace_back(var_maps[i]);
 			}
+
+		TR cout << " ==== matching_clauses: rest of processing" << endl;
 
 		vector<ClauseNumber> cs; // "$$$ add vmaps here"
 
 		// was IntMap.java intersect, expanded here:
+		TR cout << "  ms[0].m_size=" << to_string(ms[0].size()) << endl;
 		intersect0(ms[0], ms, vms, cs);
+		TR cout << "  vms[0].m_size=" << to_string(vms[0].size()) << endl;
 		intersect0(vms[0], ms, vms, cs);
-
+#if 0
+		{
+			cout << "intersection = ";
+			char ch = '[';
+			for (int i = 0; i < cs.size(); ++i) {
+				cout << ch << cs[i].as_int();
+				ch = ',';
+			}
+			if (cs.size() == 0)
+				cout << ch;
+			cout << "]" << endl;
+		}
+#endif
 		// is: clause numbers converted to indices
 		vector<ClauseIndex> is;	  /*= cs.toArray() in Java, emulated here but
 									* with conversion to indices. Could
 									* probably be done on-the-fly in intersect0. */
+#if 0
 		if (cs.size() == 0)
 			return is;
+#endif
 		is.reserve(cs.size());
 		for (int i = 0; i < cs.size(); ++i)
 			is.push_back(to_clause_idx(cs[i]));
@@ -301,8 +325,23 @@ namespace iProlog {
 			*
 			* I.e., respect standard Prolog clause ordering.
 			*/
+#if 1
+		{
+			TR cout << "  intersection: ";
+			char ch = '[';
+			for (int i = 0; i < is.size(); ++i) {
+				TR cout << ch << is[i].as_int() + 1;
+				ch = ',';
+			}
+			if (is.size() == 0)
+				TR cout << ch;
+			TR cout << "]" << endl;
+		}
+#endif
 		if (is.size() > 1)
 			std::sort(is.begin(), is.end());
+
+		TR cout << " ==== matching_clauses: exiting" << endl << endl;
 
 		return is;
 #undef TR
@@ -320,11 +359,11 @@ namespace iProlog {
 		return s;
 	}
 
-	string index::show_index() const {
+	string index::show() const {
 		string s = "index::show():";
 
 		for (int i = 0; i < MAXIND; ++i) {
-			s += "\n  INDEX[" + to_string(i);
+			s += "\n  INDEX: [" + to_string(i);
 			s += "]";
 			s += "\n    imaps:    " + imaps[i].show();
 			s += "\n    var_maps: " + var_maps[i].show();

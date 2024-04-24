@@ -73,6 +73,7 @@ Spine* Engine::unfold(Spine *G) {
         TR cout << "unfold: after makeIndexArgs with current G->unifiables[0]=" << G->unifiables[0].as_int() << endl;
 
     size_t last = G->unifiables.size();
+    TR cout << "unfold: last=" << to_string(last) << endl;
 
     TR cout << "G->last_clause_tried=" << G->last_clause_tried << endl;
     for (int k = G->last_clause_tried; k < last; k++) {

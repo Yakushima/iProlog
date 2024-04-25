@@ -21,34 +21,30 @@ namespace iProlog {
 
     IntSet::IntSet() {
 
-        const int capacity = init_len;
-
-        assert(is_a_power_of_2(capacity));
+        assert(is_a_power_of_2(init_len));
            
         // int capacity = arraySize(size, fillFactor_pc);
-        alloc(capacity);
-        m_mask = capacity - 1;
-        m_mask2 = capacity * 2 - 1;
+        alloc(init_len);
+        m_mask = init_len - 1;
+        m_mask2 = init_len * 2 - 1;
 
-        m_data_length = capacity * 2;
-        m_data = Vec(m_data_length);
+        m_data = Vec(init_len * 2);
 
-        m_threshold = (capacity * m_fillFactor_pc)/100;
+        m_threshold = (init_len * m_fillFactor_pc)/100;
         m_size = 0;
     }
 
-    void IntSet::rehash(int newCapacity) {
+    void IntSet::rehash(size_t newCapacity) {
         cout << "           !!!!!!!!!!!!! calling rehash, newCapacity="
              << to_string(newCapacity) << " !!!!!!!!!!!!!!!!!!" << endl;
         m_threshold = (int)(newCapacity / 2 * ((float)m_fillFactor_pc/100));
-        m_mask = newCapacity / 2 - 1;
-        m_mask2 = newCapacity - 1;
+        m_mask = (int) newCapacity / 2 - 1;
+        m_mask2 = (int) newCapacity - 1;
 
-        int oldCapacity = m_data_length;
+        size_t oldCapacity = capacity();
         Vec oldData = m_data;
 
         m_data = Vec(newCapacity);
-        m_data_length = newCapacity;
         m_size = m_hasFreeKey ? 1 : 0;
 
         for (int i = 0; i < oldCapacity; i += 2) {
@@ -120,7 +116,7 @@ namespace iProlog {
             m_data[ptr + 1] = value;
             if (m_size >= m_threshold) {
                 TR cout << "**** about to call rehash, m_size=" << m_size << " m_threshold=" << m_threshold << endl;
-                rehash(m_data_length * 2); //size is set inside
+                rehash(capacity()* 2); //size is set inside
             }
             else {
                 ++m_size;
@@ -144,7 +140,7 @@ namespace iProlog {
                 m_data[ptr + 1] = value;
                 if (m_size >= m_threshold) {
                     TR cout << "     needing to rehash" << endl;
-                    rehash(m_data_length * 2); //size is set inside
+                    rehash(capacity() * 2); //size is set inside
                 }
                 else {
                     ++m_size;
@@ -269,7 +265,7 @@ namespace iProlog {
 string IntSet::show() const {
     //return java.util.Arrays.toString(m_data);
     string b = "{";
-    int l = m_data_length;
+    size_t l = capacity();
     bool first = true;
     for (int i = 0; i < l; i += 2) {
         int v = m_data[i];

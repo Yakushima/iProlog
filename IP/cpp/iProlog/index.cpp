@@ -223,7 +223,7 @@ namespace iProlog {
 #define TR if(0)
 		assert(vmaps.size() == maps.size());
 
-		TR cout << "intersect0: m.capacity()=" << m.capacity() << endl;
+		TR cout << "     intersect0: m.capacity()=" << m.capacity() << endl;
 
 		for (int k = 0; k < m.capacity(); k += m.stride()) {
 				if (!m.is_free(k)) {
@@ -233,7 +233,7 @@ namespace iProlog {
 					bool found = true;
 					for (int i = 1; i < maps.size(); i++) {
 						ClauseNumber v = maps[i].get(cn.as_int());
-						TR cout << "   v = " << v.as_int() << endl;
+						TR cout << "      v = " << v.as_int() << endl;
 						if (v == ClauseNumber(cls_no_set::no_value())) {
 							ClauseNumber vcval = vmaps[i].get(cn.as_int());
 							if (vcval == cls_no_set::no_value()) {
@@ -252,72 +252,69 @@ namespace iProlog {
 	/*
 	 * This translation is from IMap.get, with ArrayList for ms & vms 
 	 */
+ // The iv loop continue condition was "== 0" in Java code.
+ // In that code, since V_ cells are never zero (even though V_ == 0),
+ // zero may be a kind of null- terminator for index vectors
+ // that are shorter than MAXIND.
+ // This works because V_ cells can't be at index 0 in the heapf.
+ // 
+ // This complicates the idea of changing to relative addressing
+ // in variables, with a zero offset indicating that dereferencing
+ // has ended at a variable. I'll keep cell::BAD for now.
+ // If this is true, the mystery is why there's no loop break
+ // on zero.
 	vector<ClauseIndex> index::matching_clauses_(t_index_vector& iv) {
 #define TR if(0)
 		TR cout << "Entering matching_clauses" << endl;
-
-		vector<cls_no_set> ms;
-		vector<cls_no_set> vms;
+		const unsigned int slack = 10; // don't want to trigger too many reallocs
+		vector<cls_no_set> ms; ms.reserve(slack);
+		vector<cls_no_set> vms; vms.reserve(slack);
 		TR cout << " ==== matching_clauses: start iv loop, imaps.size()=" << imaps.size() << endl;
 
 		for (int i = 0; i < imaps.size(); i++)
-			if (iv[i].as_int() == 0 || iv[i] == cell::BAD) { // "index vectors are null-terminated if < MAXIND"
-
-				// This was "== 0" in Java code. In that code, since V_ cells
-				// are never zero (even though V_ == 0) zero may be a kind of null-
-				// terminator for index vectors that are shorter than MAXIND.
-				// This works because V_ cells can't be at index 0 in the heapf.
-				// 
-				// This complicates the idea of changing to relative addressing
-				// in variables, with a zero offset indicating that dereferencing
-				// has ended at a variable. I'll keep cell::BAD for now.
-				// If this is true, the mystery is why there's no loop break
-				// on zero.
-				TR cout << "  i = " << i << " key iv[" << i << "] = " << iv[i].as_int() << " - skipping..." << endl;
+			if (iv[i].as_int() == 0 || iv[i] == cell::BAD) // "index vectors are null-terminated if < MAXIND"
 				continue;
-			}
 			else {
-				TR cout << "  iv[" << i << "]=" << to_string(iv[i].as_int()) << endl;
-				cls_no_set m = imaps[i].map[iv[i]];  // cls_no_set(ip);
-				TR cout << "  ms  << " << m.show() << endl;
-				ms.emplace_back(m);  // ms will start empty
-				TR cout << "  vms << " << var_maps[i].show() << endl;
+				cls_no_set m = imaps[i].map[iv[i]];
+				ms.emplace_back(m);
 				vms.emplace_back(var_maps[i]);
+
+				TR cout << "  iv[" << i << "]=" << to_string(iv[i].as_int()) << endl;
+				TR cout << "  ms  << " << m.show() << endl;
+				TR cout << "  vms << " << var_maps[i].show() << endl;
 			}
 
 		TR cout << " ==== matching_clauses: rest of processing" << endl;
 
 		vector<ClauseNumber> cs; // "$$$ add vmaps here"
+		cs.reserve(slack);
+
+		TR cout << "  (1) intersect(): cs.size()=" << cs.size() << endl;
 
 		// was IntMap.java intersect, expanded here:
 		TR cout << "  ms[0].m_size=" << to_string(ms[0].size()) << endl;
 		intersect0(ms[0], ms, vms, cs);
 		TR cout << "  vms[0].m_size=" << to_string(vms[0].size()) << endl;
 		intersect0(vms[0], ms, vms, cs);
-#if 0
-		{
-			cout << "intersection = ";
-			char ch = '[';
-			for (int i = 0; i < cs.size(); ++i) {
-				cout << ch << cs[i].as_int();
-				ch = ',';
-			}
-			if (cs.size() == 0)
-				cout << ch;
-			cout << "]" << endl;
-		}
-#endif
+
+		TR cout << "  (2) intersect(): cs.size()=" << cs.size() << endl;
+
 		// is: clause numbers converted to indices
 		vector<ClauseIndex> is;	  /*= cs.toArray() in Java, emulated here but
 									* with conversion to indices. Could
 									* probably be done on-the-fly in intersect0. */
+		is.reserve(slack);
 #if 0
 		if (cs.size() == 0)
 			return is;
 #endif
 		is.reserve(cs.size());
+
+		TR cout << "  (1) is.size()=" << is.size() << endl;
+		TR cout << "  (1) is.capacity()=" << is.capacity() << endl;
+		
 		for (int i = 0; i < cs.size(); ++i)
-			is.push_back(to_clause_idx(cs[i]));
+			is.emplace_back(to_clause_idx(cs[i]));
 
 		/* "Finally we sort the resulting set of clause numbers and
 			* hand it over to the main Prolog engine for unification
@@ -325,8 +322,10 @@ namespace iProlog {
 			*
 			* I.e., respect standard Prolog clause ordering.
 			*/
-#if 1
-		{
+		TR cout << "  (2) is.size()=" << is.size() << endl;
+		TR cout << "  (2) is.capacity()=" << is.capacity() << endl;
+
+		TR {
 			TR cout << "  intersection: ";
 			char ch = '[';
 			for (int i = 0; i < is.size(); ++i) {
@@ -337,7 +336,7 @@ namespace iProlog {
 				TR cout << ch;
 			TR cout << "]" << endl;
 		}
-#endif
+
 		if (is.size() > 1)
 			std::sort(is.begin(), is.end());
 

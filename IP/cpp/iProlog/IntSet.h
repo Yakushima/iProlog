@@ -57,7 +57,7 @@ namespace iProlog {
 
         /** Keys and values */
         Vec m_data;
-        int m_data_length;
+
     private:
         /** Do we have 'free' key in the map? */
         bool m_hasFreeKey;
@@ -72,11 +72,11 @@ namespace iProlog {
         int m_mask2;
     public:
         // adding for index.cpp:
-        inline int capacity() const         { return m_data_length;         }
-        inline int stride() const           { return 2;                     }
+        inline size_t capacity() const     { return m_data.capacity();         }
+        inline int stride() const          { return 2;                     }
         inline int get_key_at(int i) const { return m_data[i];             }
-        inline bool is_free(int i) const { return m_data[i] == FREE_KEY; }
-        inline static int no_value() { return NO_VALUE; }
+        inline bool is_free(int i) const   { return m_data[i] == FREE_KEY; }
+        inline static int no_value()       { return NO_VALUE; }
 
         static void init(int bad_cell, int no_val) {
             // FREE_KEY = bad_cell;
@@ -108,7 +108,7 @@ namespace iProlog {
         static int arraySize(int expected, int f_pc);
 #endif
         int shiftKeys(int pos);
-        void rehash(int newCapacity);
+        void rehash(size_t newCapacity);
 
         //taken from FastUtil
         static const int INT_PHI = 0x9E3779B9;

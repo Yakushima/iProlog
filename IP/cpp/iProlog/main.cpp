@@ -318,17 +318,52 @@ vector<Clause> dload(const cstr s) {
         q = make_shared<CellList>(h);
     }
 
+    // int * about 25%-30% faster than vector<int>
     void vec_bench()
     {
         using namespace chrono;
-        auto b = steady_clock::now();
+
+        const int OC = 200000000;
+        const int IC = 10;
+
         cout << "vectors benchmark" << endl;
-        ///////////////
-        cout << "after run" << endl;
-        auto e = steady_clock::now();
-        long long d = duration_cast<milliseconds>(e - b).count();
-        cout << "done in " << std::dec << duration_cast<milliseconds>(e - b).count() << endl;
-        cout << "or " << (double)d / 1000 << endl;
+        {
+            int x = 0;
+            auto b = steady_clock::now();
+
+            vector<int> is(IC);
+            for (int i = 0; i < OC; ++i) {
+                for (int j = 0; j < IC; ++j)
+                    is[j] = j + x++;
+                for (int j = 0; j < IC; ++j)
+                    is[j] = -is[j] + x--;
+            }
+
+            cout << "after run, x = " << to_string(x) << endl;
+            auto e = steady_clock::now();
+            long long d = duration_cast<milliseconds>(e - b).count();
+            cout << "done in " << std::dec << duration_cast<milliseconds>(e - b).count() << endl;
+            cout << "or " << (double)d / 1000 << endl;
+        }
+
+        cout << "int * benchmark" << endl;
+        {
+            int x = 0;
+            auto b = steady_clock::now();
+            int* is = (int*)malloc(sizeof(int) * IC);
+            for (int i = 0; i < OC; ++i) {
+                for (int j = 0; j < IC; ++j)
+                    is[j] = j + x++;
+                for (int j = 0; j < IC; ++j)
+                    is[j] = -is[j]+ x--;
+            }
+
+            cout << "after run, x = " << to_string(x) << endl;
+            auto e = steady_clock::now();
+            long long d = duration_cast<milliseconds>(e - b).count();
+            cout << "done in " << std::dec << duration_cast<milliseconds>(e - b).count() << endl;
+            cout << "or " << (double)d / 1000 << endl;
+        }
     }
 
     void int_bench()
@@ -346,7 +381,10 @@ vector<Clause> dload(const cstr s) {
 
     int do_with(int argc, char* argv[])
     {
+#if 0
         vec_bench();
+        exit(0);
+#endif
         int_bench();
 
         cout << "...starting execution of " << argv[0] << endl;

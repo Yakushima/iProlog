@@ -39,7 +39,14 @@ public:
    * the set of clauses [indicated by clause number]
    * where the indexable element occurs in that argument position."
    */
-    vector<IMap> imaps;
+#ifndef RAW_IMAPS
+    typedef vector<IMap> IMaps; // probably need safer subclass of vector
+                                // e.g., use at() in overloaded [] op
+    IMaps imaps;
+#else
+    typedef array<IMap, MAXIND> IMaps;
+    IMaps imaps;
+#endif
 
   /* "The clauses having variables in an indexed argument position are also
    * collected in a separate set for each argument position."

@@ -72,11 +72,18 @@ namespace iProlog {
 	  // end vcreate inlined
 
 		if (clauses.size() < START_INDEX) {
+#ifndef RAW_IMAPS
 			imaps = vector<IMap>();
+#endif
 			return;
 		}
-
+#ifndef RAW_IMAPS
 		imaps = IMap::create(MAXIND);
+#else
+		for (int i = 0; i < MAXIND; ++i) {
+			imaps[i] = IMap();
+		}
+#endif
 
 		for (int i = 0; i < clauses.size(); i++) {
 			ClauseIndex ci(i);
@@ -263,12 +270,23 @@ namespace iProlog {
  // has ended at a variable. I'll keep cell::BAD for now.
  // If this is true, the mystery is why there's no loop break
  // on zero.
+
+
 	vector<ClauseIndex> index::matching_clauses_(t_index_vector& iv) {
 #define TR if(0)
 		TR cout << "Entering matching_clauses" << endl;
 		const unsigned int slack = 10; // don't want to trigger too many reallocs
-		vector<cls_no_set> ms; ms.reserve(slack);
-		vector<cls_no_set> vms; vms.reserve(slack);
+		int* p = (int*)_malloca(100);
+		*p = 333; // intellisense says p is a null pointer???
+		// cout << "matching_clauses, *p = " << to_string(*p) << endl;
+		vector<cls_no_set> ms;
+		ms.reserve(slack);
+		// vector<cls_no_set> ms(slack); // causes some segfault later
+
+		vector<cls_no_set> vms;
+		vms.reserve(slack);
+		// vector<cls_no_set> ms(slack);
+
 		TR cout << " ==== matching_clauses: start iv loop, imaps.size()=" << imaps.size() << endl;
 
 		for (int i = 0; i < imaps.size(); i++)
@@ -339,6 +357,8 @@ namespace iProlog {
 
 		if (is.size() > 1)
 			std::sort(is.begin(), is.end());
+
+		_freea(p);
 
 		TR cout << " ==== matching_clauses: exiting" << endl << endl;
 

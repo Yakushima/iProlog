@@ -39,7 +39,7 @@ namespace iProlog {
 	 * compilation. Constant-folding and dead code elimination
 	 * does the rest.
 	 */
-// #define RAW
+#define RAW
 #ifdef RAW
 	const bool is_raw = true;
 #else
@@ -48,7 +48,7 @@ namespace iProlog {
 
 	// Some way to pass these on compiler command line????
 
-	const int MAXIND = 1;       // "number of index args" [Engine.java]
+	const int MAXIND = 3;       // "number of index args" [Engine.java]
 	const int START_INDEX = 1;	// "if # of clauses < START_INDEX,
 								// turn off indexing" [Engine.java]
 
@@ -66,5 +66,7 @@ namespace iProlog {
 #define COUNTING_MATCHES
 
 #define TRY_CATCHING
+
+#define RAW_IMAPS
 
 }

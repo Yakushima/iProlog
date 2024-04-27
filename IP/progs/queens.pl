@@ -47,5 +47,5 @@ qs(Columns,Rows):-
 	dont_fight_on_these_lines(Columns,Rows,_,_).
 
 goal(Rows):-qs([0,1,2,3,4,5,6,7],Rows).
-% goal(Rows):-qs([0,1,2,3],Rows).
+% goal(Rows):-qs([0,1,3,4],Rows).
 

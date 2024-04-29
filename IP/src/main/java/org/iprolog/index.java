@@ -118,10 +118,12 @@ public class index {
         // Main.pp("-------vims=" + Arrays.toString(vims));
 
         final IntStack cs = IntMap.intersect(ims, vims); // $$$ add vmaps here
+        // Main.println ("  after intersect: cs.size()=" + cs.size());
         final int[] is = cs.toArray();
         for (int i = 0; i < is.length; i++) {
             is[i] = is[i] - 1;  // compensate for "$$$ UGLY INC"-- back to clause index
         }
+        // Main.println ("  is.length=" + is.length);
         java.util.Arrays.sort(is);
 
         // for (int i = 0; i < is.length; ++i) Main.println ("     is[" + i + "] = " + is[i]);

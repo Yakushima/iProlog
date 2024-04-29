@@ -48,7 +48,7 @@ namespace iProlog {
         static const  int FREE_KEY = 0;
         static const  int NO_VALUE = 0;
 
-        static const  int init_len = (1 << 2);
+        static const  int init_cap = (1 << 2);
 
         /** Fill factor, must be between (0 and 100) */
         static const int m_fillFactor_pc = 75;
@@ -84,7 +84,8 @@ namespace iProlog {
         }
 
         inline void alloc(size_t cap) {
-            m_data = Vec(cap * stride());
+            m_data = Vec();
+            m_data.reserve(cap);
         }
 
         IntSet();
@@ -103,10 +104,8 @@ namespace iProlog {
         int remove(int key);
 
     private:
-#if 0
         static long nextPowerOfTwo(long x);
         static int arraySize(int expected, int f_pc);
-#endif
         int shiftKeys(int pos);
         void rehash(size_t newCapacity);
 

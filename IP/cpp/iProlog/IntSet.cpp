@@ -21,16 +21,16 @@ namespace iProlog {
 
     IntSet::IntSet() {
 
-        assert(is_a_power_of_2(init_len));
+        assert(is_a_power_of_2(init_cap));
            
-        // int capacity = arraySize(size, fillFactor_pc);
-        alloc(init_len);
-        m_mask = init_len - 1;
-        m_mask2 = init_len * 2 - 1;
+        int capacity = arraySize(init_cap, m_fillFactor_pc);
+        alloc(capacity);
+        m_mask = capacity - 1;
+        m_mask2 = capacity * 2 - 1;
 
-        m_data = Vec(init_len * 2);
+        m_data = Vec(capacity * 2);
 
-        m_threshold = (init_len * m_fillFactor_pc)/100;
+        m_threshold = (capacity * m_fillFactor_pc)/100;
         m_size = 0;
     }
 
@@ -44,7 +44,7 @@ namespace iProlog {
         size_t oldCapacity = capacity();
         Vec oldData = m_data;
 
-        m_data = Vec(newCapacity);
+        m_data = Vec(newCapacity * 2);
         m_size = m_hasFreeKey ? 1 : 0;
 
         for (int i = 0; i < oldCapacity; i += 2) {
@@ -94,7 +94,7 @@ namespace iProlog {
     }
 
     int IntSet::put(int key, int value) {
-#define TR if(0)
+#define TR if(1)
         TR cout << "       IntSet::put(key=" << key << ", value=" << value << ")" << endl;
 
         if (key == FREE_KEY) {
@@ -116,7 +116,8 @@ namespace iProlog {
             m_data[ptr + 1] = value;
             if (m_size >= m_threshold) {
                 TR cout << "**** about to call rehash, m_size=" << m_size << " m_threshold=" << m_threshold << endl;
-                rehash(capacity()* 2); //size is set inside
+                TR cout << "****   m_data.capacity()=" << m_data.capacity() << endl;
+                rehash(m_data.capacity() * 2); //size is set inside
             }
             else {
                 ++m_size;
@@ -140,7 +141,7 @@ namespace iProlog {
                 m_data[ptr + 1] = value;
                 if (m_size >= m_threshold) {
                     TR cout << "     needing to rehash" << endl;
-                    rehash(capacity() * 2); //size is set inside
+                    rehash(m_data.capacity() * 2); //size is set inside
                 }
                 else {
                     ++m_size;
@@ -216,7 +217,6 @@ namespace iProlog {
     }
 #endif
 
-#if 0
     /** Taken from FastUtil implementation */
 
 /** Return the least power of two greater than or equal to the specified value.
@@ -238,7 +238,6 @@ namespace iProlog {
         return (x | x >> 32) + 1;
     }
 
-
     // always init with size = 2^n for n >= 0
 
     /** Returns the least power of two smaller than or equal to 2<sup>30</sup>
@@ -258,14 +257,12 @@ namespace iProlog {
         }
         return (int)s;
     }
-#endif
-
 
     // @Override
 string IntSet::show() const {
     //return java.util.Arrays.toString(m_data);
     string b = "{";
-    size_t l = capacity();
+    size_t l = m_data.size();
     bool first = true;
     for (int i = 0; i < l; i += 2) {
         int v = m_data[i];

@@ -15,4 +15,4 @@
 %	the successor of the successor of zero
 %   and
 %   	the successor of the successor of zero
-goal(R):-add(s(0),s(0),R).
+goal(R):-add(s(s(0)),s(s(0)),R).

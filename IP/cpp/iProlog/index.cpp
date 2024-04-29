@@ -222,36 +222,42 @@ namespace iProlog {
      * We do the same for each element for the set V0 of clauses
      * having variables in predicate positions (if any)." [HHG/ICLP 2017]
      */
-	void intersect0(
+
+	typedef cls_no_set cls_no_set_vec[MAXIND];
+
+	void intersect0_p(
 		const cls_no_set& m,      // maps[0] or vmaps[0]
-		const vector<cls_no_set>& maps,
-		const vector<cls_no_set>& vmaps,
-		vector<ClauseNumber>& cls_nos) {
+		const cls_no_set_vec& maps,
+		const cls_no_set_vec& vmaps,
+		vector<ClauseNumber>& cls_nos,
+		int push_count) {
 #define TR if(0)
-		assert(vmaps.size() == maps.size());
 
 		TR cout << "     intersect0: m.capacity()=" << m.capacity() << endl;
 
 		for (int k = 0; k < m.capacity(); k += m.stride()) {
-				if (!m.is_free(k)) {
+			if (!m.is_free(k)) {
 
-					ClauseNumber cn = m.get_key_at(k);
+				ClauseNumber cn = m.get_key_at(k);
 
-					bool found = true;
-					for (int i = 1; i < maps.size(); i++) {
-						ClauseNumber v = maps[i].get(cn.as_int());
-						TR cout << "      v = " << v.as_int() << endl;
-						if (v == ClauseNumber(cls_no_set::no_value())) {
-							ClauseNumber vcval = vmaps[i].get(cn.as_int());
-							if (vcval == cls_no_set::no_value()) {
-								found = false;
-								break;
-							}
+				bool found = true;
+				for (int i = 1; i < push_count; i++) {
+					ClauseNumber v = maps[i].get(cn.as_int());
+					// TR cout << "      v = " << v.as_int() << endl;
+					if (v == ClauseNumber(cls_no_set::no_value())) {
+						ClauseNumber vcval = vmaps[i].get(cn.as_int());
+						if (vcval == cls_no_set::no_value()) {
+							found = false;
+							break;
 						}
 					}
-					if (found)
-						cls_nos.push_back(cn);
 				}
+				if (found) {
+					TR cout << "      at data[" << to_string(k) << "] found key="
+						<< to_string(cn.as_int()) << " to push to result" << endl;
+					cls_nos.push_back(cn);
+				}
+			}
 		}
 #undef TR
 	}
@@ -271,68 +277,64 @@ namespace iProlog {
  // If this is true, the mystery is why there's no loop break
  // on zero.
 
-
 	vector<ClauseIndex> index::matching_clauses_(t_index_vector& iv) {
 #define TR if(0)
 		TR cout << "Entering matching_clauses" << endl;
-		const unsigned int slack = 10; // don't want to trigger too many reallocs
-		int* p = (int*)_malloca(100);
-		*p = 333; // intellisense says p is a null pointer???
-		// cout << "matching_clauses, *p = " << to_string(*p) << endl;
-		vector<cls_no_set> ms;
-		ms.reserve(slack);
-		// vector<cls_no_set> ms(slack); // causes some segfault later
 
-		vector<cls_no_set> vms;
-		vms.reserve(slack);
-		// vector<cls_no_set> ms(slack);
+		// const unsigned int slack = MAXIND*sizeof(cls_no_set);
+		// cls_no_set* msp  = (cls_no_set*)_malloca(2*slack);
+		// cls_no_set* vmsp = (cls_no_set*)_malloca(2*slack); // !!! dies !!!
+		static cls_no_set_vec msp;
+		static cls_no_set_vec vmsp;
+
+		// vector<cls_no_set> ms(slack); // causes some segfault later
 
 		TR cout << " ==== matching_clauses: start iv loop, imaps.size()=" << imaps.size() << endl;
 
-		for (int i = 0; i < imaps.size(); i++)
+		int push_count = 0;
+		for (int i = 0; i < MAXIND; i++)
 			if (iv[i].as_int() == 0 || iv[i] == cell::BAD) // "index vectors are null-terminated if < MAXIND"
 				continue;
 			else {
 				cls_no_set m = imaps[i].map[iv[i]];
-				ms.emplace_back(m);
-				vms.emplace_back(var_maps[i]);
+
+				msp[push_count]  = m;
+				vmsp[push_count] = var_maps[i];
+				++push_count;
 
 				TR cout << "  iv[" << i << "]=" << to_string(iv[i].as_int()) << endl;
 				TR cout << "  ms  << " << m.show() << endl;
 				TR cout << "  vms << " << var_maps[i].show() << endl;
+				TR cout << "  push_count =" << push_count << endl;
 			}
 
 		TR cout << " ==== matching_clauses: rest of processing" << endl;
 
-		vector<ClauseNumber> cs; // "$$$ add vmaps here"
-		cs.reserve(slack);
+		vector<ClauseNumber> csp;
 
-		TR cout << "  (1) intersect(): cs.size()=" << cs.size() << endl;
+		TR cout << "  (1) intersect(): cs.size()=" << csp.size() << endl;
 
 		// was IntMap.java intersect, expanded here:
-		TR cout << "  ms[0].m_size=" << to_string(ms[0].size()) << endl;
-		intersect0(ms[0], ms, vms, cs);
-		TR cout << "  vms[0].m_size=" << to_string(vms[0].size()) << endl;
-		intersect0(vms[0], ms, vms, cs);
+		TR cout << "  msp[0].m_size=" << to_string(msp[0].size()) << endl;
+		intersect0_p(msp[0], msp, vmsp, csp, push_count);
+		TR cout << "  vms[0].m_size=" << to_string(vmsp[0].size()) << endl;
+		intersect0_p(vmsp[0], msp, vmsp, csp, push_count);
 
-		TR cout << "  (2) intersect(): cs.size()=" << cs.size() << endl;
+		TR cout << "  after intersect csp.size()=" << csp.size() << endl;
 
 		// is: clause numbers converted to indices
 		vector<ClauseIndex> is;	  /*= cs.toArray() in Java, emulated here but
 									* with conversion to indices. Could
 									* probably be done on-the-fly in intersect0. */
-		is.reserve(slack);
-#if 0
-		if (cs.size() == 0)
-			return is;
-#endif
-		is.reserve(cs.size());
+		is.reserve(csp.size());
 
 		TR cout << "  (1) is.size()=" << is.size() << endl;
 		TR cout << "  (1) is.capacity()=" << is.capacity() << endl;
 		
-		for (int i = 0; i < cs.size(); ++i)
-			is.emplace_back(to_clause_idx(cs[i]));
+		for (int i = 0; i < csp.size(); ++i) {
+			is.emplace_back(to_clause_idx(csp[i]));
+		}
+		TR cout << "  is.size()=" << to_string(is.size()) << endl;
 
 		/* "Finally we sort the resulting set of clause numbers and
 			* hand it over to the main Prolog engine for unification
@@ -343,22 +345,15 @@ namespace iProlog {
 		TR cout << "  (2) is.size()=" << is.size() << endl;
 		TR cout << "  (2) is.capacity()=" << is.capacity() << endl;
 
-		TR {
-			TR cout << "  intersection: ";
-			char ch = '[';
-			for (int i = 0; i < is.size(); ++i) {
-				TR cout << ch << is[i].as_int() + 1;
-				ch = ',';
-			}
-			if (is.size() == 0)
-				TR cout << ch;
-			TR cout << "]" << endl;
-		}
-
 		if (is.size() > 1)
 			std::sort(is.begin(), is.end());
 
-		_freea(p);
+		TR for (int i = 0; i < csp.size(); ++i) {
+			cout << "   is[" << i << "]=" << is[i].as_int() << endl;
+		}
+
+		// _freea(msp);
+		// _freea(vmsp);
 
 		TR cout << " ==== matching_clauses: exiting" << endl << endl;
 

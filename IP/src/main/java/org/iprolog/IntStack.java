@@ -104,6 +104,7 @@ class IntStack {
     if (size() > 0) {
       System.arraycopy(stack, 0, array, 0, size());
     }
+    // Main.println("         *** IntStack size()=" + size());
     return array;
   }
 

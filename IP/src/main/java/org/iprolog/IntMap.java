@@ -97,7 +97,7 @@ class IntMap implements java.io.Serializable {
     Main.println("intersect0(m.size()=" + m.size() + ", maps.size()=" + maps.length
             + ", vmaps.size()=" + vmaps.length + ", cls_nos.size()=" + r.size() + ")")
  */
-    // Main.println ("data.length=" + data.length);
+    // Main.println ("   intersect0: data.length=" + data.length);
     for (int k = 0; k < data.length; k += 2) {
       boolean found = true;
       final int key = data[k];
@@ -265,6 +265,7 @@ class IntMap implements java.io.Serializable {
   }
 
   final private void rehash(final int newCapacity) {
+    Main.println("           *** rehash: newCapacity=" + newCapacity);
     m_threshold = (int) (newCapacity / 2 * m_fillFactor);
     m_mask = newCapacity / 2 - 1;
     m_mask2 = newCapacity - 1;

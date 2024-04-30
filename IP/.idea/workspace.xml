@@ -4,18 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4e7fd721-f198-467d-bea4-bb96364d5a56" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cpp/iProlog/IntSet.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/IntSet.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cpp/iProlog/IntSet.h" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/IntSet.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cpp/iProlog/index.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/index.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/progs/add.pl" beforeDir="false" afterPath="$PROJECT_DIR$/progs/add.pl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/progs/mperms.pl" beforeDir="false" afterPath="$PROJECT_DIR$/progs/mperms.pl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/progs/perms.pl" beforeDir="false" afterPath="$PROJECT_DIR$/progs/perms.pl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/iprolog/IntMap.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/iprolog/IntMap.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/iprolog/IntStack.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/iprolog/IntStack.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/iprolog/index.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/iprolog/index.java" afterDir="false" />
-    </list>
+    <list default="true" id="4e7fd721-f198-467d-bea4-bb96364d5a56" name="Default" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

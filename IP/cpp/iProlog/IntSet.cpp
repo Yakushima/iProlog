@@ -94,7 +94,7 @@ namespace iProlog {
     }
 
     int IntSet::put(int key, int value) {
-#define TR if(1)
+#define TR if(0)
         TR cout << "       IntSet::put(key=" << key << ", value=" << value << ")" << endl;
 
         if (key == FREE_KEY) {

@@ -225,15 +225,16 @@ namespace iProlog {
 
 	typedef cls_no_set cls_no_set_vec[MAXIND];
 
-	void intersect0_p(
-		const cls_no_set& m,      // maps[0] or vmaps[0]
-		const cls_no_set_vec& maps,
-		const cls_no_set_vec& vmaps,
-		vector<ClauseNumber>& cls_nos,
-		int push_count) {
+	ClauseNumber* intersect0_p( const cls_no_set& m,      // maps[0] or vmaps[0]
+								const cls_no_set_vec& maps,
+								const cls_no_set_vec& vmaps,
+								ClauseNumber* cls_nos_p,
+								int push_count) {
 #define TR if(0)
 
 		TR cout << "     intersect0: m.capacity()=" << m.capacity() << endl;
+
+		ClauseNumber* cnp = cls_nos_p;
 
 		for (int k = 0; k < m.capacity(); k += m.stride()) {
 			if (!m.is_free(k)) {
@@ -255,13 +256,15 @@ namespace iProlog {
 				if (found) {
 					TR cout << "      at data[" << to_string(k) << "] found key="
 						<< to_string(cn.as_int()) << " to push to result" << endl;
-					cls_nos.push_back(cn);
+					*cnp++ = cn;
 				}
 			}
 		}
+
+		return cnp;
 #undef TR
 	}
-
+	
 	/*
 	 * This translation is from IMap.get, with ArrayList for ms & vms 
 	 */
@@ -281,9 +284,6 @@ namespace iProlog {
 #define TR if(0)
 		TR cout << "Entering matching_clauses" << endl;
 
-		// const unsigned int slack = MAXIND*sizeof(cls_no_set);
-		// cls_no_set* msp  = (cls_no_set*)_malloca(2*slack);
-		// cls_no_set* vmsp = (cls_no_set*)_malloca(2*slack); // !!! dies !!!
 		static cls_no_set_vec msp;
 		static cls_no_set_vec vmsp;
 
@@ -310,30 +310,35 @@ namespace iProlog {
 
 		TR cout << " ==== matching_clauses: rest of processing" << endl;
 
-		vector<ClauseNumber> csp;
+		// vector<ClauseNumber> cs;
 
-		TR cout << "  (1) intersect(): cs.size()=" << csp.size() << endl;
+		// intersection must be <= pushcount in # of elts
+		// but _malloca() is iffy if pushcount is really big
+		auto csp = (ClauseNumber*) _malloca(push_count * sizeof(ClauseNumber));
+		if (csp == nullptr) abort();
 
 		// was IntMap.java intersect, expanded here:
 		TR cout << "  msp[0].m_size=" << to_string(msp[0].size()) << endl;
-		intersect0_p(msp[0], msp, vmsp, csp, push_count);
-		TR cout << "  vms[0].m_size=" << to_string(vmsp[0].size()) << endl;
-		intersect0_p(vmsp[0], msp, vmsp, csp, push_count);
+		ClauseNumber *new_end = intersect0_p(msp[0], msp, vmsp, csp, push_count);
 
-		TR cout << "  after intersect csp.size()=" << csp.size() << endl;
+		TR cout << "  vms[0].m_size=" << to_string(vmsp[0].size()) << endl;
+		new_end = intersect0_p(vmsp[0], msp, vmsp, new_end, push_count);
+		int cs_size = new_end - csp;
+
+		TR cout << "  after intersect0_p new_end - csp=" << cs_size << endl;
 
 		// is: clause numbers converted to indices
 		vector<ClauseIndex> is;	  /*= cs.toArray() in Java, emulated here but
 									* with conversion to indices. Could
 									* probably be done on-the-fly in intersect0. */
-		is.reserve(csp.size());
+		is.reserve(cs_size);
 
 		TR cout << "  (1) is.size()=" << is.size() << endl;
 		TR cout << "  (1) is.capacity()=" << is.capacity() << endl;
-		
-		for (int i = 0; i < csp.size(); ++i) {
+
+		for (int i = 0; i < cs_size; ++i)
 			is.emplace_back(to_clause_idx(csp[i]));
-		}
+
 		TR cout << "  is.size()=" << to_string(is.size()) << endl;
 
 		/* "Finally we sort the resulting set of clause numbers and
@@ -348,14 +353,13 @@ namespace iProlog {
 		if (is.size() > 1)
 			std::sort(is.begin(), is.end());
 
-		TR for (int i = 0; i < csp.size(); ++i) {
+		TR for (int i = 0; i < cs_size; ++i) {
 			cout << "   is[" << i << "]=" << is[i].as_int() << endl;
 		}
 
-		// _freea(msp);
-		// _freea(vmsp);
-
 		TR cout << " ==== matching_clauses: exiting" << endl << endl;
+
+		_freea((void*)csp);
 
 		return is;
 #undef TR

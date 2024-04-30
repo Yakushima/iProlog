@@ -78,14 +78,8 @@ namespace iProlog {
         inline bool is_free(int i) const   { return m_data[i] == FREE_KEY; }
         inline static int no_value()       { return NO_VALUE; }
 
-        static void init(int bad_cell, int no_val) {
-            // FREE_KEY = bad_cell;
-            // NO_VALUE = no_val;
-        }
-
         inline void alloc(size_t cap) {
-            m_data = Vec();
-            m_data.reserve(cap);
+            m_data = Vec(cap);
         }
 
         IntSet();

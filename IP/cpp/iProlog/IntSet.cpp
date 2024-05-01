@@ -24,11 +24,11 @@ namespace iProlog {
         assert(is_a_power_of_2(init_cap));
            
         int capacity = arraySize(init_cap, m_fillFactor_pc);
-        alloc(capacity);
+
         m_mask = capacity - 1;
         m_mask2 = capacity * 2 - 1;
 
-        m_data = Vec(capacity * 2);
+        m_data = alloc(capacity);
 
         m_threshold = (capacity * m_fillFactor_pc)/100;
         m_size = 0;
@@ -44,10 +44,10 @@ namespace iProlog {
         size_t oldCapacity = capacity();
         Vec oldData = m_data;
 
-        m_data = Vec(newCapacity * 2);
+        m_data = alloc(newCapacity);
         m_size = m_hasFreeKey ? 1 : 0;
 
-        for (int i = 0; i < oldCapacity; i += 2) {
+        for (int i = 0; i < oldCapacity; i += stride()) {
             int oldKey = oldData[i];
             if (oldKey != FREE_KEY) {
                 put(oldKey, oldData[i + 1]);
@@ -57,7 +57,7 @@ namespace iProlog {
 
     int IntSet::get(int key) const {
 #define TR if(0)
-        int ptr = (phiMix(key) & m_mask) << 1;
+        int ptr = mk_ptr(key);
 
         TR cout << "      IntSet::get(" << key << "), ptr=" << ptr << " m_data.size()=" << m_data.size() << " m_mask=" << m_mask << endl;
 
@@ -66,7 +66,7 @@ namespace iProlog {
             TR cout << "       key==FREE_KEY m_hasFreeKey=" << m_hasFreeKey << endl;
             return r;
         }
-        int k = m_data[ptr];
+        int k = get_key_at(ptr);
 
         if (k == FREE_KEY) {
             TR cout << "       k==m_data[" << ptr << "]==" << k << " == FREE_KEY" << ", m_data[ptr + 1] = " << m_data[ptr + 1] << endl;
@@ -75,19 +75,19 @@ namespace iProlog {
 
         if (k == key) { //we check FREE prior to this call
             TR cout << "       k==key, returning m_data[" << ptr + 1 << "]=" << m_data[ptr + 1] << endl;
-            return m_data[ptr + 1];
+            return get_val_at(ptr);
         }
 
         while (true) {
-            ptr = ptr + 2 & m_mask2; //that's next index
-            k = m_data[ptr];
+            ptr = next(ptr);
+            k = get_key_at(ptr);
             if (k == FREE_KEY) {
-                TR cout << "       k=m_data[" << ptr << "]==FREE_KEY " << FREE_KEY << " m_data[ptr+1]="<< m_data[ptr+1] << endl;
+                TR cout << "       k=get_key_at(" << ptr << ")==FREE_KEY " << FREE_KEY << " m_data[ptr+1]="<< m_data[ptr+1] << endl;
                 return NO_VALUE;
             }
             if (k == key) {
                 TR cout << "       k==key at end of chain==" << k << endl;
-                return m_data[ptr + 1];
+                return get_val_at(ptr);
             }
         }
 #undef TR
@@ -108,12 +108,12 @@ namespace iProlog {
             return ret;
         }
 
-        int ptr = (phiMix(key) & m_mask) << 1;
-        int k = m_data[ptr];
+        int ptr = mk_ptr(key);
+        int k = get_key_at(ptr); // m_data[ptr];
         if (k == FREE_KEY) //end of chain already
         {
-            m_data[ptr] = key;
-            m_data[ptr + 1] = value;
+            set_key_at(ptr,key);
+            set_val_at(ptr,value);
             if (m_size >= m_threshold) {
                 TR cout << "**** about to call rehash, m_size=" << m_size << " m_threshold=" << m_threshold << endl;
                 TR cout << "****   m_data.capacity()=" << m_data.capacity() << endl;
@@ -127,18 +127,18 @@ namespace iProlog {
         }
         else if (k == key) //we check FREE prior to this call
         {
-            int ret = m_data[ptr + 1];
-            m_data[ptr + 1] = value;
-            TR cout << "         (3) k == key, m_data[ptr+1]<-value==" << m_data[ptr+1] << " returning past value " << ret << endl;
+            int ret = get_val_at(ptr);
+            set_val_at(ptr, value);
+            TR cout << "         (3) k == key, get_val_at(ptr)<-value==" << get_val_at(ptr+1) << " returning past value " << ret << endl;
             return ret;
         }
 
         while (true) {
-            ptr = ptr + 2 & m_mask2; //that's next index calculation
-            k = m_data[ptr];
+            ptr = next(ptr);
+            k = get_key_at(ptr);
             if (k == FREE_KEY) {
-                m_data[ptr] = key;
-                m_data[ptr + 1] = value;
+                set_key_at(ptr, key);
+                set_val_at(ptr, value);
                 if (m_size >= m_threshold) {
                     TR cout << "     needing to rehash" << endl;
                     rehash(m_data.capacity() * 2); //size is set inside
@@ -150,8 +150,8 @@ namespace iProlog {
                 return NO_VALUE;
             }
             else if (k == key) {
-                int ret = m_data[ptr + 1];
-                m_data[ptr + 1] = value;
+                int ret = get_val_at(ptr);
+                set_val_at(ptr, value);
                 TR cout << "         (5) found something, returning " << ret << endl;
                 return ret;
             }
@@ -168,11 +168,11 @@ namespace iProlog {
             return m_freeValue; //value is not cleaned
         }
 
-        int ptr = (phiMix(key) & m_mask) << 1;
-        int k = m_data[ptr];
+        int ptr = mk_ptr(key);
+        int k = get_key_at(ptr);
         if (k == key) //we check FREE prior to this call
         {
-            int res = m_data[ptr + 1];
+            int res = get_val_at(ptr);
             shiftKeys(ptr);
             --m_size;
             return res;
@@ -180,10 +180,10 @@ namespace iProlog {
         else if (k == FREE_KEY)
             return NO_VALUE; //end of chain already
         while (true) {
-            ptr = ptr + 2 & m_mask2; //that's next index calculation
-            k = m_data[ptr];
+            ptr = next(ptr); 
+            k = get_key_at(ptr);
             if (k == key) {
-                int res = m_data[ptr + 1];
+                int res = get_val_at(ptr);
                 shiftKeys(ptr);
                 --m_size;
                 return res;
@@ -197,22 +197,24 @@ namespace iProlog {
         // Shift entries with the same hash.
         int last, slot;
         int k;
-        Vec data = m_data;
+
         while (true) {
-            pos = (last = pos) + 2 & m_mask2;
+            last = pos;
+            pos = last + 2 & m_mask2;
             while (true) {
-                if ((k = data[pos]) == FREE_KEY) {
-                    data[last] = FREE_KEY;
+                k = get_key_at(pos);
+                if (k == FREE_KEY) {
+                    set_key_at(last,FREE_KEY);
                     return last;
                 }
-                slot = (phiMix(k) & m_mask) << 1; //calculate the starting slot for the current key
+                slot = mk_ptr(k); //calculate the starting slot for the current key
                 if (last <= pos ? last >= slot || slot > pos : last >= slot && slot > pos) {
                     break;
                 }
                 pos = pos + 2 & m_mask2; //go to the next entry
             }
-            data[last] = k;
-            data[last + 1] = data[pos + 1];
+            set_key_at(last) = k;
+            set_val_at(last, get_val_at(pos));
         }
     }
 #endif
@@ -264,10 +266,9 @@ string IntSet::show() const {
     string b = "{";
     size_t l = m_data.size();
     bool first = true;
-    for (int i = 0; i < l; i += 2) {
-        int v = m_data[i];
+    for (int i = 0; i < l; i += stride()) {
+        int v = get_key_at(i);
         if (v != FREE_KEY) {
-
             if (!first) {
                 b += ", ";
             }
@@ -278,7 +279,7 @@ string IntSet::show() const {
 #endif
             b += to_string(v);
 #if 0
-            b += "->" + to_string(m_data[i + 1]);
+            b += "->" + to_string(get_val_at(i));
 #endif
         }
     }

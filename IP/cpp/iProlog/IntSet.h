@@ -29,7 +29,6 @@
 // #define RAW_VEC
 
 namespace iProlog {
-
     typedef vector<int> Vec;
 
     using namespace std;
@@ -45,6 +44,11 @@ namespace iProlog {
 
     class IntSet {
       private:
+          class bucket {
+            protected:
+              int key;
+              int val;
+          };
         static const  int FREE_KEY = 0;
         static const  int NO_VALUE = 0;
 
@@ -75,12 +79,16 @@ namespace iProlog {
         inline size_t capacity() const     { return m_data.capacity();         }
         inline int stride() const          { return 2;                     }
         inline int get_key_at(int i) const { return m_data[i];             }
+        inline void set_key_at(int i, int v) { m_data[i] = v; }
+        inline int get_val_at(int i) const { return m_data[i + 1]; }
+        inline void set_val_at(int i, int v){ m_data[i + 1] = v; }
         inline bool is_free(int i) const   { return m_data[i] == FREE_KEY; }
         inline static int no_value()       { return NO_VALUE; }
+        inline int next(int ptr) const { return ptr + 2 & m_mask2; } //that's next index calculation
 
-        inline void alloc(size_t cap) {
-            m_data = Vec(cap);
-        }
+        inline int mk_ptr(int key) const { return (phiMix(key) & m_mask) << 1; }
+
+        inline Vec alloc(int cap) { return Vec(cap * 2); }
 
         IntSet();
 

@@ -72,11 +72,11 @@ public:
 
     static inline ClauseIndex  to_clause_idx(ClauseNumber cl_no) { return cl_no.dec(); }
 
-    t_index_vector getIndexables(CellStack &heap, cell goal);
-
-    cell cell2index(CellStack &, cell c) const;
+    void getIndexables(t_index_vector &index_vector, CellStack &heap, cell goal);
 
     string show(const t_index_vector& iv) const;
+
+    cell cell2index(CellStack& heap, cell c) const;
 
     string show() const;
 };

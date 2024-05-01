@@ -28,6 +28,21 @@ MAXIND is that maximum.
 
 namespace iProlog {
 
+	cell index::cell2index(CellStack& heap, cell c) const {
+		cell x = cell::tag(cell::V_, 0);
+		int t = c.s_tag();
+		switch (t) {
+		case cell::R_:
+			x = Engine::getRef(heap, c);
+			break;
+		case cell::C_:
+		case cell::N_:
+			x = c;
+			break;
+		}
+		return x;
+	}
+
 // "Indexing extensions - ony active if [there are] START_INDEX clauses or more."
 
 	inline void get_arg_start_and_n(CellStack& h, cell g, int &arg_start, int &n) {
@@ -35,14 +50,12 @@ namespace iProlog {
 		n = min(Engine::getRef(h, g).arg(), MAXIND);
 	}
 
-	t_index_vector index::getIndexables(CellStack &heap, cell goal) {
+	void index::getIndexables(t_index_vector &index_vector, CellStack &heap, cell goal) {
 #define TR if(0)
 		TR cout << "getIndexables(...): " << endl;
 
 		int arg_start, n;
 		get_arg_start_and_n(heap, goal, arg_start, n);
-
-		t_index_vector index_vector;
 
 		for (int arg_pos = 0; arg_pos < n; arg_pos++) {
 			cell arg = Engine::cell_at(heap,arg_start + arg_pos);
@@ -55,15 +68,14 @@ namespace iProlog {
 			index_vector[pos] = cell::null();
 
 		TR cout << "getIndexables returning" << endl;
-
-		return index_vector;
 	}
 
     index::index(CellStack &heap, vector<Clause>& clauses) {
 #define TR if(0)
+
 		for (int i = 0; i < clauses.size(); ++i) {
 			cell hd = clauses[i].skeleton.at(0);
-			clauses[i].index_vector = getIndexables(heap, hd);
+			getIndexables(clauses[i].index_vector, heap, hd);
 		}
 
 	  // was vcreate in Java version:
@@ -93,21 +105,6 @@ namespace iProlog {
 			put(clauses[i].index_vector, to_clause_no(ci));  // "$$$ UGLY INC" in Java code
 		}
 #undef TR
-    }
-
-    cell index::cell2index(CellStack &heap, cell c) const {
-		cell x = cell::tag(cell::V_,0);
-		int t = c.s_tag();
-		switch (t) {
-			case cell::R_:
-				x = Engine::getRef(heap,c);
-				break;
-			case cell::C_:
-			case cell::N_:
-				x = c;
-				break;
-		}
-		return x;
     }
 
 /**
@@ -205,11 +202,11 @@ namespace iProlog {
 		if (!indexing) return;
 
 		if (!(G->index_vector[0] == cell::null())
-		  || !G->hasGoals()
+		   || !G->hasGoals()
 		)
 			return;
 
-		G->index_vector = getIndexables(heap, goal);
+		getIndexables(G->index_vector, heap, goal);
 		G->unifiables = matching_clauses_(G->index_vector);
 #undef TR
     }

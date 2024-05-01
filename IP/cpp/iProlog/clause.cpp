@@ -28,7 +28,7 @@ namespace iProlog {
         base = base_0;
         len = len_0;
         neck = neck_0;
-        for (int i = 0; i < MAXIND; ++i)
-            index_vector[i] = cell::tag(cell::BAD, 0);
+        for (int i = 0; i < IV_LEN; ++i)
+            index_vector[i] = cell::null(); // cell::tag(cell::BAD, 0);
     }
 }

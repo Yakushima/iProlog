@@ -12,9 +12,7 @@ using namespace std;
 #include "cell.h"
 
 namespace iProlog {
-
-
-    typedef array<cell, MAXIND> t_index_vector; // deref'd cells
+    typedef array<cell, IV_LEN> t_index_vector; // deref'd cells
 }
 
 #include "IMap.h"
@@ -26,8 +24,6 @@ namespace iProlog {
 
 class Spine;
 class Engine;
-
-#define BAD_VAL 0
 
 class index {
 
@@ -53,7 +49,7 @@ public:
    */
     vector<cls_no_set> var_maps;
 
-    long n_matches;
+    long n_matches = 0;
 
     index(CellStack &heap, vector<Clause>& clauses);
 

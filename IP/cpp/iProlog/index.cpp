@@ -30,29 +30,32 @@ namespace iProlog {
 
 // "Indexing extensions - ony active if [there are] START_INDEX clauses or more."
 
+	inline void get_arg_start_and_n(CellStack& h, cell g, int &arg_start, int &n) {
+		arg_start = 1 + g.arg(); // "1" to be just after pred symbol ref
+		n = min(Engine::getRef(h, g).arg(), MAXIND);
+	}
+
 	t_index_vector index::getIndexables(CellStack &heap, cell goal) {
 #define TR if(0)
 		TR cout << "getIndexables(...): " << endl;
-		int arg_start = 1 + goal.arg();
-		int n_args = Engine::getRef(heap,goal).arg();
-		int n = min(n_args, MAXIND);
 
-		TR cout << "getIndexables: n_args=" << n_args << " n=" << n << endl;
+		int arg_start, n;
+		get_arg_start_and_n(heap, goal, arg_start, n);
+
 		t_index_vector index_vector;
-
-		for (int i = 0; i < MAXIND; ++i)
-			index_vector[i] = cell::tag(cell::BAD, 0);
 
 		for (int arg_pos = 0; arg_pos < n; arg_pos++) {
 			cell arg = Engine::cell_at(heap,arg_start + arg_pos);
 			cell c = Engine::deref(heap, arg);
-			cell drefd = cell2index(heap,c);
-
-			index_vector[arg_pos] = drefd;
+			index_vector[arg_pos] = cell2index(heap, c);
 
 			TR cout << "getIndexables: index_vector[" << arg_pos << "] <- " << index_vector[arg_pos].as_int() << endl;
 		}
+		for (int pos = n; pos < IV_LEN; ++pos) // sentinel-searched
+			index_vector[pos] = cell::null();
+
 		TR cout << "getIndexables returning" << endl;
+
 		return index_vector;
 	}
 
@@ -111,9 +114,17 @@ namespace iProlog {
  * "Tests if the head of a clause, not yet copied to the heap
  * for execution, could possibly match the current goal, an
  * abstraction of which has been placed in [the index vectors]."
- * ("abstraction of which"???)
- * Supposedly, none of these "abstractions" can be -1
+ * ("abstraction of which" seems to refer to the variable
+ * positions. With the original tag format, these are V_:0 == 0)
  */
+
+// Reasonable candidate for loop unrolling.
+// Sentinel search could also work if the sentinel
+// position is temporarily give two different
+// values in the two vectors. Only called from
+// one place in unfold(), so also a reasonable
+// candidate for inlining.
+
 	bool index::possible_match(const Spine* sp,
 							   const Clause& cl)
 #ifndef COUNTING_MATCHES
@@ -122,7 +133,6 @@ namespace iProlog {
 	{
 	if (!indexing) return true;
 
-	// reasonable candidate for loop unrolling:
 		for (size_t i = 0; i < MAXIND; i++) {
 			cell x = sp->index_vector[i];
 			cell y = cl.index_vector[i];
@@ -137,6 +147,7 @@ namespace iProlog {
 #endif
 		return true;
 	}
+
 	/* Tarau's IMap.java: K = Integer, a Java object reference.
 	 *  "key": index vector element.
 	 *  val : clause number (not index)
@@ -155,18 +166,20 @@ namespace iProlog {
 	*/
 
 	void index::put(const t_index_vector &iv, ClauseNumber cls_no) {
+		cout << ".";
 #define TR if(0)
 		for (int arg_pos = 0; arg_pos < MAXIND; arg_pos++) {
 			cell vec_elt = iv[arg_pos];
 
-			if (vec_elt != cell::BAD && !vec_elt.is_var()) {  // in Java code, basically: != tag(V_,0) 
+			if (!(vec_elt == cell::null()) && !vec_elt.is_var()) {  // in Java code, basically: != tag(V_,0) 
 
 				// INDEX PARTLY FAILED BEFORE WHEN CELL SIGN BIT ON
 				// Probably because 0 is tag(V_,0) with sign bit off
 
 				imaps[arg_pos].put(cls_no, vec_elt);
 			}
-			else { // this can include vec_elt == cell::BAD case, but maybe that's OK
+			else {
+				// this can include vec_elt == cell::null case, but maybe that's OK
 				/* "If [var_maps[arg_pos]] denotes the set of clauses
 				 * having variables in position [arg_pos], then any of them
 				 * can also unify with our goal element"
@@ -183,26 +196,20 @@ namespace iProlog {
  * These registers will be reused when matching with candidate clauses.
  * Note that [index_vector] contains dereferenced cells - this is done once for
  * each goal's toplevel subterms." [Engine.java]
+ * This is in Engine, on-demand construction of index args,
+ * but it could be in initialization.
+ * The initial tests could be in an inline member function.
  */
     void index::makeIndexArgs(CellStack &heap, Spine *G, cell goal) {
 #define TR if(0)
 		if (!indexing) return;
 
-		if (G->index_vector[0].s_tag() != cell::BAD
+		if (!(G->index_vector[0] == cell::null())
 		  || !G->hasGoals()
 		)
 			return;
 
-		int arg_start = 1 + goal.arg(); // point to # of args of goal
-		int n_args = Engine::getRef(heap, goal).arg();
-		int n = min(MAXIND, n_args); // # args to compare
-
-		for (int arg_pos = 0; arg_pos < n; arg_pos++) {
-			cell arg = Engine::cell_at(heap, arg_start + arg_pos);
-			cell arg_val = Engine::deref(heap,arg);
-			G->index_vector[arg_pos] = cell2index(heap,arg_val);
-		}
-
+		G->index_vector = getIndexables(heap, goal);
 		G->unifiables = matching_clauses_(G->index_vector);
 #undef TR
     }
@@ -292,8 +299,9 @@ namespace iProlog {
 		TR cout << " ==== matching_clauses: start iv loop, imaps.size()=" << imaps.size() << endl;
 
 		int push_count = 0;
+		/* candidate for unrolling and sentinel search */
 		for (int i = 0; i < MAXIND; i++)
-			if (iv[i].as_int() == 0 || iv[i] == cell::BAD) // "index vectors are null-terminated if < MAXIND"
+			if (iv[i] == 0 || iv[i] == cell::null()) // "index vectors are null-terminated if < MAXIND"
 				continue;
 			else {
 				cls_no_set m = imaps[i].map[iv[i]];
@@ -323,7 +331,7 @@ namespace iProlog {
 
 		TR cout << "  vms[0].m_size=" << to_string(vmsp[0].size()) << endl;
 		new_end = intersect0_p(vmsp[0], msp, vmsp, new_end, push_count);
-		int cs_size = new_end - csp;
+		long cs_size = new_end - csp;
 
 		TR cout << "  after intersect0_p new_end - csp=" << cs_size << endl;
 

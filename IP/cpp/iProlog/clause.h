@@ -29,7 +29,7 @@ namespace iProlog {
                           // Should it be "outermost termS"?
 
         Clause() : len(size_t(0)), base(size_t(0)), neck(size_t(0)) {
-            for (int i = 0; i < MAXIND; ++i) index_vector[i] = cell::BAD;
+            for (int i = 0; i < IV_LEN; ++i) index_vector[i] = cell::null();
         }
         Clause(int len_0, vector<cell> goal_refs_0, int base_0, int neck_0, t_index_vector iv);
         Clause(int len_0, vector<cell> skeleton_0, int base_0, int neck_0);

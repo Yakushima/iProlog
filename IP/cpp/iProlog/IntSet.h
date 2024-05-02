@@ -75,20 +75,30 @@ namespace iProlog {
         int m_mask;
         int m_mask2;
     public:
+        inline bool is_free(int i) const { return m_data[i] == FREE_KEY; }
+        inline static int no_value() { return NO_VALUE; }
+
         // adding for index.cpp:
-        inline size_t capacity() const     { return m_data.capacity();         }
+
+        inline size_t length() const     { return m_data.capacity();         }
+        inline size_t kv_cap() const       { return length() / stride(); }
         inline int stride() const          { return 2;                     }
+
         inline int get_key_at(int i) const { return m_data[i];             }
         inline void set_key_at(int i, int v) { m_data[i] = v; }
-        inline int get_val_at(int i) const { return m_data[i + 1]; }
+        inline int get_val_in(int i, Vec &data) const { return data[i + 1]; }
+        inline int get_val_at(int i) const { return m_data[i+1]; }
         inline void set_val_at(int i, int v){ m_data[i + 1] = v; }
-        inline bool is_free(int i) const   { return m_data[i] == FREE_KEY; }
-        inline static int no_value()       { return NO_VALUE; }
-        inline int next(int ptr) const { return ptr + 2 & m_mask2; } //that's next index calculation
 
-        inline int mk_ptr(int key) const { return (phiMix(key) & m_mask) << 1; }
+        inline int wraparound(int i) const { return i & m_mask2; }
+        inline int next(int ptr) const { return wraparound(ptr + stride()); } //that's next index calculation
+        inline void set_masks(int cap) {
+            m_mask = cap - 1;
+            m_mask2 = cap * stride() - 1;
+        }
+        inline int mk_ptr(int key) const { return (phiMix(key) & m_mask) * stride(); }
 
-        inline Vec alloc(int cap) { return Vec(cap * 2); }
+        inline Vec alloc(int cap) { return Vec(cap * stride()); }
 
         IntSet();
 

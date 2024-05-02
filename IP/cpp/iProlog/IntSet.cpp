@@ -25,8 +25,7 @@ namespace iProlog {
            
         int capacity = arraySize(init_cap, m_fillFactor_pc);
 
-        m_mask = capacity - 1;
-        m_mask2 = capacity * 2 - 1;
+        set_masks(capacity);
 
         m_data = alloc(capacity);
 
@@ -37,20 +36,19 @@ namespace iProlog {
     void IntSet::rehash(size_t newCapacity) {
         cout << "           !!!!!!!!!!!!! calling rehash, newCapacity="
              << to_string(newCapacity) << " !!!!!!!!!!!!!!!!!!" << endl;
-        m_threshold = (int)(newCapacity / 2 * ((float)m_fillFactor_pc/100));
-        m_mask = (int) newCapacity / 2 - 1;
-        m_mask2 = (int) newCapacity - 1;
+        m_threshold = (int)(newCapacity * ((float)m_fillFactor_pc/100));
+        set_masks(newCapacity);
 
-        size_t oldCapacity = capacity();
+        size_t oldLength = length(); // raw
         Vec oldData = m_data;
 
         m_data = alloc(newCapacity);
         m_size = m_hasFreeKey ? 1 : 0;
 
-        for (int i = 0; i < oldCapacity; i += stride()) {
+        for (int i = 0; i < oldLength; i += stride()) {
             int oldKey = oldData[i];
             if (oldKey != FREE_KEY) {
-                put(oldKey, oldData[i + 1]);
+                put(oldKey, get_val_in(i, oldData));
             }
         }
     }
@@ -59,7 +57,8 @@ namespace iProlog {
 #define TR if(0)
         int ptr = mk_ptr(key);
 
-        TR cout << "      IntSet::get(" << key << "), ptr=" << ptr << " m_data.size()=" << m_data.size() << " m_mask=" << m_mask << endl;
+        TR cout << "      IntSet::get(" << key << "), ptr="
+            << ptr << " m_data.size()=" << m_data.size() << endl;
 
         if (key == FREE_KEY) {
             int r = m_hasFreeKey ? m_freeValue : NO_VALUE;
@@ -117,7 +116,7 @@ namespace iProlog {
             if (m_size >= m_threshold) {
                 TR cout << "**** about to call rehash, m_size=" << m_size << " m_threshold=" << m_threshold << endl;
                 TR cout << "****   m_data.capacity()=" << m_data.capacity() << endl;
-                rehash(m_data.capacity() * 2); //size is set inside
+                rehash(kv_cap() * 2); //size is set inside
             }
             else {
                 ++m_size;
@@ -141,7 +140,7 @@ namespace iProlog {
                 set_val_at(ptr, value);
                 if (m_size >= m_threshold) {
                     TR cout << "     needing to rehash" << endl;
-                    rehash(m_data.capacity() * 2); //size is set inside
+                    rehash(kv_cap() * 2); //size is set inside
                 }
                 else {
                     ++m_size;
@@ -200,7 +199,7 @@ namespace iProlog {
 
         while (true) {
             last = pos;
-            pos = last + 2 & m_mask2;
+            pos = next(last);
             while (true) {
                 k = get_key_at(pos);
                 if (k == FREE_KEY) {
@@ -211,7 +210,7 @@ namespace iProlog {
                 if (last <= pos ? last >= slot || slot > pos : last >= slot && slot > pos) {
                     break;
                 }
-                pos = pos + 2 & m_mask2; //go to the next entry
+                pos = next(pos);
             }
             set_key_at(last) = k;
             set_val_at(last, get_val_at(pos));

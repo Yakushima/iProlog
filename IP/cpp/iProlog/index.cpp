@@ -29,7 +29,7 @@ MAXIND is that maximum.
 namespace iProlog {
 
 	cell index::cell2index(CellStack& heap, cell c) const {
-		cell x = cell::tag(cell::V_, 0);
+		cell x = cell::abs_var();
 		int t = c.s_tag();
 		switch (t) {
 		case cell::R_:
@@ -74,7 +74,7 @@ namespace iProlog {
 #define TR if(0)
 
 		for (int i = 0; i < clauses.size(); ++i) {
-			cell hd = clauses[i].skeleton.at(0);
+			cell hd = clauses[i].skeleton[0];
 			getIndexables(clauses[i].index_vector, heap, hd);
 		}
 
@@ -134,7 +134,7 @@ namespace iProlog {
 			cell x = sp->index_vector[i];
 			cell y = cl.index_vector[i];
 
-			if (x == cell::tag(cell::V_, 0) || y == cell::tag(cell::V_, 0))
+			if (x == cell::abs_var() || y == cell::abs_var())
 				continue;
 			if (x != y)
 				break;
@@ -163,7 +163,7 @@ namespace iProlog {
 	*/
 
 	void index::put(const t_index_vector &iv, ClauseNumber cls_no) {
-		cout << ".";
+
 #define TR if(0)
 		for (int arg_pos = 0; arg_pos < MAXIND; arg_pos++) {
 			cell vec_elt = iv[arg_pos];
@@ -297,9 +297,11 @@ namespace iProlog {
 
 		int push_count = 0;
 		/* candidate for unrolling and sentinel search */
-		for (int i = 0; i < MAXIND; i++)
-			if (iv[i] == 0 || iv[i] == cell::null()) // "index vectors are null-terminated if < MAXIND"
+		for (int i = 0; /*i < MAXIND*/; i++)
+			if (iv[i] == cell::abs_var())
 				continue;
+			else if (iv[i] == cell::null()) // "index vectors are null-terminated if < MAXIND"
+				break;
 			else {
 				cls_no_set m = imaps[i].map[iv[i]];
 

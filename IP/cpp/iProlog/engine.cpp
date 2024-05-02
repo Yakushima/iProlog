@@ -441,7 +441,7 @@ cell Engine::pushHeadtoHeap(cell b, const Clause& C) {
 #define TR if(0)
     TR cout << "push HeadtoHeap entered" << endl;
     CellStack::pushCells(heap, b, 0, C.neck, C.base);
-    cell head = C.skeleton.at(0);
+    cell head = C.skeleton[0];
     cell reloc_head = head.relocated_by(b);
     return reloc_head;
 #undef TR

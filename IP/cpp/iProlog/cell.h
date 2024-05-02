@@ -58,9 +58,12 @@ namespace iProlog {
 
     static const int BAD = (3 + nonref_base) << tag_shift;
 
-    // tag(BAD,0) used as "null pointer value" in prog.cpp
-    // Not sure this is safe
-    static inline cell null() { return tag(BAD,0); }
+    // tag(BAD,0) used as "null pointer value" in prog.cpp,
+    // and as "null termination" in index vectors
+    static inline cell null()    { return tag(BAD,0); }
+
+    // abs_var is "abstract variable" used in index matching
+    static inline cell abs_var() { return tag(V_, 0); }
 
     // For x64, and maybe 32-bit CPU case:
     // By making BAD == 0, and always making sure there's a zero cell at the
@@ -82,8 +85,6 @@ namespace iProlog {
     static inline cell tag(int t, size_t w) {
         return cell((int)((w << ref_shift) | t));
     }
-
-    static const int BAD_VAL = BAD << ref_shift;
 
     inline int arg() {
         if (use_sign_bit)

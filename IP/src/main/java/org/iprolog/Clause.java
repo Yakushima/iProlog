@@ -171,7 +171,7 @@ public class Clause {
     this.skeleton = skeleton;
     this.base = base;
 
-    Prog.println("     $$$$$$$$$$$$$$$$$$ Clause constructor: base<-" + base);
+    // Prog.println("     $$$$$$$$$$$$$$$$$$ Clause constructor: base<-" + base);
 
     this.len = len;
     this.neck = neck;

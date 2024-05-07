@@ -992,13 +992,13 @@ class Engine {
     final int p = 1 + detag(ref);
     final int n = detag(getRef(ref));
     final int[] index_vector = new int[MAXIND];
-    Main.pp ("getIndexables: n=" + n + " ref="+ref);
+    // Main.pp ("getIndexables: n=" + n + " ref="+ref);
     for (int i = 0; i < MAXIND && i < n; i++) {
       final int cell = deref(heap[p + i]);
       index_vector[i] = cell2index(cell);
-      Main.pp("  index_vector[" + i + "] for cell c=" + showCell(cell) + " is " + showCell(index_vector[i]));
+      // Main.pp("  index_vector[" + i + "] for cell c=" + showCell(cell) + " is " + showCell(index_vector[i]));
     }
-    Main.pp("\n");
+    // Main.pp("\n");
     return index_vector;
   }
 
@@ -1154,7 +1154,7 @@ class Engine {
    */
   Spine init() {
     final int base = heap_size();
-    Prog.println("init(): base=" + base);
+    // Prog.println("init(): base=" + base);
 
     final Clause G = getQuery();
     // Prog.println("trail.getTop()=" + trail.getTop());

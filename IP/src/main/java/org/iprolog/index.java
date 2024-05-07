@@ -21,7 +21,7 @@ public class index {
         boolean is_empty() { return imaps.length == 0; }
 
         public static IntMap[] vcreate(final int l) {
-            Main.println ("vcreate(" + l + ")");
+            // Main.println ("vcreate(" + l + ")");
             final IntMap[] vss = new IntMap[l];
             for (int i = 0; i < l; i++) {
                 vss[i] = new IntMap();
@@ -54,10 +54,10 @@ public class index {
         for (int i = 0; i < imaps.length; i++) {
             final int drefd = index_vec[i];
             if (drefd != 0) {  // != tag(V,0)
-                Main.pp("put: index_vec[" + i + "] -- IMap.put(imaps, drefd=" + i + "," + drefd + "," + cl_no + ")");
+                // Main.pp("put: index_vec[" + i + "] -- IMap.put(imaps, drefd=" + i + "," + drefd + "," + cl_no + ")");
                 IMap.put(imaps, i, drefd, cl_no);
             } else {
-                Main.pp("put: index_vec[" + i + "] -- vss[" + i + "].add(" + cl_no + ")");
+                // Main.pp("put: index_vec[" + i + "] -- vss[" + i + "].add(" + cl_no + ")");
                 vss[i].add(cl_no);
             }
         }
@@ -156,7 +156,7 @@ public class index {
 
     public static String show(IMap<Integer>[] imaps) {
         String s = "";
-        s += "IMaps.show():\n";
+
         for (int i = 0; i < imaps.length; ++i) {
             IMap<Integer> im = imaps[i];
 

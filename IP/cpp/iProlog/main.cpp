@@ -379,13 +379,32 @@ vector<Clause> dload(const cstr s) {
         cout << "or " << (double)d / 1000 << endl;
     }
 
+    void test_IntSet() {
+        IntSet im;
+        cout << endl << "************** test_IntSet() ***********************************" << endl;
+
+        for (int i = 1; i < 9; ++i) {
+            // cout << "about to call add_key";
+            im.add_key(i);
+            // cout << "about to call put";
+            im.put(i, i + 1);
+            // cout << " about to call get";
+            int v = im.get(i);
+            // cout << "test_IntSet i = " << to_string(i) << endl;
+            if (!(v == i + 1)) abort();
+        }
+
+        cout << "************** END test_IntSet() ***********************************" << endl;
+    }
+
     int do_with(int argc, char* argv[])
     {
 #if 0
         vec_bench();
         exit(0);
 #endif
-        int_bench();
+        iProlog::test_IntSet();
+        // exit(0);
 
         cout << "...starting execution of " << argv[0] << endl;
         // Tag tests:
@@ -452,21 +471,6 @@ cout << "---------------------------------------" << endl;
         cout << "sizeof(RelocStack<cell>)=" << sizeof(RelocStack<cell>) << endl;
 
         return 0;
-    }
-
-    void test_IntSet() {
-        IntSet im;
-        cout << endl << "************** test_IntSet() ***********************************" << endl;
-
-        for (int i = 0; i < 1000; ++i) {
-            im.add_key(i);
-            im.put(i, i + 1);
-            int v = im.get(i);
-            assert(v == i + 1);
-            cout << ".";
-        }
-
-        cout << "************** END test_IntSet() ***********************************" << endl;
     }
 
     void test_IMap() {

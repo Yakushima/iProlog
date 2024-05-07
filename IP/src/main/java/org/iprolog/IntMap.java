@@ -152,7 +152,13 @@ class IntMap implements java.io.Serializable {
   // end changes
 
   final int put(final int key, final int value) {
-	  Prog.println("IntMap.put(key=" + key + ", value=" + value + ") returns ...");
+    Prog.println(
+              "\n       IntSet::put(key=" + key
+            + ", value=" + value + ")"
+            + " md_capacity=" + m_data.length
+            + " m_size()=" + m_size
+            + " m_threshold=" + m_threshold
+    );
     if (key == FREE_KEY) {
       final int ret = m_freeValue;
       if (!m_hasFreeKey) {
@@ -160,7 +166,7 @@ class IntMap implements java.io.Serializable {
       }
       m_hasFreeKey = true;
       m_freeValue = value;
-      Prog.println ("former m_freeValue=" + ret);
+      Prog.println ("         (1) key == FREE_KEY, returning " + ret);
       return ret;
     }
 
@@ -171,35 +177,42 @@ class IntMap implements java.io.Serializable {
       m_data[ptr] = key;
       m_data[ptr + 1] = value;
       if (m_size >= m_threshold) {
+        Prog.println("**** about to call rehash, m_size=" + m_size + " m_threshold=" + m_threshold);
         rehash(m_data.length * 2); //size is set inside
       } else {
         ++m_size;
       }
-      Prog.println ("NO_VALUE=" + NO_VALUE);
+      Prog.println ("         (2) k == FREE_KEY, returning NO_VALUE");
       return NO_VALUE;
     } else if (k == key) //we check FREE prior to this call
     {
       final int ret = m_data[ptr + 1];
       m_data[ptr + 1] = value;
-      Prog.println ("m_data[" + ptr+1 + "] <- " + value + ", returning " + ret);
+      Prog.println ("         (3) k == key, get_val_at(ptr)<-value==" + m_data[ptr+1]
+                    + " returning past value " + ret);
       return ret;
     }
 
     while (true) {
+      Prog.println("ptr=" + ptr);
       ptr = ptr + 2 & m_mask2; //that's next index calculation
       k = m_data[ptr];
+      Prog.println("k=" + k);
       if (k == FREE_KEY) {
         m_data[ptr] = key;
         m_data[ptr + 1] = value;
         if (m_size >= m_threshold) {
+          Prog.println("     needing to rehash");
           rehash(m_data.length * 2); //size is set inside
         } else {
           ++m_size;
         }
+        Prog.println("         (4) at end of chain, returning NO_VALUE");
         return NO_VALUE;
       } else if (k == key) {
         final int ret = m_data[ptr + 1];
         m_data[ptr + 1] = value;
+        Prog.println("         (5) found something, returning " + ret);
         return ret;
       }
     }
@@ -270,11 +283,17 @@ class IntMap implements java.io.Serializable {
     m_mask = newCapacity / 2 - 1;
     m_mask2 = newCapacity - 1;
 
+    Prog.println("             m_mask is now " + m_mask);
+
     final int oldCapacity = m_data.length;
     final int[] oldData = m_data;
 
     m_data = new int[newCapacity];
     m_size = m_hasFreeKey ? 1 : 0;
+
+    for (int i = 0; i < oldCapacity; i += 2)
+      Prog.println("  oldData[" + i + "] (key)=" + oldData[i]
+              + " oldData[" + (i+1) + "] (val)=" + oldData[i+1]);
 
     for (int i = 0; i < oldCapacity; i += 2) {
       final int oldKey = oldData[i];

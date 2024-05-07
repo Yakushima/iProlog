@@ -102,6 +102,7 @@ namespace iProlog {
 
 		for (int i = 0; i < clauses.size(); i++) {
 			ClauseIndex ci(i);
+			TR cout << "in index ctor loop, i = " << to_string(i) << endl;
 			put(clauses[i].index_vector, to_clause_no(ci));  // "$$$ UGLY INC" in Java code
 		}
 #undef TR
@@ -168,11 +169,17 @@ namespace iProlog {
 		for (int arg_pos = 0; arg_pos < MAXIND; arg_pos++) {
 			cell vec_elt = iv[arg_pos];
 
+			TR cout << "  arg_pos = " << to_string(arg_pos) 
+			<< " vec_elt = " << to_string(vec_elt.as_int()) << endl;
+
 			if (!(vec_elt == cell::null()) && !vec_elt.is_var()) {  // in Java code, basically: != tag(V_,0) 
 
 				// INDEX PARTLY FAILED BEFORE WHEN CELL SIGN BIT ON
 				// Probably because 0 is tag(V_,0) with sign bit off
 
+				TR cout << "    imaps[" << arg_pos << "].put("
+					<< cls_no.as_int() << ","
+					<< vec_elt.as_int() << ")" << endl;
 				imaps[arg_pos].put(cls_no, vec_elt);
 			}
 			else {
@@ -181,8 +188,11 @@ namespace iProlog {
 				 * having variables in position [arg_pos], then any of them
 				 * can also unify with our goal element"
 				 */
-				var_maps[arg_pos].add_key(cls_no.as_int());
-				assert(var_maps[arg_pos].contains(cls_no.as_int()));
+				int c = cls_no.as_int();
+	
+				TR cout << "    var_maps[" << arg_pos << "].add_key(" << c << ")" << endl;
+				var_maps[arg_pos].add_key(c);
+				assert(var_maps[arg_pos].contains(c));
 			}
 		}
 #undef TR

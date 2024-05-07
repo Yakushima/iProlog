@@ -26,10 +26,19 @@
 
 #include "IMap.h"
 
-// #define RAW_VEC
+#define RAW_VEC
 
 namespace iProlog {
+    class is_bucket {
+    public:
+        int key;
+        int val;
+    };
+#ifdef RAW_VEC
+    typedef is_bucket* Vec;
+#else
     typedef vector<int> Vec;
+#endif
 
     using namespace std;
 
@@ -44,11 +53,7 @@ namespace iProlog {
 
     class IntSet {
       private:
-          class bucket {
-            protected:
-              int key;
-              int val;
-          };
+
         static const  int FREE_KEY = 0;
         static const  int NO_VALUE = 0;
 
@@ -74,21 +79,44 @@ namespace iProlog {
         /** Mask to calculate the original position */
         int m_mask;
         int m_mask2;
+#ifdef RAW_VEC
+        size_t md_capacity;
+#endif
+
     public:
-        inline bool is_free(int i) const { return m_data[i] == FREE_KEY; }
         inline static int no_value() { return NO_VALUE; }
 
-        // adding for index.cpp:
 
-        inline size_t length() const     { return m_data.capacity();         }
-        inline size_t kv_cap() const       { return length() / stride(); }
-        inline int stride() const          { return 2;                     }
+#ifdef RAW_VEC
+        inline int md_key_at(int i) const               { return m_data[i].key; }
+        inline int md_get_key_in(int i, Vec data) const { return data[i].key; }
+        inline void md_set_key_at(int i, int v)         { m_data[i].key = v; }
+        inline int md_get_val_in(int i, Vec data) const { return data[i].val; }
+        inline void md_set_val_at(int i, int v)         { m_data[i].val = v; }
+        inline size_t md_length() const                 { return md_capacity; }
+        inline int stride() const                       { return 1; }
+        void md_free(Vec vs) { free(vs); }
+#else
+        inline int md_key_at(int i) const               { return m_data[i]; }
+        inline int md_get_key_in(int i, Vec data) const { return data[i]; }
+        inline void md_set_key_at(int i, int v)         { m_data[i] = v; }
+        inline int md_get_val_in(int i, Vec data) const { return data[i+1]; }
+        inline void md_set_val_at(int i, int v)         { m_data[i+1] = v; }
+        inline size_t md_length() const                 { return m_data.capacity(); }
+        inline int stride() const                       { return 2; }
+        inline void md_free(Vec vs) { }
+#endif
 
-        inline int get_key_at(int i) const { return m_data[i];             }
-        inline void set_key_at(int i, int v) { m_data[i] = v; }
-        inline int get_val_in(int i, Vec &data) const { return data[i + 1]; }
-        inline int get_val_at(int i) const { return m_data[i+1]; }
-        inline void set_val_at(int i, int v){ m_data[i + 1] = v; }
+        inline size_t length() const     { return md_length();   }
+        inline size_t kv_cap() const     { return length() / stride(); }
+
+        inline bool is_free(int i) const { return md_key_at(i) == FREE_KEY; }
+        inline int get_key_at(int i) const { return md_key_at(i); }
+        inline int get_key_in(int i, Vec data) const { return md_get_key_in(i, data); }
+        inline void set_key_at(int i, int v) { md_set_key_at(i, v); }
+        inline int get_val_in(int i, Vec &data) const { return md_get_val_in(i,data); }
+        inline int get_val_at(int i) const { return md_get_val_in(i,m_data); }
+        inline void set_val_at(int i, int v){ md_set_val_at(i,v); }
 
         inline int wraparound(int i) const { return i & m_mask2; }
         inline int next(int ptr) const { return wraparound(ptr + stride()); } //that's next index calculation
@@ -98,7 +126,17 @@ namespace iProlog {
         }
         inline int mk_ptr(int key) const { return (phiMix(key) & m_mask) * stride(); }
 
-        inline Vec alloc(int cap) { return Vec(cap * stride()); }
+        inline Vec alloc(int cap) {
+#ifdef RAW_VEC
+            md_capacity = cap;
+            size_t sz = cap * sizeof(is_bucket);
+            void* p = malloc(sz);
+            memset(p, 0, sz);
+            return (Vec) p;
+#else
+            return Vec(cap * stride());
+#endif
+        }
 
         IntSet();
 

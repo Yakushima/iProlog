@@ -34,23 +34,34 @@ namespace iProlog {
     }
 
     void IntSet::rehash(size_t newCapacity) {
-        cout << "           !!!!!!!!!!!!! calling rehash, newCapacity="
+#define TR if(0)
+        TR cout << "           !!!!!!!!!!!!! calling rehash, newCapacity="
              << to_string(newCapacity) << " !!!!!!!!!!!!!!!!!!" << endl;
         m_threshold = (int)(newCapacity * ((float)m_fillFactor_pc/100));
         set_masks(newCapacity);
 
-        size_t oldLength = length(); // raw
+        TR cout << "             m_mask is now " << m_mask << endl;
+
+        size_t oldCapacity = length();
         Vec oldData = m_data;
 
-        m_data = alloc(newCapacity);
+        TR for (int i = 0; i < oldCapacity; i += stride())
+            cout << "             oldData[" << i << "].key=" << oldData[i].key
+                 << " oldData[i].val=" << oldData[i].val << endl;
+
+        m_data = alloc(newCapacity);  // sets md_capacity = newCapacity
         m_size = m_hasFreeKey ? 1 : 0;
 
-        for (int i = 0; i < oldLength; i += stride()) {
-            int oldKey = oldData[i];
+        for (int i = 0; i < oldCapacity; i += stride()) {
+            int oldKey = get_key_in(i,oldData);
             if (oldKey != FREE_KEY) {
                 put(oldKey, get_val_in(i, oldData));
+                assert(contains(oldKey));
+                // assert(get_key_in(oldKey, m_data) == oldKey);
             }
         }
+        md_free(oldData);
+#undef TR
     }
 
     int IntSet::get(int key) const {
@@ -58,7 +69,7 @@ namespace iProlog {
         int ptr = mk_ptr(key);
 
         TR cout << "      IntSet::get(" << key << "), ptr="
-            << ptr << " m_data.size()=" << m_data.size() << endl;
+            << ptr <<  endl;
 
         if (key == FREE_KEY) {
             int r = m_hasFreeKey ? m_freeValue : NO_VALUE;
@@ -68,20 +79,21 @@ namespace iProlog {
         int k = get_key_at(ptr);
 
         if (k == FREE_KEY) {
-            TR cout << "       k==m_data[" << ptr << "]==" << k << " == FREE_KEY" << ", m_data[ptr + 1] = " << m_data[ptr + 1] << endl;
+            // TR cout << "       k==m_data[" << ptr << "]==" << k << " == FREE_KEY" << ", m_data[ptr + 1] = " << m_data[ptr + 1] << endl;
             return NO_VALUE; //end of chain already
         }
 
         if (k == key) { //we check FREE prior to this call
-            TR cout << "       k==key, returning m_data[" << ptr + 1 << "]=" << m_data[ptr + 1] << endl;
+            // TR cout << "       k==key, returning m_data[" << ptr + 1 << "]=" << m_data[ptr + 1] << endl;
             return get_val_at(ptr);
         }
 
         while (true) {
+            // cout << "get loop" << endl;
             ptr = next(ptr);
             k = get_key_at(ptr);
             if (k == FREE_KEY) {
-                TR cout << "       k=get_key_at(" << ptr << ")==FREE_KEY " << FREE_KEY << " m_data[ptr+1]="<< m_data[ptr+1] << endl;
+                // TR cout << "       k=get_key_at(" << ptr << ")==FREE_KEY " << FREE_KEY << " m_data[ptr+1]="<< m_data[ptr+1] << endl;
                 return NO_VALUE;
             }
             if (k == key) {
@@ -94,7 +106,13 @@ namespace iProlog {
 
     int IntSet::put(int key, int value) {
 #define TR if(0)
-        TR cout << "       IntSet::put(key=" << key << ", value=" << value << ")" << endl;
+        TR cout << endl
+                << "       IntSet::put(key=" << to_string(key)
+                << ", value=" << to_string(value) << ")"
+                << " md_capacity=" << to_string(md_capacity)
+                << " m_size()=" << to_string(m_size)
+                << " m_threshold=" << to_string(m_threshold)
+                << endl;
 
         if (key == FREE_KEY) {
             int ret = m_freeValue;
@@ -115,7 +133,7 @@ namespace iProlog {
             set_val_at(ptr,value);
             if (m_size >= m_threshold) {
                 TR cout << "**** about to call rehash, m_size=" << m_size << " m_threshold=" << m_threshold << endl;
-                TR cout << "****   m_data.capacity()=" << m_data.capacity() << endl;
+                // TR cout << "****   m_data.capacity()=" << m_data.capacity() << endl;
                 rehash(kv_cap() * 2); //size is set inside
             }
             else {
@@ -128,13 +146,16 @@ namespace iProlog {
         {
             int ret = get_val_at(ptr);
             set_val_at(ptr, value);
-            TR cout << "         (3) k == key, get_val_at(ptr)<-value==" << get_val_at(ptr+1) << " returning past value " << ret << endl;
+            TR cout << "         (3) k == key, get_val_at(ptr)<-value==" << get_val_at(ptr) << " returning past value " << ret << endl;
             return ret;
         }
 
+        int count = 0;
         while (true) {
+            TR cout << "ptr=" << to_string(ptr) << endl;
             ptr = next(ptr);
             k = get_key_at(ptr);
+            TR cout << "k=" << k << endl;
             if (k == FREE_KEY) {
                 set_key_at(ptr, key);
                 set_val_at(ptr, value);
@@ -198,9 +219,11 @@ namespace iProlog {
         int k;
 
         while (true) {
+            cout << "shiftkeys loop" << endl;
             last = pos;
             pos = next(last);
             while (true) {
+                cout << "shiftKeys subloop";
                 k = get_key_at(pos);
                 if (k == FREE_KEY) {
                     set_key_at(last,FREE_KEY);
@@ -263,7 +286,8 @@ namespace iProlog {
 string IntSet::show() const {
     //return java.util.Arrays.toString(m_data);
     string b = "{";
-    size_t l = m_data.size();
+    size_t l = md_capacity;
+    // cout << "IntSet::show() md_capacity=" << to_string(md_capacity) << endl;
     bool first = true;
     for (int i = 0; i < l; i += stride()) {
         int v = get_key_at(i);

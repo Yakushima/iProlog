@@ -11,7 +11,27 @@ public class Main {
     System.out.println(o);
   }
 
+  static void test_IntSet() {
+    IntMap im = new IntMap();
+    Main.println("************** test_IntSet() ***********************************");
+
+    for (int i = 1; i < 9; ++i) {
+      // cout << "about to call add_key";
+      im.add(i);
+      // cout << "about to call put";
+      im.put(i, i + 1);
+      // cout << " about to call get";
+      int v = im.get(i);
+      // cout << "test_IntSet i = " << to_string(i) << endl;
+      if (!(v == i + 1)) System.exit(-1);
+    }
+
+    Main.println("************** END test_IntSet() ***********************************");
+  }
   public static void run(final String fname0) {
+
+    test_IntSet();
+
     final boolean p = true;
 
     final String fname = fname0 + ".nl";

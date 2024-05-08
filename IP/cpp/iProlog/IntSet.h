@@ -1,6 +1,6 @@
 #pragma once
 
-/*
+/* "for use as IntSet" - Paul Tarau
  * iProlog / C++  [derived from Java version]
  * Original (Java) author: Mikhail Vorontsov
  * License: public domain
@@ -26,19 +26,14 @@
 
 #include "IMap.h"
 
-#define RAW_VEC
-
 namespace iProlog {
     class is_bucket {
     public:
         int key;
         int val;
     };
-#ifdef RAW_VEC
+
     typedef is_bucket* Vec;
-#else
-    typedef vector<int> Vec;
-#endif
 
     using namespace std;
 
@@ -47,9 +42,9 @@ namespace iProlog {
     // Parameterizing for different kinds of maps
     // has an additional cost.
     // Unsatisfactory, but solvable with C++ "concept"?
-    // If I stick with m_data size = 2^n, what are some per-instance
-    // members now could be separated into a "hash table header" class
-    // and each could have an index into  a table of these.
+    // If I stick with m_data size = 2^n, what are now some per-instance
+    // members could be separated into a "hash table header" class
+    // and each could have an index into a table of these.
 
     class IntSet {
       private:
@@ -78,80 +73,47 @@ namespace iProlog {
 
         /** Mask to calculate the original position */
         int m_mask;
-        int m_mask2;
-#ifdef RAW_VEC
+
+        /** number of elts if ever full */
         size_t md_capacity;
-#endif
 
     public:
-        inline static int no_value() { return NO_VALUE; }
+        IntSet();
 
+        inline static int no_value()      { return NO_VALUE;    } 
+        inline size_t     length() const  { return md_capacity; }
 
-#ifdef RAW_VEC
-        inline int md_key_at(int i) const               { return m_data[i].key; }
-        inline int md_get_key_in(int i, Vec data) const { return data[i].key; }
-        inline void md_set_key_at(int i, int v)         { m_data[i].key = v; }
-        inline int md_get_val_in(int i, Vec data) const { return data[i].val; }
-        inline void md_set_val_at(int i, int v)         { m_data[i].val = v; }
-        inline size_t md_length() const                 { return md_capacity; }
-        inline int stride() const                       { return 1; }
-        void md_free(Vec vs) { free(vs); }
-#else
-        inline int md_key_at(int i) const               { return m_data[i]; }
-        inline int md_get_key_in(int i, Vec data) const { return data[i]; }
-        inline void md_set_key_at(int i, int v)         { m_data[i] = v; }
-        inline int md_get_val_in(int i, Vec data) const { return data[i+1]; }
-        inline void md_set_val_at(int i, int v)         { m_data[i+1] = v; }
-        inline size_t md_length() const                 { return m_data.capacity(); }
-        inline int stride() const                       { return 2; }
-        inline void md_free(Vec vs) { }
-#endif
+        inline bool is_free(int i)           const { return m_data[i].key == FREE_KEY; }
+        inline int  get_key_at(int i)        const { return m_data[i].key; }
+        inline void set_key_at(int i, int v)       { m_data[i].key = v; }
+        inline int  get_val_at(int i)        const { return m_data[i].val; }
+        inline void set_val_at(int i, int v)       { m_data[i].val = v; }
 
-        inline size_t length() const     { return md_length();   }
-        inline size_t kv_cap() const     { return length() / stride(); }
+        inline bool contains(int key) const { return NO_VALUE != get(key); }
+        inline bool add_key(int key) { return NO_VALUE != put(key, 666); }
+        // inline bool delete_(int key)        { return NO_VALUE != remove(key); }
+        inline bool isEmpty()         const { return 0 == m_size; }
+        inline int  size()            const { return m_size; }
 
-        inline bool is_free(int i) const { return md_key_at(i) == FREE_KEY; }
-        inline int get_key_at(int i) const { return md_key_at(i); }
-        inline int get_key_in(int i, Vec data) const { return md_get_key_in(i, data); }
-        inline void set_key_at(int i, int v) { md_set_key_at(i, v); }
-        inline int get_val_in(int i, Vec &data) const { return md_get_val_in(i,data); }
-        inline int get_val_at(int i) const { return md_get_val_in(i,m_data); }
-        inline void set_val_at(int i, int v){ md_set_val_at(i,v); }
-
-        inline int wraparound(int i) const { return i & m_mask2; }
-        inline int next(int ptr) const { return wraparound(ptr + stride()); } //that's next index calculation
-        inline void set_masks(int cap) {
-            m_mask = cap - 1;
-            m_mask2 = cap * stride() - 1;
-        }
-        inline int mk_ptr(int key) const { return (phiMix(key) & m_mask) * stride(); }
+        int get(int key) const;
+        int put(int key, int value);
+        // int remove(int key);
+    private:
+        inline void md_free(Vec vs) { free(vs); }
+        inline int  wraparound(int i) const { return i & m_mask;             }
+        inline int  next(int ptr)     const { return wraparound(ptr+1);      }
+        inline void set_mask(int cap)       { m_mask = cap - 1;              }
+        inline int  mk_ptr(int key)   const { return (phiMix(key) & m_mask); }
 
         inline Vec alloc(int cap) {
-#ifdef RAW_VEC
             md_capacity = cap;
             size_t sz = cap * sizeof(is_bucket);
             void* p = malloc(sz);
             memset(p, 0, sz);
             return (Vec) p;
-#else
-            return Vec(cap * stride());
-#endif
         }
 
-        IntSet();
 
-    public:
-        // "for use as IntSet" - Paul Tarau
-
-        inline bool contains(int key) const { return NO_VALUE != get(key);         }
-        inline bool add_key(int key)  { return NO_VALUE != put(key, 666);    }
-        inline bool delete_(int key)  { return NO_VALUE != remove(key);      }
-        inline bool isEmpty() const   { return 0 == m_size;                  }
-        inline int  size() const      { return m_size;                       }
-
-        int get(int key) const;
-        int put(int key, int value);
-        int remove(int key);
 
     private:
         static long nextPowerOfTwo(long x);

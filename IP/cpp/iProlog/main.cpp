@@ -485,7 +485,7 @@ cout << "---------------------------------------" << endl;
         x.put(cls_no, c);
 
         cls_no_set the_intset = x.get_cls_no_set(c);
-        TR cout << " got intset, kv_cap=" << the_intset.kv_cap() << endl;
+        TR cout << " got intset, length=" << the_intset.length() << endl;
         TR cout << "the_intset: " << the_intset.show() << endl;
 
         TR cout << "Imap x is now " << x.show() << endl;

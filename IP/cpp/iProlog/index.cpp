@@ -246,11 +246,11 @@ namespace iProlog {
 								int push_count) {
 #define TR if(0)
 
-		TR cout << "     intersect0: m.kv_cap()=" << m.kv_cap() << endl;
+		TR cout << "     intersect0: m.length()=" << m.length() << endl;
 
 		ClauseNumber* cnp = cls_nos_p;
 
-		for (int k = 0; k < m.length(); k += m.stride()) {
+		for (int k = 0; k < m.length(); k++) {
 			if (!m.is_free(k)) {
 
 				ClauseNumber cn = m.get_key_at(k);

@@ -63,7 +63,6 @@ public:
 		    throw logic_error(cstr("clauses: none"));
 	    }
 
-	    CellList::init();
 	    trail.clear();
 	    clause_list = toNums(clauses); // initially an array  [0..clauses.length-1]
 	    query = init(); /* initial spine built from query from which execution starts */

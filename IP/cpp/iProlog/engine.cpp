@@ -67,7 +67,7 @@ Spine* Engine::unfold(Spine *G) {
     TR cout << "unfold: goal=" << goal.as_int() << " goal.tag= " << goal.s_tag() << " goal.arg = " << goal.arg() << endl;
     TR cout << "unfold: about to call makeIndexArgs with current G->unifiables[0]=" << G->unifiables[0].as_int() << endl;
 
-    Ip->makeIndexArgs(heap, G, goal);
+    Ip->makeIndexArgs(heap, G, goal); //  goal == CellList::head(G->goals)
 
     if (G->unifiables.size() > 0)
         TR cout << "unfold: after makeIndexArgs with current G->unifiables[0]=" << G->unifiables[0].as_int() << endl;
@@ -89,7 +89,7 @@ Spine* Engine::unfold(Spine *G) {
  
         unify_stack.clear();  // "set up unification stack" [Engine.java]
         unify_stack.push(head);
-        unify_stack.push(goal);
+        unify_stack.push(goal); // from  CellList::head(G->goals)
 
         if (!unify(base)) {
             unwindTrail(tot);
@@ -98,10 +98,31 @@ Spine* Engine::unfold(Spine *G) {
         }
 
         vector<cell> goals = pushBody(b, head, C0);
+        /*
+            int l = (int)C0.skeleton.size();
+            vector<cell> goals(l);
+
+            CellStack::pushCells(heap, b, C0.neck, C0.len, C0.base);
+
+            goals[0] = head;
+            TR cout << "pushBody: goals[0]=" << head.show() << endl;
+            if (is_raw)
+                cell::cp_cells(b, C0.skeleton.data() + 1, goals.data() + 1, l - 1);
+            else
+                for (int k = 1; k < l; k++) {
+                    goals[k] = C0.skeleton[k].relocated_by(b);
+                    TR cout << "pushBody: goals[" << k << "]="
+                        << goals[k].as_int() << endl;
+                }
+        */
+
         TR cout << "$$$$$$$$$$$ goals after pushBody:" << endl;
         // for (int i = 0; i < goals.size(); ++i)
         //    cout << " " << showCell(goals[i]) << endl;
-        shared_ptr<CellList> tl = CellList::tail(G->goals);
+
+        CL_p tl = CellList::tail(G->goals);
+            // meaning I could free up the head of G->goals?
+
         G->last_clause_tried = k + 1;
 
         if (goals.size() != 0 || tl != nullptr) {

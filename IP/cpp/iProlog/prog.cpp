@@ -67,13 +67,13 @@ namespace iProlog {
 			cout << "   " << kv.first << "," << kv.second << endl;
 	}
 
-        void Prog::ppGoals(const shared_ptr<CellList> bs) const {
-            for (shared_ptr<CellList> bp = bs; bp != nullptr; bp = CellList::tail(bs)) {
+        void Prog::ppGoals(CL_p bs) {
+            for (CL_p bp = bs; bp != nullptr; bp = CellList::tail(bs)) {
                 pp(showTerm(exportTerm(CellList::head(bp))));
             }
         }
-        void Prog::ppc(const Spine &S) const {
-            shared_ptr<CellList> bs = S.goals;
+        void Prog::ppc(const Spine &S) {
+            CL_p bs = S.goals;
             pp(cstr("\nppc: t=") + S.trail_top + ",last_clause_tried=" + S.last_clause_tried + "len=" + bs->size());
             ppGoals(bs);
         }

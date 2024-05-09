@@ -70,4 +70,6 @@ namespace iProlog {
 
 #define RAW_IMAPS
 
+#define RAW_CELL_LIST
+
 }

@@ -28,7 +28,7 @@ namespace iProlog {
         cell head;      // "head of the clause to which this corresponds" [Spine.java]
         int base;      // "base of the heap where the clause starts" [HHG doc]
 
-        shared_ptr<CellList> goals; // goals - "with the top one ready to unfold" [Spine.java]
+        CL_p goals;         // goals - "with the top one ready to unfold" [Spine.java]
                             // "immutable list of the locations
                             //  of the goal elements accumulated
                             //  by unfolding clauses so far" [HHG doc]
@@ -75,7 +75,7 @@ namespace iProlog {
         Spine(
             vector<cell> goal_refs_0,       // was gs0/goal_stack_0 [Java]
             int base_0,               // base
-            shared_ptr<CellList> goals_0,        // was gs/goal_stack [Java]
+            CL_p goals_0,        // was gs/goal_stack [Java]
             int trail_top_0,
             int last_clause_tried_0,
             vector<ClauseNumber> unifiables_0); // was cs [Java]

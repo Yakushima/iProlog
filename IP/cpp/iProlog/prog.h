@@ -16,10 +16,10 @@ namespace iProlog {
 		void run(bool print_ans);
 		string stats() const;
 		void ppCode() const;
-		void ppc(const Spine &S) const;
+		void ppc(const Spine &S);
 		string showClause(const Clause& s) const;
 
-		void ppGoals(const shared_ptr<CellList> bs) const;
+		void ppGoals(CL_p bs);
 		void pp(const string s) const;
 		void pp(sym_tab &sym) const;
 		void ppTrail();

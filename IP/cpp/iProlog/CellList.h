@@ -14,11 +14,18 @@ namespace iProlog {
 
     using namespace std;
 
+#ifdef RAW_CELL_LIST
+#define CL_p CellList *
+#else
+#define CL_p shared_ptr<CellList>
+#endif
+
     class CellList {
+        static CL_p free_list;
 
     private:
         cell head_;
-        shared_ptr<CellList> tail_;
+        CL_p tail_;
        
     public:
         static int n_alloced;
@@ -30,24 +37,37 @@ namespace iProlog {
 
         ~CellList() { --n_alloced; }
 
-        static void init();
         static int alloced();
 
-        inline static bool isEmpty(const shared_ptr<CellList> Xs) { return nullptr == Xs; }
+        inline static bool isEmpty(const CL_p Xs) { return nullptr == Xs; }
 
-        static cell head(const shared_ptr<CellList> Xs) {
+        inline static cell head(const CL_p Xs) {
             assert(Xs != nullptr);
             return Xs->head_;
         }
-#if 0  // strange error message from this:
-        static const CellList* empty = nullptr;
-#endif
-        static shared_ptr<CellList> tail(const shared_ptr<CellList> Xs) {
+
+        inline static CL_p tail(const CL_p Xs) {
             return Xs->tail_;
         }
 
-        static shared_ptr<CellList> cons(cell X, const shared_ptr<CellList> Xs) {
-            shared_ptr<CellList> cl = make_shared<CellList>(X);
+        inline static CL_p mk_shared(cell X) {
+            if (free_list == nullptr)
+#ifdef RAW_CELL_LIST
+                return new CellList(X);
+#else
+                return make_shared<CellList>(X);
+#endif
+            CL_p r = free_list;
+            free_list = tail(r);
+            return r;
+        }
+
+        inline static CL_p mk_shared() {
+            return mk_shared(cell::BAD);
+        }
+
+        inline static CL_p cons(cell X, /*const*/CL_p Xs) {
+            CL_p cl = mk_shared(X);
             cl->tail_ = Xs;
             return cl;
         }
@@ -56,45 +76,23 @@ namespace iProlog {
         size_t size() const {
             if (this == nullptr) return 0;
             size_t sum = 1;
-            for (shared_ptr<CellList> p = tail_; p != nullptr; p = p->tail_)
+            for (CL_p p = tail_; p != nullptr; p = p->tail_)
                 ++sum;
             return sum;
         }
 
         // append CellList Ys to CellList made from int array xs, return result
-        static shared_ptr<CellList> concat(vector<cell> xs, shared_ptr<CellList> Ys) {
-            shared_ptr<CellList> Zs = Ys;
-            if (xs.size() < 1) abort();
-            for (int i = int(xs.size()) - 1; i >= 0; i--) {
-                cell c = xs[size_t(i)];
-                Zs = cons(c, Zs);
-            }
+        inline static CL_p concat(vector<cell> &xs, CL_p Ys) {
+            int sx = int(xs.size());
+            if (sx == 0)
+                return Ys;
+            CL_p Zs = Ys;
+            for (int i = sx - 1; i >= 0; i--)
+                Zs = cons(xs[size_t(i)], Zs);
             return Zs;
         }
 
-        // push Zs CellList onto new stack, return stack (tos = last)
-        static vector<cell> toCells(shared_ptr<CellList> Xs) {
-            vector<cell> is = vector<cell>();
-            while (!isEmpty(Xs)) {
-                cell c = head(Xs);
-                is.push_back(c);
-                Xs = tail(Xs);
-            }
-            return is;
-        }
-
-        string toString() {
-            string s = "[";
-            string sep = "";
-            shared_ptr<CellList> x = shared_ptr<CellList>(this);
-            vector<cell> elts = toCells(x);
-            for (cell x : elts) {
-                s += sep;
-                sep = ",";
-                s += "<toString cell dummy>"; // showCell(x);
-            }
-            return s;
-        }
+        string toString();
     };
 
 } // end namespace

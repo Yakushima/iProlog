@@ -311,11 +311,11 @@ vector<Clause> dload(const cstr s) {
     }
 
     void testSharedCellList() {
-        shared_ptr<CellList> p;
+        CL_p p;
         cell h;
-        p = make_shared<CellList>();
-        shared_ptr<CellList> q;
-        q = make_shared<CellList>(h);
+        p = CellList::mk_shared();
+        CL_p q;
+        q = CellList::mk_shared(h);
     }
 
     // int * about 25%-30% faster than vector<int>

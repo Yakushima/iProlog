@@ -14,21 +14,45 @@ namespace iProlog {
      * Creates a spine - as a snapshot of some runtime elements.
      */
     Spine::Spine(
-        vector<cell> goal_refs_0, // was gs0/goal_stack_0 [Java]
-        int base_0,               // base
-        shared_ptr<CellList> goals_0,        // was gs/goal_stack [Java]
+        vector<cell> goal_refs_0,   // was gs0/goal_stack_0 [Java]
+                                    // temporary in unfold(); allocated in pushBody()
+        int base_0,                 // base
+        CL_p goals_0,               // was gs[Java]; tail of G->goals in unfold()
         int trail_top_0,
         int last_clause_tried_0,
         vector<ClauseNumber> unifiables_0)
     {
+#define TR if(0)
+
+        TR cout << "Spine ctor:" << endl;
+        TR cout << "  goal_refs_0:";
+        TR for (int i = 0; i < goal_refs_0.size(); ++i)
+            cout << " " << goal_refs_0[i].show();
+        TR cout << endl;
+
+        TR cout << "  goals_0 =";
+        for (CL_p clp = goals_0; clp != nullptr; clp = CellList::tail(clp))
+            TR cout << " " << CellList::head(clp).show();
+        TR cout << endl;
+
         head = goal_refs_0[0];
         base = base_0;
         trail_top = trail_top_0;
         for (int i = 0; i < MAXIND; ++i)
             index_vector[i] = cell::BAD;
         last_clause_tried = last_clause_tried_0;
+
+        // "tail" because head is saved above?
+        // if so, can discard head of goal_refs_0
         goals = CellList::tail(CellList::concat(goal_refs_0, goals_0));
+
+        TR cout << "  resulting goals =";
+        for (CL_p clp = goals; clp != nullptr; clp = CellList::tail(clp))
+            TR cout << " " << CellList::head(clp).show();
+        TR cout << endl;
+
         unifiables = unifiables_0;
+#undef TR
     }
 
     /**

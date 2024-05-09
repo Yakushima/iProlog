@@ -97,18 +97,15 @@ Spine* Engine::unfold(Spine *G) {
             continue;
         }
 
-        goals_list goals = pushBody(b, head, C0);
-
         int l = (int)C0.skeleton.size();
-#if 0
+
 # ifdef GOALS_REV
         goals_list goals;
         pushBody_rev(goals, l, b, head, C0);
 # else
         goals_list goals(l);
-        pushBody1(goals, l, b, head, C0);
+        pushBody(goals, l, b, head, C0);
 # endif
-#endif
 
 
         TR cout << "$$$$$$$$$$$ goals after pushBody:" << endl;
@@ -432,28 +429,7 @@ string Engine::showCell(cell w) const {
  * while also placing head as the first element of array 'goals' that,
  * when returned, contains references to the toplevel spine of the clause."
  */
-goals_list Engine::pushBody(cell b, cell head, const Clause &C) {
-#define TR if(0)
-    int l = (int)C.skeleton.size();
-    vector<cell> goals(l);
-
-    CellStack::pushCells(heap, b, C.neck, C.len, C.base);
-
-    goals[0] = head;
-    TR cout << "pushBody: goals[0]=" << head.show() << endl;
-    if (is_raw)
-	    cell::cp_cells (b, C.skeleton.data()+1, goals.data()+1, l-1);
-    else
-        for (int k = 1; k < l; k++) {
-            goals[k] = C.skeleton[k].relocated_by(b);
-            TR cout << "pushBody: goals[" << k << "]="
-                    << goals[k].as_int() << endl;
-        }
-    return goals;
-#undef TR
-}
-
-void Engine::pushBody1(goals_list& goals, int len, cell b, cell head, const Clause& C) {
+void Engine::pushBody(goals_list& goals, int len, cell b, cell head, const Clause& C) {
 #define TR if(0)
     CellStack::pushCells(heap, b, C.neck, C.len, C.base);
 

@@ -93,8 +93,7 @@ protected:    CellStack unify_stack;
         clear();
     }
 
-    goals_list pushBody(cell b, cell head, const Clause& C);
-    void pushBody1(goals_list &goals, int len, cell b, cell head, const Clause& C);
+    void pushBody(goals_list &goals, int len, cell b, cell head, const Clause& C);
     void pushBody_rev(goals_list goals, int len, cell b, cell head, const Clause& C);
     
     void clear();

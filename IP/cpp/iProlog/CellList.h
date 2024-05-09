@@ -66,6 +66,11 @@ namespace iProlog {
             return mk_shared(cell::BAD);
         }
 
+        inline static void collect(CL_p to_dump) {
+            to_dump->tail_ = free_list;
+            free_list = to_dump;
+        }
+
         inline static CL_p cons(cell X, /*const*/CL_p Xs) {
             CL_p cl = mk_shared(X);
             cl->tail_ = Xs;
@@ -80,7 +85,7 @@ namespace iProlog {
                 ++sum;
             return sum;
         }
-
+#if 0
         // append CellList Ys to CellList made from int array xs, return result
         inline static CL_p concat(vector<cell> &xs, CL_p Ys) {
             int sx = int(xs.size());
@@ -91,7 +96,7 @@ namespace iProlog {
                 Zs = cons(xs[size_t(i)], Zs);
             return Zs;
         }
-
+#endif
         string toString();
     };
 

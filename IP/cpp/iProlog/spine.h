@@ -22,6 +22,12 @@ namespace iProlog {
      * ("Note that (most of the) goal elements on this immutable list
      * [of the goal stack] are shared among alternative branches" [HHG doc])
      */
+    
+#ifdef RAW_GOALS_LIST
+    typedef cell* goals_list;
+#else
+    typedef vector<cell> goals_list;
+#endif
 
     class Spine {
     public:
@@ -56,6 +62,7 @@ namespace iProlog {
             head = 0;   // head of the clause to which this Spine corresponds
             base = 0L;  // top of the heap when this Spine was created
                         // "base of the heap where the clause starts" [HHG doc]
+            goals = nullptr;
             trail_top = 0;  // "top of the trail when this Spine was created"
                             // "as it was when this clause got unified" [HHG doc]
             last_clause_tried = -1; // "index of the last clause [that]
@@ -73,12 +80,12 @@ namespace iProlog {
          * "Creates a spine - as a snapshot of some runtime elements." [Spine.java]
          */
         Spine(
-            vector<cell> goal_refs_0,       // was gs0/goal_stack_0 [Java]
+            vector<cell> &goal_refs_0,       // was gs0/goal_stack_0 [Java]
             int base_0,               // base
             CL_p goals_0,        // was gs/goal_stack [Java]
             int trail_top_0,
             int last_clause_tried_0,
-            vector<ClauseNumber> unifiables_0); // was cs [Java]
+            vector<ClauseNumber> &unifiables_0); // was cs [Java]
 
         /**
          * "Creates a specialized spine returning an answer 

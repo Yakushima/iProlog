@@ -97,24 +97,19 @@ Spine* Engine::unfold(Spine *G) {
             continue;
         }
 
-        vector<cell> goals = pushBody(b, head, C0);
-        /*
-            int l = (int)C0.skeleton.size();
-            vector<cell> goals(l);
+        goals_list goals = pushBody(b, head, C0);
 
-            CellStack::pushCells(heap, b, C0.neck, C0.len, C0.base);
+        int l = (int)C0.skeleton.size();
+#if 0
+# ifdef GOALS_REV
+        goals_list goals;
+        pushBody_rev(goals, l, b, head, C0);
+# else
+        goals_list goals(l);
+        pushBody1(goals, l, b, head, C0);
+# endif
+#endif
 
-            goals[0] = head;
-            TR cout << "pushBody: goals[0]=" << head.show() << endl;
-            if (is_raw)
-                cell::cp_cells(b, C0.skeleton.data() + 1, goals.data() + 1, l - 1);
-            else
-                for (int k = 1; k < l; k++) {
-                    goals[k] = C0.skeleton[k].relocated_by(b);
-                    TR cout << "pushBody: goals[" << k << "]="
-                        << goals[k].as_int() << endl;
-                }
-        */
 
         TR cout << "$$$$$$$$$$$ goals after pushBody:" << endl;
         // for (int i = 0; i < goals.size(); ++i)
@@ -127,7 +122,11 @@ Spine* Engine::unfold(Spine *G) {
 
         if (goals.size() != 0 || tl != nullptr) {
             TR cout << "unfold: returning with full (non-answer) Spine" << endl;
-            return new Spine(goals, base, tl, tot, 0, clause_list);
+            Spine* spr = new Spine(goals, base, tl, tot, 0, clause_list);
+#ifdef RAW_GOALS_LIST
+            free(goals);
+#endif
+            return spr;
         }
         else {
             cout << "unfold: trail_top=" << tot << " returning answer" << endl;
@@ -433,7 +432,7 @@ string Engine::showCell(cell w) const {
  * while also placing head as the first element of array 'goals' that,
  * when returned, contains references to the toplevel spine of the clause."
  */
-vector<cell> Engine::pushBody(cell b, cell head, const Clause &C) {
+goals_list Engine::pushBody(cell b, cell head, const Clause &C) {
 #define TR if(0)
     int l = (int)C.skeleton.size();
     vector<cell> goals(l);
@@ -454,6 +453,39 @@ vector<cell> Engine::pushBody(cell b, cell head, const Clause &C) {
 #undef TR
 }
 
+void Engine::pushBody1(goals_list& goals, int len, cell b, cell head, const Clause& C) {
+#define TR if(0)
+    CellStack::pushCells(heap, b, C.neck, C.len, C.base);
+
+    goals[0] = head;
+    TR cout << "pushBody: goals[0]=" << head.show() << endl;
+    if (is_raw)
+        cell::cp_cells(b, C.skeleton.data() + 1, goals.data() + 1, len - 1);
+    else
+        for (int k = 1; k < len; k++) {
+            goals[k] = C.skeleton[k].relocated_by(b);
+            TR cout << "pushBody: goals[" << k << "]="
+                << goals[k].as_int() << endl;
+        }
+#undef TR
+}
+
+void Engine::pushBody_rev(goals_list goals, int len, cell b, cell head, const Clause& C) {
+#define TR if(0)
+    CellStack::pushCells(heap, b, C.neck, C.len, C.base);
+
+    goals[0] = head;
+    TR cout << "pushBody_rev: goals[0]=" << head.show() << endl;
+    if (is_raw)
+        cell::cp_cells(b, C.skeleton.data() + 1, goals.data() + 1, len - 1);
+    else
+        for (int k = 1; k < len; k++) {
+            goals[k] = C.skeleton[k].relocated_by(b);
+            TR cout << "pushBody_rev: goals[" << k << "]="
+                << goals[k].as_int() << endl;
+        }
+#undef TR
+}
 
 /**
  * Copies and relocates the head of clause C from heap to heap.

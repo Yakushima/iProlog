@@ -5,19 +5,22 @@
  * Copyright (c) 2017 Paul Tarau
  */
 
-#include "defs.h"
-#include "cell.h"
-#include "index.h"
+#include "spine.h"
+#include "goals_list.h"
+
 
 namespace iProlog {
+    using namespace std;
+
     /**
      * "representation of a clause" [Clause.java].
      */
+
     struct Clause {
         // Skeletal elements for compiled form:
 
         int len;            // length of heap slice
-        vector<cell> skeleton; // "head+goals pointing to cells in clauses"
+        goals_list skeleton; // "head+goals pointing to cells in clauses"
                                 // but as vector, full copy?
         int base;           // the point in the heap where this clause starts
         int neck;           // first after the end of the head (=length of the head)
@@ -32,7 +35,7 @@ namespace iProlog {
             for (int i = 0; i < IV_LEN; ++i) index_vector[i] = cell::null();
         }
 
-        Clause(int len_0, vector<cell> skeleton_0, int base_0, int neck_0);
+        Clause(int len_0, goals_list skeleton_0, int base_0, int neck_0);
     };
 
 } // end namespace

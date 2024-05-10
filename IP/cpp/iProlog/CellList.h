@@ -55,7 +55,7 @@ namespace iProlog {
 #ifdef RAW_CELL_LIST
                 return new CellList(X);
 #else
-                return make_shared<CellList>(X);
+                { ++n_alloced; return make_shared<CellList>(X); }
 #endif
             CL_p r = free_list;
             free_list = tail(r);
@@ -66,9 +66,12 @@ namespace iProlog {
             return mk_shared(cell::BAD);
         }
 
-        inline static void collect(CL_p to_dump) {
+        inline static CL_p collect(CL_p to_dump) {
+            CL_p tl = to_dump->tail_;
             to_dump->tail_ = free_list;
             free_list = to_dump;
+            --n_alloced;
+            return tl;
         }
 
         inline static CL_p cons(cell X, /*const*/CL_p Xs) {

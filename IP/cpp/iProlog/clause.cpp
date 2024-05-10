@@ -8,14 +8,15 @@
 #include "cell.h"
 #include "index.h"
 #include "clause.h"
+#include "spine.h"
 
 namespace iProlog {
 
     using namespace std;
 
-    Clause::Clause(int len_0, vector<cell> skeleton_0, int base_0, int neck_0) {
+    Clause::Clause(int len_0, goals_list skeleton_0, int base_0, int neck_0) {
         skeleton = skeleton_0;
-        assert(skeleton.size() > 0);
+        // assert(skeleton.size() > 0);
         base = base_0;
         len = len_0;
         neck = neck_0;

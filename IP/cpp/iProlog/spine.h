@@ -9,9 +9,11 @@
 #include "cell.h"
 #include "CellList.h"
 #include "index.h"
+#include "goals_list.h"
 
 namespace iProlog {
     using namespace std;
+
     /**
      * "Runtime representation of an immutable list of goals
      * together with top of heap (base) and trail pointers
@@ -22,13 +24,6 @@ namespace iProlog {
      * ("Note that (most of the) goal elements on this immutable list
      * [of the goal stack] are shared among alternative branches" [HHG doc])
      */
-    
-#ifdef RAW_GOALS_LIST
-    typedef cell* goals_list;
-#else
-    typedef vector<cell> goals_list;
-#endif
-
     class Spine {
     public:
         cell head;      // "head of the clause to which this corresponds" [Spine.java]
@@ -80,7 +75,7 @@ namespace iProlog {
          * "Creates a spine - as a snapshot of some runtime elements." [Spine.java]
          */
         Spine(
-            vector<cell> &goal_refs_0,       // was gs0/goal_stack_0 [Java]
+            goals_list &goal_refs_0,       // was gs0/goal_stack_0 [Java]
             int base_0,               // base
             CL_p goals_0,        // was gs/goal_stack [Java]
             int trail_top_0,
@@ -98,3 +93,5 @@ namespace iProlog {
         string show() const;
     };
 } // end namespace
+
+

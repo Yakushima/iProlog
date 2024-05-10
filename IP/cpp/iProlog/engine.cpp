@@ -97,16 +97,18 @@ Spine* Engine::unfold(Spine *G) {
             continue;
         }
 
-        int l = (int)C0.skeleton.size();
-
-# ifdef GOALS_REV
-        goals_list goals;
-        pushBody_rev(goals, l, b, head, C0);
-# else
-        goals_list goals(l);
-        pushBody(goals, l, b, head, C0);
-# endif
-
+        int len = (int)C0.skeleton.size();
+#ifdef RAW_GOALS_LIST
+        //  "Unlike _alloca, which doesn't require or permit a call
+        //  to free to free the memory so allocated, _malloca requires
+        //  the use of _freea to free memory."
+        // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/malloca?view=msvc-170
+        goals_list goals = (cell*)_malloca((len+1) * sizeof(cell));
+        goals[len] = cell::BAD;
+#else
+        goals_list goals(len);
+#endif
+        pushBody(goals, len, b, head, C0);
 
         TR cout << "$$$$$$$$$$$ goals after pushBody:" << endl;
         // for (int i = 0; i < goals.size(); ++i)
@@ -114,21 +116,24 @@ Spine* Engine::unfold(Spine *G) {
 
         CL_p tl = CellList::tail(G->goals);
             // meaning I could free up the head of G->goals?
+        // G->goals = CellList::collect(G->goals); // just that first node
+            
 
         G->last_clause_tried = k + 1;
 
-        if (goals.size() != 0 || tl != nullptr) {
+        if (len != 0 || tl != nullptr) {
             TR cout << "unfold: returning with full (non-answer) Spine" << endl;
             Spine* spr = new Spine(goals, base, tl, tot, 0, clause_list);
 #ifdef RAW_GOALS_LIST
-            free(goals);
+            _freea(goals);
 #endif
             return spr;
         }
-        else {
-            cout << "unfold: trail_top=" << tot << " returning answer" << endl;
-            return answer(tot);
-        }
+        // mystery: I never see this output trace, even though
+        // setting a breakpoint at the return statement causes
+        // a break.
+        TR cout << "unfold: trail_top=" << to_string(tot) << " returning answer" << endl;
+        return answer(tot);
     }
     return nullptr;
 #undef TR
@@ -428,36 +433,30 @@ string Engine::showCell(cell w) const {
  * "Copies and relocates body of clause at offset from heap to heap
  * while also placing head as the first element of array 'goals' that,
  * when returned, contains references to the toplevel spine of the clause."
+ * 
+ * The goals list is only temporary in unfold(), passed to make
+ * a CellList in a new Spine. If I go to relative addressing, 
+ * simply passing the Clause to new Spine() could be enough, and
+ * save buffering cost. As things stand (i.e., absolute addressing,
+ * passing the "b" offset and "len" instead of "goals" to new Spine()
+ * means that what is now the concat() operation could do the relocation.
  */
-void Engine::pushBody(goals_list& goals, int len, cell b, cell head, const Clause& C) {
+void Engine::pushBody(goals_list &goals, int len, cell b, cell head, const Clause& C) {
 #define TR if(0)
     CellStack::pushCells(heap, b, C.neck, C.len, C.base);
-
+#ifdef RAW_GOALS_LIST
+    cell * data = goals;
+#else
+    cell* data = goals.data();
+#endif
     goals[0] = head;
     TR cout << "pushBody: goals[0]=" << head.show() << endl;
     if (is_raw)
-        cell::cp_cells(b, C.skeleton.data() + 1, goals.data() + 1, len - 1);
+        cell::cp_cells(b, C.skeleton.data() + 1, data + 1, len - 1);
     else
         for (int k = 1; k < len; k++) {
             goals[k] = C.skeleton[k].relocated_by(b);
             TR cout << "pushBody: goals[" << k << "]="
-                << goals[k].as_int() << endl;
-        }
-#undef TR
-}
-
-void Engine::pushBody_rev(goals_list goals, int len, cell b, cell head, const Clause& C) {
-#define TR if(0)
-    CellStack::pushCells(heap, b, C.neck, C.len, C.base);
-
-    goals[0] = head;
-    TR cout << "pushBody_rev: goals[0]=" << head.show() << endl;
-    if (is_raw)
-        cell::cp_cells(b, C.skeleton.data() + 1, goals.data() + 1, len - 1);
-    else
-        for (int k = 1; k < len; k++) {
-            goals[k] = C.skeleton[k].relocated_by(b);
-            TR cout << "pushBody_rev: goals[" << k << "]="
                 << goals[k].as_int() << endl;
         }
 #undef TR

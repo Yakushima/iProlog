@@ -163,6 +163,7 @@
     <ClInclude Include="toks.h" />
     <ClInclude Include="CellStack.h" />
     <ClInclude Include="Inty.h" />
+    <ClInclude Include="goals_list.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -13,7 +13,15 @@ namespace iProlog {
     // "append CellList Ys to CellList made from int array xs, return result"
     // (was in CellList but goals_list is not defined there. So far, it's
     // only called here.)
-
+#ifdef RAW_GOALS_LIST
+    inline static CL_p concat(goals_list& xs, CL_p Ys) {
+        CL_p Zs = Ys;
+        cell* cp = xs;
+        while (*cp != cell::BAD)
+            Zs = CellList::cons(*cp++, Zs);
+        return Zs;
+    }
+#else
     inline static CL_p concat(goals_list& xs, CL_p Ys) {
         int sx = int(xs.size());
         if (sx == 0)
@@ -23,6 +31,7 @@ namespace iProlog {
             Zs = CellList::cons(xs[size_t(i)], Zs);
         return Zs;
     }
+#endif
 
     /**
      * Creates a spine - as a snapshot of some runtime elements.
@@ -40,8 +49,15 @@ namespace iProlog {
 
         TR cout << "Spine ctor:" << endl;
         TR cout << "  goal_refs_0:";
-        TR for (int i = 0; i < goal_refs_0.size(); ++i)
+        TR for (int i = 0; ; ++i) {
+#ifdef RAW_CELL_LIST
+            if (goal_refs_0[i] == cell::BAD)
+#else
+            if (i == goal_refs_0.size())
+#endif
+                break;
             cout << " " << goal_refs_0[i].show();
+        }
         TR cout << endl;
 
         TR cout << "  goals_0 =";

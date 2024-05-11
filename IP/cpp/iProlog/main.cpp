@@ -420,8 +420,9 @@ vector<Clause> dload(const cstr s) {
         // Tag tests:
 #if 0
         test_tagging();
-#endif
+
         testSharedCellList();
+#endif
 
         string where_i_am = current_working_directory();
         string test_directory = where_i_am + "/progs/";

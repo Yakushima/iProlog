@@ -59,6 +59,8 @@ namespace iProlog {
 #endif
             CL_p r = free_list;
             free_list = tail(r);
+            r->tail_ = nullptr;
+            r->head_ = X;
             return r;
         }
 
@@ -66,7 +68,7 @@ namespace iProlog {
             return mk_shared(cell::BAD);
         }
 
-        inline static CL_p collect(CL_p to_dump) {
+        inline static CL_p collect_first(CL_p to_dump) {
             CL_p tl = to_dump->tail_;
             to_dump->tail_ = free_list;
             free_list = to_dump;

@@ -73,7 +73,7 @@ namespace iProlog {
             }
         }
         void Prog::ppc(const Spine &S) {
-            CL_p bs = S.goals;
+            CL_p bs = S.the_goals;
             pp(cstr("\nppc: t=") + S.trail_top + ",last_clause_tried=" + S.last_clause_tried + "len=" + bs->size());
             ppGoals(bs);
         }

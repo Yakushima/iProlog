@@ -29,10 +29,11 @@ namespace iProlog {
         cell head;      // "head of the clause to which this corresponds" [Spine.java]
         int base;      // "base of the heap where the clause starts" [HHG doc]
 
-        CL_p goals;         // goals - "with the top one ready to unfold" [Spine.java]
+        CL_p the_goals;         // goals - "with the top one ready to unfold" [Spine.java]
                             // "immutable list of the locations
                             //  of the goal elements accumulated
                             //  by unfolding clauses so far" [HHG doc]
+        int goal_refs_len;
 
         int trail_top;  // "top of the trail when this was created" Spine.java]
                         // "as it was when this clause got unified" [HHG doc]
@@ -57,7 +58,7 @@ namespace iProlog {
             head = 0;   // head of the clause to which this Spine corresponds
             base = 0L;  // top of the heap when this Spine was created
                         // "base of the heap where the clause starts" [HHG doc]
-            goals = nullptr;
+            the_goals = nullptr;
             trail_top = 0;  // "top of the trail when this Spine was created"
                             // "as it was when this clause got unified" [HHG doc]
             last_clause_tried = -1; // "index of the last clause [that]
@@ -89,7 +90,9 @@ namespace iProlog {
          */
         Spine(cell head, int trail_top);
 
-	    inline bool hasGoals() { return goals != nullptr; }
+	    inline bool hasGoals() { return the_goals != nullptr; }
+
+        ~Spine();
 
         string show() const;
     };

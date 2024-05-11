@@ -16,7 +16,7 @@ namespace iProlog {
     class CellStack {
     protected:
         int top = -1;
-        void shrink();
+        // void shrink();
     public:
 
 #ifdef RAW
@@ -83,9 +83,33 @@ namespace iProlog {
                 stack[top] = i;
         }
 
+#if 1
+        /**
+        * "dynamic array operation: shrinks to 1/2 if more than than 3/4 empty"
+        * Might be good to inline the first comparison, leave the rest in .cpp
+        */
+        inline void shrink() {
+            int l = size();
+            if (l <= MINSIZE || (top << 2) >= l)
+                return;
+            l = 1 + (top << 1); // "still means shrink to at 1/2 or less of the heap"
+            if (top < MINSIZE) {
+                l = MINSIZE;
+            }
+#ifdef RAW
+            cout << "realloc called" << endl;
+            realloc_(l);
+#else
+            vector<cell> newstack = vector<cell>(l);
+            copy(stack.begin(), stack.end(), newstack.begin());
+            stack = newstack;
+#endif
+        }
+#endif
+
         inline cell pop() {
             cell r;
-                r = stack[top--];
+            r = stack[top--];
             shrink();
             return r;
         }

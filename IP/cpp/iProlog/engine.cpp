@@ -56,13 +56,13 @@ Spine* Engine::unfold(Spine *G) {
 #define TR if(0)
     assert(G != nullptr);
 
-    if (CellList::isEmpty(G->goals))
+    if (CellList::isEmpty(G->the_goals))
         return nullptr;
 
     int tot = trail.getTop();    // top of trail
     int saved_heap_top = heap.getTop();
     int base = saved_heap_top + 1;
-    cell goal = CellList::head(G->goals);
+    cell goal = CellList::head(G->the_goals);
 
     TR cout << "unfold: goal=" << goal.as_int() << " goal.tag= " << goal.s_tag() << " goal.arg = " << goal.arg() << endl;
     TR cout << "unfold: about to call makeIndexArgs with current G->unifiables[0]=" << G->unifiables[0].as_int() << endl;
@@ -106,7 +106,7 @@ Spine* Engine::unfold(Spine *G) {
         //  to free to free the memory so allocated, _malloca requires
         //  the use of _freea to free memory."
         // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/malloca?view=msvc-170
-        goals_list goals = (cell*)malloc(len * sizeof(cell));
+        goals_list goals = (cell*)_malloca(len * sizeof(cell));
 #else
         goals_list goals(len);
 #endif
@@ -116,25 +116,25 @@ Spine* Engine::unfold(Spine *G) {
         // for (int i = 0; i < goals.size(); ++i)
         //    cout << " " << showCell(goals[i]) << endl;
 
-        CL_p tl = CellList::tail(G->goals);
+        CL_p tl = CellList::tail(G->the_goals);
             // meaning I could free up the head of G->goals?
-        // G->goals = CellList::collect(G->goals); // just that first node
- 
         G->last_clause_tried = k + 1;
 
-        if (len != 0 || tl != nullptr) {
-            TR cout << "unfold: returning with full (non-answer) Spine" << endl;
-            Spine* spr = new Spine(goals, len, base, tl, tot, 0, clause_list);
-#ifdef RAW_GOALS_LIST
-            free(goals);
-#endif
-            return spr;
-        }
+        Spine* spr;
+
+        if (len != 0 || tl != nullptr)
+            spr = new Spine(goals, len, base, tl, tot, 0, clause_list);
+        else
+            spr = answer(tot);
+
         // mystery: I never see this output trace, even though
         // setting a breakpoint at the return statement causes
         // a break.
         TR cout << "unfold: trail_top=" << to_string(tot) << " returning answer" << endl;
-        return answer(tot);
+#ifdef RAW_GOALS_LIST
+        _freea(goals);
+#endif
+        return spr;
     }
     return nullptr;
 #undef TR
@@ -341,15 +341,14 @@ Object Engine::ask() {
 
     TR cout << "ask: query->trail_top=" << query->trail_top << endl;
     Spine *ans = answer(query->trail_top);
+
     TR cout << "yield: " << ans->show() << endl;
     cell result = ans->head;
     /////////////////////////
     Object R = exportTerm(result);
     unwindTrail(query->trail_top);
     delete ans;
-
-    // delete query;   // leaky to delete this?
-    delete query;
+    delete query;    // leaky to delete this?
     query = nullptr;
 
     return R;

@@ -36,19 +36,6 @@ namespace iProlog {
         vector<ClauseNumber> &unifiables_0)
     {
 #define TR if(0)
-
-        TR cout << "Spine ctor:" << endl;
-        TR cout << "  goal_refs_0:";
-        TR for (int i = 0; i < goal_refs_len_0; ++i) {
-            cout << " " << goal_refs_0[i].show();
-        }
-        TR cout << endl;
-
-        TR cout << "  goals_0 =";
-        for (CL_p clp = goals_0; clp != nullptr; clp = CellList::tail(clp))
-            TR cout << " " << CellList::head(clp).show();
-        TR cout << endl;
-
         head = goal_refs_0[0];
         base = base_0;
         trail_top = trail_top_0;
@@ -58,12 +45,14 @@ namespace iProlog {
         last_clause_tried = last_clause_tried_0;
 
         // "tail" because head is saved above?
-        // if so, can discard head of goal_refs_0
+        // if so, can discard head of goal_refs_0?
 
-        goals = CellList::tail(/*CellList::*/concat(goal_refs_0, goal_refs_len_0, goals_0));
+        goal_refs_len = goal_refs_len_0;
+        CL_p x = concat(goal_refs_0, goal_refs_len_0, goals_0);
+        the_goals = CellList::tail(x);
 
         TR cout << "  resulting goals =";
-        for (CL_p clp = goals; clp != nullptr; clp = CellList::tail(clp))
+        for (CL_p clp = the_goals; clp != nullptr; clp = CellList::tail(clp))
             TR cout << " " << CellList::head(clp).show();
         TR cout << endl;
 
@@ -77,7 +66,8 @@ namespace iProlog {
     Spine::Spine(cell h, int tt) {
         head = h;
         base = 0;
-        goals = nullptr;
+        the_goals = nullptr;
+        goal_refs_len = 0;
         trail_top = tt;
         last_clause_tried = -1;
         for (int i = 0; i < MAXIND; ++i)
@@ -88,7 +78,7 @@ namespace iProlog {
         string s = "Spine: {";
         s += "\n  head=" + to_string(head.as_int());
         s += "\n  base=" + to_string(base);
-        if (goals == nullptr)
+        if (the_goals == nullptr)
             s += "\n  goals=<null>";
         else
             s += "\n  goals=<stub>" /* + goals.show()*/;
@@ -100,6 +90,13 @@ namespace iProlog {
             s += "\n  unifiables=<stub>" /* + unifiables.show()*/;
         s += "\n}";
         return s;
+    }
+
+    Spine::~Spine() {
+        CL_p clp = the_goals;
+        int k = goal_refs_len-1;
+        while (k-- > 0)
+            clp = CellList::collect_first(clp);
     }
 
 } // end namespace

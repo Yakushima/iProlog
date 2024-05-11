@@ -72,6 +72,6 @@ namespace iProlog {
 
 #define RAW_CELL_LIST
 
-#define RAW_GOALS_LIST
+// #define RAW_GOALS_LIST
 
 }

@@ -99,8 +99,6 @@ Spine* Engine::unfold(Spine *G) {
 
         int len = (int)C0.skeleton_size;
 
-        if (len == 0) cout << "unfold: len == 0" << endl;
-
 #ifdef RAW_GOALS_LIST
         //  "Unlike _alloca, which doesn't require or permit a call
         //  to free to free the memory so allocated, _malloca requires
@@ -112,12 +110,7 @@ Spine* Engine::unfold(Spine *G) {
 #endif
         pushBody(goals, len, b, head, C0);
 
-        TR cout << "$$$$$$$$$$$ goals after pushBody:" << endl;
-        // for (int i = 0; i < goals.size(); ++i)
-        //    cout << " " << showCell(goals[i]) << endl;
-
         CL_p tl = CellList::tail(G->the_goals);
-            // meaning I could free up the head of G->goals?
         G->last_clause_tried = k + 1;
 
         Spine* spr;
@@ -444,17 +437,19 @@ string Engine::showCell(cell w) const {
 void Engine::pushBody(goals_list &goals, int len, cell b, cell head, const Clause& C) {
 #define TR if(0)
     CellStack::pushCells(heap, b, C.neck, C.len, C.base);
-#ifdef RAW_GOALS_LIST
-    cell* src = C.skeleton;
-    cell* dst = goals;
-#else
-    const cell* src = C.skeleton.data();
-    cell* dst = goals.data();
-#endif
     goals[0] = head;
-    TR cout << "pushBody: goals[0]=" << head.show() << endl;
-    if (is_raw)
+
+    // relocate all the rest:
+    if (is_raw) {
+#ifdef RAW_GOALS_LIST
+        cell* src = C.skeleton;
+        cell* dst = goals;
+#else
+        const cell* src = C.skeleton.data();
+        cell* dst = goals.data();
+#endif
         cell::cp_cells(b, src + 1, dst + 1, len - 1);
+    } 
     else
         for (int k = 1; k < len; k++) {
             goals[k] = C.skeleton[k].relocated_by(b);

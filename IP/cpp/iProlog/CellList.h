@@ -51,12 +51,14 @@ namespace iProlog {
         }
 
         inline static CL_p mk_shared(cell X) {
-            if (free_list == nullptr)
+            if (free_list == nullptr) {
 #ifdef RAW_CELL_LIST
                 return new CellList(X);
 #else
-                { ++n_alloced; return make_shared<CellList>(X); }
+                ++n_alloced;
+                return make_shared<CellList>(X);
 #endif
+            }
             CL_p r = free_list;
             free_list = tail(r);
             r->tail_ = nullptr;
@@ -72,7 +74,6 @@ namespace iProlog {
             CL_p tl = to_dump->tail_;
             to_dump->tail_ = free_list;
             free_list = to_dump;
-            --n_alloced;
             return tl;
         }
 
@@ -90,18 +91,7 @@ namespace iProlog {
                 ++sum;
             return sum;
         }
-#if 0
-        // append CellList Ys to CellList made from int array xs, return result
-        inline static CL_p concat(vector<cell> &xs, CL_p Ys) {
-            int sx = int(xs.size());
-            if (sx == 0)
-                return Ys;
-            CL_p Zs = Ys;
-            for (int i = sx - 1; i >= 0; i--)
-                Zs = cons(xs[size_t(i)], Zs);
-            return Zs;
-        }
-#endif
+
         string toString();
     };
 

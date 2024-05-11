@@ -14,17 +14,6 @@ namespace iProlog {
     int CellList::alloced() {
         return n_alloced;
     }
-#if 0
-    // push Zs CellList onto new stack, return stack (tos = last)
-    vector<cell> toCells(CL_p &Xs) {
-        vector<cell> is = vector<cell>();
-        while (!CellList::isEmpty(Xs)) {
-            cell c = CellList::head(Xs);
-            is.push_back(c);
-            Xs = CellList::tail(Xs);
-        }
-        return is;
-    }
 
     string CellList::toString() {
         string s = "[";
@@ -42,6 +31,5 @@ namespace iProlog {
         s += "]";
         return s;
     }
-#endif
 }
 

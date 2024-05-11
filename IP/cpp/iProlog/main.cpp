@@ -120,15 +120,25 @@ Clause putClause(vector<cell> cells, vector<cell> &skel, int neck) {
     int len = int(cells.size());
     CellStack::pushCells(heap, b, 0, len, cells);
 
+    cell* src = skel.data();
+#ifdef RAW_GOALS_LIST
+    cell* dst = (cell*)malloc(skel.size() * sizeof(cell));
+#else
+    cell* dst = skel.data();
+#endif
+
+    // for goals list being C++ vector, in-place reloc
     if (is_raw) {
-        cell::cp_cells(b, skel.data(), skel.data(), (int)skel.size());
+        cell::cp_cells(b, src, dst, (int)skel.size());
     } else {
         for (size_t i = 0; i < skel.size(); i++)
-            skel[i] = skel[i].relocated_by(b);
+            dst[i] = dst[i].relocated_by(b);
     }
-
-    Clause rc = Clause(len, skel, base, neck);
-
+#ifdef RAW_GOALS_LIST
+    Clause rc = Clause(len, dst, skel.size(), base, neck);
+#else
+    Clause rc = Clause(len, skel, skel.size(), base, neck);
+#endif
     return rc;
 }
 
@@ -507,7 +517,7 @@ cout << "---------------------------------------" << endl;
             assert(ep->Ip != nullptr);
             for (int i = 0; i < ep->clauses.size(); ++i) {
                 TRY{
-                    cell hd = ep->clauses.at(i).skeleton.at(0);
+                    cell hd = ep->clauses.at(i).skeleton[0];
                     assert(ep->clauses[i].base >= 0);
                     assert(ep->clauses[i].base < ep->heap.size());
                 } CATCH("blowing up in check it")

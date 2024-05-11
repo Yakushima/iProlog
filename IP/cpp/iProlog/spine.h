@@ -76,6 +76,7 @@ namespace iProlog {
          */
         Spine(
             goals_list &goal_refs_0,       // was gs0/goal_stack_0 [Java]
+            int goal_refs_len,
             int base_0,               // base
             CL_p goals_0,        // was gs/goal_stack [Java]
             int trail_top_0,

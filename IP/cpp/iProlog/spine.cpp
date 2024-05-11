@@ -13,25 +13,14 @@ namespace iProlog {
     // "append CellList Ys to CellList made from int array xs, return result"
     // (was in CellList but goals_list is not defined there. So far, it's
     // only called here.)
-#ifdef RAW_GOALS_LIST
-    inline static CL_p concat(goals_list& xs, CL_p Ys) {
-        CL_p Zs = Ys;
-        cell* cp = xs;
-        while (*cp != cell::BAD)
-            Zs = CellList::cons(*cp++, Zs);
-        return Zs;
-    }
-#else
-    inline static CL_p concat(goals_list& xs, CL_p Ys) {
-        int sx = int(xs.size());
-        if (sx == 0)
+    inline static CL_p concat(goals_list& xs, int len, CL_p Ys) {
+        if (len == 0)
             return Ys;
         CL_p Zs = Ys;
-        for (int i = sx - 1; i >= 0; i--)
+        for (int i = len - 1; i >= 0; i--)
             Zs = CellList::cons(xs[size_t(i)], Zs);
         return Zs;
     }
-#endif
 
     /**
      * Creates a spine - as a snapshot of some runtime elements.
@@ -39,6 +28,7 @@ namespace iProlog {
     Spine::Spine(
         goals_list &goal_refs_0,   // was gs0/goal_stack_0 [Java]
                                     // temporary in unfold(); allocated in pushBody()
+        int goal_refs_len_0,
         int base_0,                 // base
         CL_p goals_0,               // was gs[Java]; tail of G->goals in unfold()
         int trail_top_0,
@@ -49,13 +39,7 @@ namespace iProlog {
 
         TR cout << "Spine ctor:" << endl;
         TR cout << "  goal_refs_0:";
-        TR for (int i = 0; ; ++i) {
-#ifdef RAW_CELL_LIST
-            if (goal_refs_0[i] == cell::BAD)
-#else
-            if (i == goal_refs_0.size())
-#endif
-                break;
+        TR for (int i = 0; i < goal_refs_len_0; ++i) {
             cout << " " << goal_refs_0[i].show();
         }
         TR cout << endl;
@@ -68,13 +52,15 @@ namespace iProlog {
         head = goal_refs_0[0];
         base = base_0;
         trail_top = trail_top_0;
+
         for (int i = 0; i < MAXIND; ++i)
             index_vector[i] = cell::BAD;
         last_clause_tried = last_clause_tried_0;
 
         // "tail" because head is saved above?
         // if so, can discard head of goal_refs_0
-        goals = CellList::tail(/*CellList::*/concat(goal_refs_0, goals_0));
+
+        goals = CellList::tail(/*CellList::*/concat(goal_refs_0, goal_refs_len_0, goals_0));
 
         TR cout << "  resulting goals =";
         for (CL_p clp = goals; clp != nullptr; clp = CellList::tail(clp))

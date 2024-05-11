@@ -97,14 +97,16 @@ Spine* Engine::unfold(Spine *G) {
             continue;
         }
 
-        int len = (int)C0.skeleton.size();
+        int len = (int)C0.skeleton_size;
+
+        if (len == 0) cout << "unfold: len == 0" << endl;
+
 #ifdef RAW_GOALS_LIST
         //  "Unlike _alloca, which doesn't require or permit a call
         //  to free to free the memory so allocated, _malloca requires
         //  the use of _freea to free memory."
         // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/malloca?view=msvc-170
-        goals_list goals = (cell*)_malloca((len+1) * sizeof(cell));
-        goals[len] = cell::BAD;
+        goals_list goals = (cell*)malloc(len * sizeof(cell));
 #else
         goals_list goals(len);
 #endif
@@ -117,15 +119,14 @@ Spine* Engine::unfold(Spine *G) {
         CL_p tl = CellList::tail(G->goals);
             // meaning I could free up the head of G->goals?
         // G->goals = CellList::collect(G->goals); // just that first node
-            
-
+ 
         G->last_clause_tried = k + 1;
 
         if (len != 0 || tl != nullptr) {
             TR cout << "unfold: returning with full (non-answer) Spine" << endl;
-            Spine* spr = new Spine(goals, base, tl, tot, 0, clause_list);
+            Spine* spr = new Spine(goals, len, base, tl, tot, 0, clause_list);
 #ifdef RAW_GOALS_LIST
-            _freea(goals);
+            free(goals);
 #endif
             return spr;
         }
@@ -247,7 +248,7 @@ Clause Engine::getQuery() {
 Spine *Engine::init() {
     int base = heap_size();
     Clause G = getQuery();
-    Spine *Q = new Spine(G.skeleton, base, nullptr, trail.getTop(), 0, clause_list);
+    Spine *Q = new Spine(G.skeleton, G.skeleton_size, base, nullptr, trail.getTop(), 0, clause_list);
 
     spines.push_back(Q);
     return Q;
@@ -445,14 +446,16 @@ void Engine::pushBody(goals_list &goals, int len, cell b, cell head, const Claus
 #define TR if(0)
     CellStack::pushCells(heap, b, C.neck, C.len, C.base);
 #ifdef RAW_GOALS_LIST
-    cell * data = goals;
+    cell* src = C.skeleton;
+    cell* dst = goals;
 #else
-    cell* data = goals.data();
+    const cell* src = C.skeleton.data();
+    cell* dst = goals.data();
 #endif
     goals[0] = head;
     TR cout << "pushBody: goals[0]=" << head.show() << endl;
     if (is_raw)
-        cell::cp_cells(b, C.skeleton.data() + 1, data + 1, len - 1);
+        cell::cp_cells(b, src + 1, dst + 1, len - 1);
     else
         for (int k = 1; k < len; k++) {
             goals[k] = C.skeleton[k].relocated_by(b);

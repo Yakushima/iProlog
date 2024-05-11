@@ -75,6 +75,7 @@ namespace iProlog {
 
 		for (int i = 0; i < clauses.size(); ++i) {
 			cell hd = clauses[i].skeleton[0];
+			cout << " clauses[" << i << "].skeleton[0]=" << hd.show() << endl;
 			getIndexables(clauses[i].index_vector, heap, hd);
 		}
 

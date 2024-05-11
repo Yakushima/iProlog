@@ -144,7 +144,7 @@ if(indexing)
     string Prog::showClause(const Clause &s) const {
         string buf;
 
-        size_t l = s.skeleton.size();
+        size_t l = s.skeleton_size;
         buf += "\n";
         buf += showCell(s.skeleton[0]);
 

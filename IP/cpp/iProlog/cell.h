@@ -120,6 +120,7 @@ namespace iProlog {
     static inline cell argOffset(size_t o) { return tag(A_, o);  }
     static inline cell reference(size_t r) { return tag(R_, r);  }
 
+    // note that this can be in-place and overlapping
     static inline void cp_cells(cell b, const cell *srcp, cell *dstp, int count) {
 #       define STEP *dstp++ =  (*srcp++).relocated_by(b)
             while (count >= 4) { STEP; STEP; STEP; STEP; count -= 4; }

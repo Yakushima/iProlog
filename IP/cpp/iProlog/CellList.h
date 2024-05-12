@@ -21,23 +21,35 @@ namespace iProlog {
 #endif
 
     class CellList {
-        static CL_p free_list;
-
     private:
+        static CL_p free_list;  // Free list of CellList records.
+                                // Note that in a multi-engine context this
+                                //  will be global to all engines.
+                                // It could be a good thing, but in a
+                                // single-shot context, it may make sense to
+                                // to have an Engine destructor that frees
+                                // up this CellList reserve. 
         cell head_;
         CL_p tail_;
-       
-    public:
         static int n_alloced;
+#ifdef MEASURE_CELL_LIST
+# define _add_(c) { n_alloced += (c); }
+#else
+# define _add_(c) 
+#endif
+        inline static void inc_n_alloced() { _add_(1);   }
+        inline static void dec_n_alloced() { _add_(-1);  }
+#undef _add_
 
+    public:
         // Singleton list
-        CellList() { head_ = 0; tail_ = nullptr; ++n_alloced; }
+        CellList() { head_ = 0; tail_ = nullptr; inc_n_alloced(); }
   
-        CellList(cell h) : head_(h), tail_(nullptr) { ++n_alloced; }
+        CellList(cell h) : head_(h), tail_(nullptr) { inc_n_alloced(); }
 
-        ~CellList() { --n_alloced; }
+        ~CellList() { dec_n_alloced(); }
 
-        static int alloced();
+        static int alloced() { return n_alloced; }
 
         inline static bool isEmpty(const CL_p Xs) { return nullptr == Xs; }
 
@@ -55,7 +67,7 @@ namespace iProlog {
 #ifdef RAW_CELL_LIST
                 return new CellList(X);
 #else
-                ++n_alloced;
+                inc_n_alloced();
                 return make_shared<CellList>(X);
 #endif
             }

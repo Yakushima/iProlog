@@ -71,7 +71,8 @@ namespace iProlog {
 #define RAW_IMAPS
 
 #define RAW_CELL_LIST
+#define MEASURE_CELL_LIST
 
-// #define RAW_GOALS_LIST
+#define RAW_GOALS_LIST
 
 }

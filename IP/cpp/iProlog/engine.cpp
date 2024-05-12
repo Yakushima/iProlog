@@ -116,7 +116,7 @@ Spine* Engine::unfold(Spine *G) {
         Spine* spr;
 
         if (len != 0 || tl != nullptr)
-            spr = new Spine(goals, len, base, tl, tot, 0, clause_list);
+            spr = Spine::new_Spine(goals, len, base, tl, tot, 0, clause_list);
         else
             spr = answer(tot);
 
@@ -241,7 +241,7 @@ Clause Engine::getQuery() {
 Spine *Engine::init() {
     int base = heap_size();
     Clause G = getQuery();
-    Spine *Q = new Spine(G.skeleton, G.skeleton_size, base, nullptr, trail.getTop(), 0, clause_list);
+    Spine *Q = Spine::new_Spine(G.skeleton, G.skeleton_size, base, nullptr, trail.getTop(), 0, clause_list);
 
     spines.push_back(Q);
     return Q;
@@ -253,7 +253,7 @@ Spine *Engine::init() {
  * more answers by forcing backtracking."
  */
 Spine* Engine::answer(int trail_top) {
-    return new Spine(spines[0]->head, trail_top);
+    return Spine::new_Spine(spines[0]->head, trail_top);
 }
 
 /**
@@ -340,8 +340,8 @@ Object Engine::ask() {
     /////////////////////////
     Object R = exportTerm(result);
     unwindTrail(query->trail_top);
-    delete ans;
-    delete query;    // leaky to delete this?
+    Spine::free(ans);
+    Spine::free(query);    // leaky to delete this?
     query = nullptr;
 
     return R;

@@ -10,10 +10,12 @@ namespace iProlog {
 
     using namespace std;
 
+    Spine *Spine::free_list = nullptr;
+
     /**
-     * Creates a spine - as a snapshot of some runtime elements.
+     * "Creates a spine - as a snapshot of some runtime elements."
      */
-    Spine::Spine(
+    Spine *Spine::new_Spine(
         goals_list &goal_refs_0,   // was gs0/goal_stack_0 [Java]
                                     // temporary in unfold(); allocated in pushBody()
         int goal_refs_len_0,
@@ -24,44 +26,41 @@ namespace iProlog {
         vector<ClauseNumber> &unifiables_0)
     {
 #define TR if(0)
-        head = goal_refs_0[0];
-        base = base_0;
-        trail_top = trail_top_0;
-        last_clause_tried = last_clause_tried_0;
-        goal_refs_len = goal_refs_len_0;
-        unifiables = unifiables_0;
+        Spine* sp = Spine::alloc();
+        sp->head = goal_refs_0[0];
+        sp->base = base_0;
+        sp->trail_top = trail_top_0;
+        sp->last_clause_tried = last_clause_tried_0;
+        sp->goal_refs_len = goal_refs_len_0;
+        sp->unifiables = unifiables_0;
 
         for (int i = 0; i < MAXIND; ++i)
-            index_vector[i] = cell::BAD;
+            sp->index_vector[i] = cell::BAD;
 
         CL_p acc = goals_0;
-#if 0
-        for (int i = goal_refs_len - 1; i >= 0; i--)
+
+        for (int i = sp->goal_refs_len - 1; i > 0; i--)
             acc = CellList::cons(goal_refs_0[size_t(i)], acc);
 
-        the_goals = CellList::tail(acc);
-#else
-        for (int i = goal_refs_len - 1; i > 0; i--)
-            acc = CellList::cons(goal_refs_0[size_t(i)], acc);
-
-        the_goals = acc;
-#endif
-
+        sp->the_goals = acc;
+        return sp;
 #undef TR
     }
 
     /**
      * "Creates a specialized spine returning an answer (with no goals left to solve)." {Spine.java]
      */
-    Spine::Spine(cell h, int tt) {
-        head = h;
-        base = 0;
-        the_goals = nullptr;
-        goal_refs_len = 0;
-        trail_top = tt;
-        last_clause_tried = -1;
+    Spine *Spine::new_Spine(cell h, int tt) {
+        Spine* sp = Spine::alloc();
+        sp->head = h;
+        sp->base = 0;
+        sp->the_goals = nullptr;
+        sp->goal_refs_len = 0;
+        sp->trail_top = tt;
+        sp->last_clause_tried = -1;
         for (int i = 0; i < MAXIND; ++i)
-            index_vector[i] = cell::BAD;
+            sp->index_vector[i] = cell::BAD;
+        return sp;
     }
 
     string Spine::show() const {

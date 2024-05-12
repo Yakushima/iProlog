@@ -25,6 +25,9 @@ namespace iProlog {
      * [of the goal stack] are shared among alternative branches" [HHG doc])
      */
     class Spine {
+    private:
+        static Spine* free_list;
+        Spine* next_free;
     public:
         cell head;      // "head of the clause to which this corresponds" [Spine.java]
         int base;      // "base of the heap where the clause starts" [HHG doc]
@@ -75,7 +78,7 @@ namespace iProlog {
         /**
          * "Creates a spine - as a snapshot of some runtime elements." [Spine.java]
          */
-        Spine(
+        static Spine *new_Spine(
             goals_list &goal_refs_0,       // was gs0/goal_stack_0 [Java]
             int goal_refs_len,
             int base_0,               // base
@@ -88,11 +91,25 @@ namespace iProlog {
          * "Creates a specialized spine returning an answer 
          * (with no goals left to solve)." [Spine.java]
          */
-        Spine(cell head, int trail_top);
+        static Spine *new_Spine(cell head, int trail_top);
 
 	    inline bool hasGoals() { return the_goals != nullptr; }
 
         ~Spine();
+
+        inline static Spine *alloc() {
+            if (free_list == nullptr) {
+                return new Spine();
+            }
+            Spine* r = free_list;
+            free_list = r->next_free;
+            return r;
+        }
+
+        inline static void free(Spine *sp) {
+            sp->next_free = free_list;
+            free_list = sp;
+        }
 
         string show() const;
     };

@@ -11,10 +11,6 @@ namespace iProlog {
     int CellList::n_alloced = 0;
     CL_p CellList::free_list = nullptr;
 
-    int CellList::alloced() {
-        return n_alloced;
-    }
-
     string CellList::toString() {
         string s = "[";
         string sep = "";

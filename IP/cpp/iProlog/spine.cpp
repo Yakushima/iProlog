@@ -16,7 +16,7 @@ namespace iProlog {
      * "Creates a spine - as a snapshot of some runtime elements."
      */
     Spine *Spine::new_Spine(
-        hg_array &hga_0,   // was gs0/goal_stack_0 [Java]
+        unfolding &hga_0,   // was gs0/goal_stack_0 [Java]
                                     // temporary in unfold(); allocated in pushBody()
         int hg_len_0,
         int base_0,                 // base

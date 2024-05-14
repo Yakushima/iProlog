@@ -9,10 +9,10 @@ namespace iProlog {
 
 #ifdef RAW_HG_ARR
 #define hga_data(hgax) hgax
-	typedef cell* hg_array;
+	typedef cell* unfolding;
 #else
 #define hga_data(hgax) hgax.data()
-	typedef vector<cell> hg_array;
+	typedef vector<cell> unfolding;
 #endif
 }
 

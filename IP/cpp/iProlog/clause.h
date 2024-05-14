@@ -6,7 +6,7 @@
  */
 
 #include "spine.h"
-#include "hg_array.h"
+#include "unfolding.h"
 
 namespace iProlog {
     using namespace std;
@@ -19,7 +19,7 @@ namespace iProlog {
         // Skeletal elements for compiled form:
 
         int len;            // length of heap slice
-        hg_array hga;    // "head+goals pointing to cells in clauses"
+        unfolding hga;    // "head+goals pointing to cells in clauses"
         int hg_len;       // (for RAW_HG_ARR  pointer implementation)
         int base;           // the point in the heap where this clause starts
         int neck;           // first after the end of the head (=length of the head)
@@ -34,7 +34,7 @@ namespace iProlog {
             for (int i = 0; i < IV_LEN; ++i) index_vector[i] = cell::null();
         }
 
-        Clause(int len_0, hg_array hga, size_t hg_len, int base_0, int neck_0);
+        Clause(int len_0, unfolding hga, size_t hg_len, int base_0, int neck_0);
     };
 
 } // end namespace

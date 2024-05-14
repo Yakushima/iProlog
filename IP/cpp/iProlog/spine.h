@@ -9,7 +9,7 @@
 #include "cell.h"
 #include "CellList.h"
 #include "index.h"
-#include "hg_array.h"
+#include "unfolding.h"
 
 namespace iProlog {
     using namespace std;
@@ -79,7 +79,7 @@ namespace iProlog {
          * "Creates a spine - as a snapshot of some runtime elements." [Spine.java]
          */
         static Spine *new_Spine(
-            hg_array &hga_0,       // was gs0/goal_stack_0 [Java]
+            unfolding &hga_0,       // was gs0/goal_stack_0 [Java]
             int hg_len_0,
             int base_0,               // base
             CL_p goals_0,        // was gs/goal_stack [Java]

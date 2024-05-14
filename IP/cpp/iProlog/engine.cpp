@@ -106,7 +106,7 @@ Spine* Engine::unfold(Spine *G) {
         //  to free to free the memory so allocated, _malloca requires
         //  the use of _freea to free memory."
         // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/malloca?view=msvc-170
-        hg_array new_hgs = (cell*)_malloca(hgs_len * sizeof(cell));
+        unfolding new_hgs = (cell*)_malloca(hgs_len * sizeof(cell));
 #else
         hg_array new_hgs(hgs_len);
 #endif
@@ -436,7 +436,7 @@ string Engine::showCell(cell w) const {
  * passing the "b" offset and "len" instead of "goals" to new Spine()
  * means that what is now the concat() operation could do the relocation.
  */
-inline void Engine::pushBody(hg_array &hga, int len, cell b, cell head, const Clause& C) {
+inline void Engine::pushBody(unfolding &hga, int len, cell b, cell head, const Clause& C) {
 #define TR if(0)
     CellStack::pushCells(heap, b, C.neck, C.len, C.base);
     hga[0] = head;

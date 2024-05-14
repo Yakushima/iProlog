@@ -93,8 +93,7 @@ protected:    CellStack unify_stack;
         clear();
     }
 
-    void pushBody(hg_array &hga, int len, cell b, cell head, const Clause& C);
-    void pushBody_rev(hg_array hga, int len, cell b, cell head, const Clause& C);
+    void pushBody(unfolding &hga, int len, cell b, cell head, const Clause& C);
     
     void clear();
 

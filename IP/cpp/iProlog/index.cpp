@@ -75,17 +75,17 @@ namespace iProlog {
 
 		for (int i = 0; i < clauses.size(); ++i) {
 			cell hd = clauses[i].hga[0];
-			cout << " clauses[" << i << "].hga[0]=" << hd.show() << endl;
+			TR cout << " clauses[" << i << "].hga[0]=" << hd.show() << endl;
 			getIndexables(clauses[i].index_vector, heap, hd);
 		}
 
-	  // was vcreate in Java version:
+	  // was vcreate() in Java version:
 		var_maps = vector<cls_no_set>(MAXIND);
 
 		for (int arg_pos = 0; arg_pos < MAXIND; arg_pos++) {
 			var_maps[arg_pos] = cls_no_set();
 		}
-	  // end vcreate inlined
+	  // end vcreate() inlined
 
 		if (clauses.size() < START_INDEX) {
 #ifndef RAW_IMAPS

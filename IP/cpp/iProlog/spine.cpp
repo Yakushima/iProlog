@@ -16,32 +16,29 @@ namespace iProlog {
      * "Creates a spine - as a snapshot of some runtime elements."
      */
     Spine *Spine::new_Spine(
-        goals_list &goal_refs_0,   // was gs0/goal_stack_0 [Java]
+        hg_array &hga_0,   // was gs0/goal_stack_0 [Java]
                                     // temporary in unfold(); allocated in pushBody()
-        int goal_refs_len_0,
+        int hg_len_0,
         int base_0,                 // base
         CL_p goals_0,               // was gs[Java]; tail of G->goals in unfold()
         int trail_top_0,
-        int last_clause_tried_0,
         vector<ClauseNumber> &unifiables_0)
     {
 #define TR if(0)
         Spine* sp = Spine::alloc();
-        sp->head = goal_refs_0[0];
+        sp->head = hga_0[0];
         sp->base = base_0;
         sp->trail_top = trail_top_0;
-        sp->last_clause_tried = last_clause_tried_0;
-        sp->goal_refs_len = goal_refs_len_0;
+        sp->last_clause_tried = 0;
+        sp->hg_len = hg_len_0;
         sp->unifiables = unifiables_0;
 
         for (int i = 0; i < MAXIND; ++i)
             sp->index_vector[i] = cell::BAD;
 
         CL_p acc = goals_0;
-
-        for (int i = sp->goal_refs_len - 1; i > 0; i--)
-            acc = CellList::cons(goal_refs_0[size_t(i)], acc);
-
+        for (int i = sp->hg_len - 1; i > 0; i--)
+            acc = CellList::cons(hga_0[size_t(i)], acc);
         sp->the_goals = acc;
         return sp;
 #undef TR
@@ -55,7 +52,7 @@ namespace iProlog {
         sp->head = h;
         sp->base = 0;
         sp->the_goals = nullptr;
-        sp->goal_refs_len = 0;
+        sp->hg_len = 0;
         sp->trail_top = tt;
         sp->last_clause_tried = -1;
         for (int i = 0; i < MAXIND; ++i)
@@ -82,10 +79,7 @@ namespace iProlog {
     }
 
     Spine::~Spine() {
-        CL_p clp = the_goals;
-        int k = goal_refs_len-1;
-        while (k-- > 0)
-            clp = CellList::collect_first(clp);
+        abort();
     }
 
 } // end namespace

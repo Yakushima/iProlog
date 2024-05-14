@@ -89,6 +89,17 @@ namespace iProlog {
             return tl;
         }
 
+        inline static void collect_n(CL_p clp, int k)
+        {
+            CL_p start = clp;
+            
+            while (k-- > 0)
+                clp = tail(clp);
+            if (clp != nullptr)
+                clp->tail_ = free_list;
+            free_list = start;
+        }
+
         inline static CL_p cons(cell X, /*const*/CL_p Xs) {
             CL_p cl = mk_shared(X);
             cl->tail_ = Xs;

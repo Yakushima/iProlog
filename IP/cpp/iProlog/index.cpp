@@ -74,8 +74,8 @@ namespace iProlog {
 #define TR if(0)
 
 		for (int i = 0; i < clauses.size(); ++i) {
-			cell hd = clauses[i].skeleton[0];
-			cout << " clauses[" << i << "].skeleton[0]=" << hd.show() << endl;
+			cell hd = clauses[i].hga[0];
+			cout << " clauses[" << i << "].hga[0]=" << hd.show() << endl;
 			getIndexables(clauses[i].index_vector, heap, hd);
 		}
 
@@ -301,8 +301,6 @@ namespace iProlog {
 
 		static cls_no_set_vec msp;
 		static cls_no_set_vec vmsp;
-
-		// vector<cls_no_set> ms(slack); // causes some segfault later
 
 		TR cout << " ==== matching_clauses: start iv loop, imaps.size()=" << imaps.size() << endl;
 

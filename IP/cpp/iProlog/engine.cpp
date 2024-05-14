@@ -59,15 +59,17 @@ Spine* Engine::unfold(Spine *G) {
     if (CellList::isEmpty(G->the_goals))
         return nullptr;
 
-    int tot = trail.getTop();    // top of trail
+    int trail_top = trail.getTop();    // top of trail
     int saved_heap_top = heap.getTop();
     int base = saved_heap_top + 1;
-    cell goal = CellList::head(G->the_goals);
+    cell this_goal = CellList::head(G->the_goals);
 
-    TR cout << "unfold: goal=" << goal.as_int() << " goal.tag= " << goal.s_tag() << " goal.arg = " << goal.arg() << endl;
+    TR cout << "unfold: this goal=" << this_goal.as_int()
+            << " this goal's tag= " << this_goal.s_tag()
+            << " this goal's arg = " << this_goal.arg() << endl;
     TR cout << "unfold: about to call makeIndexArgs with current G->unifiables[0]=" << G->unifiables[0].as_int() << endl;
 
-    Ip->makeIndexArgs(heap, G, goal); //  goal == CellList::head(G->goals)
+    Ip->makeIndexArgs(heap, G, this_goal); // this goal is head(G->the_goals)
 
     if (G->unifiables.size() > 0)
         TR cout << "unfold: after makeIndexArgs with current G->unifiables[0]=" << G->unifiables[0].as_int() << endl;
@@ -89,43 +91,43 @@ Spine* Engine::unfold(Spine *G) {
  
         unify_stack.clear();  // "set up unification stack" [Engine.java]
         unify_stack.push(head);
-        unify_stack.push(goal); // from  CellList::head(G->goals)
+        unify_stack.push(this_goal);
 
         if (!unify(base)) {
-            unwindTrail(tot);
+            unwindTrail(trail_top);
             heap.setTop(saved_heap_top);
             continue;
         }
 
-        int len = (int)C0.skeleton_size;
+        int hgs_len = (int)C0.hg_len;
 
-#ifdef RAW_GOALS_LIST
+#ifdef RAW_HG_ARR
         //  "Unlike _alloca, which doesn't require or permit a call
         //  to free to free the memory so allocated, _malloca requires
         //  the use of _freea to free memory."
         // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/malloca?view=msvc-170
-        goals_list goals = (cell*)_malloca(len * sizeof(cell));
+        hg_array new_hgs = (cell*)_malloca(hgs_len * sizeof(cell));
 #else
-        goals_list goals(len);
+        hg_array new_hgs(hgs_len);
 #endif
-        pushBody(goals, len, b, head, C0);
+        pushBody(new_hgs, hgs_len, b, head, C0);
 
-        CL_p tl = CellList::tail(G->the_goals);
+        CL_p remaining_goals = CellList::tail(G->the_goals);
         G->last_clause_tried = k + 1;
 
         Spine* spr;
 
-        if (len != 0 || tl != nullptr)
-            spr = Spine::new_Spine(goals, len, base, tl, tot, 0, clause_list);
+        if (hgs_len != 0 || remaining_goals != nullptr)
+            spr = Spine::new_Spine(new_hgs, hgs_len, base, remaining_goals, trail_top, clause_list);
         else
-            spr = answer(tot);
+            spr = answer(trail_top);
 
         // mystery: I never see this output trace, even though
         // setting a breakpoint at the return statement causes
         // a break.
-        TR cout << "unfold: trail_top=" << to_string(tot) << " returning answer" << endl;
-#ifdef RAW_GOALS_LIST
-        _freea(goals);
+        TR cout << "unfold: trail_top=" << to_string(trail_top) << " returning answer" << endl;
+#ifdef RAW_HG_ARR
+        _freea((void*)new_hgs);
 #endif
         return spr;
     }
@@ -241,7 +243,7 @@ Clause Engine::getQuery() {
 Spine *Engine::init() {
     int base = heap_size();
     Clause G = getQuery();
-    Spine *Q = Spine::new_Spine(G.skeleton, G.skeleton_size, base, nullptr, trail.getTop(), 0, clause_list);
+    Spine *Q = Spine::new_Spine(G.hga, G.hg_len, base, nullptr, trail.getTop(), clause_list);
 
     spines.push_back(Q);
     return Q;
@@ -371,7 +373,7 @@ void Engine::popSpine() {
     int new_base = int(G->base) - 1;
     int savedTop = G->trail_top;
     spines.pop_back();
-    delete G;
+    free(G);
     
     unwindTrail(savedTop);
     heap.setTop(new_base);
@@ -424,7 +426,7 @@ string Engine::showCell(cell w) const {
 
 /**
  * "Copies and relocates body of clause at offset from heap to heap
- * while also placing head as the first element of array 'goals' that,
+ * while also placing head as the first element of [a buffer array] that,
  * when returned, contains references to the toplevel spine of the clause."
  * 
  * The goals list is only temporary in unfold(), passed to make
@@ -434,28 +436,16 @@ string Engine::showCell(cell w) const {
  * passing the "b" offset and "len" instead of "goals" to new Spine()
  * means that what is now the concat() operation could do the relocation.
  */
-void Engine::pushBody(goals_list &goals, int len, cell b, cell head, const Clause& C) {
+inline void Engine::pushBody(hg_array &hga, int len, cell b, cell head, const Clause& C) {
 #define TR if(0)
     CellStack::pushCells(heap, b, C.neck, C.len, C.base);
-    goals[0] = head;
+    hga[0] = head;
 
-    // relocate all the rest:
-    if (is_raw) {
-#ifdef RAW_GOALS_LIST
-        cell* src = C.skeleton;
-        cell* dst = goals;
-#else
-        const cell* src = C.skeleton.data();
-        cell* dst = goals.data();
-#endif
-        cell::cp_cells(b, src + 1, dst + 1, len - 1);
-    } 
+    if (has_raw_cell_heap)
+        cell::cp_cells(b, hga_data(C.hga) + 1, hga_data(hga) + 1, len - 1);
     else
-        for (int k = 1; k < len; k++) {
-            goals[k] = C.skeleton[k].relocated_by(b);
-            TR cout << "pushBody: goals[" << k << "]="
-                << goals[k].as_int() << endl;
-        }
+        for (int k = 1; k < len; k++)
+            hga[k] = C.hga[k].relocated_by(b);
 #undef TR
 }
 
@@ -466,7 +456,7 @@ cell Engine::pushHeadtoHeap(cell b, const Clause& C) {
 #define TR if(0)
     TR cout << "push HeadtoHeap entered" << endl;
     CellStack::pushCells(heap, b, 0, C.neck, C.base);
-    cell head = C.skeleton[0];
+    cell head = C.hga[0];
     cell reloc_head = head.relocated_by(b);
     return reloc_head;
 #undef TR

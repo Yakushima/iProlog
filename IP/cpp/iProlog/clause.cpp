@@ -14,10 +14,10 @@ namespace iProlog {
 
     using namespace std;
 
-    Clause::Clause(int len_0, goals_list skeleton_0, size_t skel_size_0, int base_0, int neck_0) {
-        skeleton = skeleton_0;
-        skeleton_size = skel_size_0;
-        if (skel_size_0 == 0) abort();
+    Clause::Clause(int len_0, hg_array hga_0, size_t hg_len_0, int base_0, int neck_0) {
+        hga = hga_0;
+        hg_len = hg_len_0;
+        if (hg_len == 0) abort();
         base = base_0;
         len = len_0;
         neck = neck_0;

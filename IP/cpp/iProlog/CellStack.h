@@ -19,7 +19,7 @@ namespace iProlog {
         // void shrink();
     public:
 
-#ifdef RAW
+#ifdef RAW_CELL_HEAP
         cell* stack;
 #else
         vector<cell> stack;
@@ -34,7 +34,7 @@ namespace iProlog {
         inline CellStack()  {
             int size = MINSIZE;
             cap = size;
-#ifdef RAW
+#ifdef RAW_CELL_HEAP
             stack = (cell*)std::malloc(sizeof(cell) * size);
             if (stack == nullptr) abort();
 #else
@@ -45,7 +45,7 @@ namespace iProlog {
 
         inline CellStack(int size) {
             if (size == 0) size = MINSIZE;
-#ifdef RAW
+#ifdef RAW_CELL_HEAP
 	        stack = (cell*)std::malloc(sizeof(cell) * size);
 	        if (stack == nullptr) abort();
 	        cap = size;
@@ -96,7 +96,7 @@ namespace iProlog {
             if (top < MINSIZE) {
                 l = MINSIZE;
             }
-#ifdef RAW
+#ifdef RAW_CELL_HEAP
             cout << "realloc called" << endl;
             realloc_(l);
 #else
@@ -115,7 +115,7 @@ namespace iProlog {
         }
 
         inline cell get(int i) const {
-#ifdef RAW
+#ifdef RAW_CELL_HEAP
                 return stack[i];
 #else
                 return stack.at(i); // bounds-checked
@@ -140,7 +140,7 @@ namespace iProlog {
         }
 
         inline size_t capacity() const {
-#ifdef RAW
+#ifdef RAW_CELL_HEAP
 		    return cap;
 #else
 		    return stack.size();
@@ -148,7 +148,7 @@ namespace iProlog {
         }
 
         inline void realloc_(int l) {
-#ifdef RAW
+#ifdef RAW_CELL_HEAP
             cell* tcp = (cell*)std::realloc((void*)stack, l * sizeof(cell));
             if (tcp == nullptr) abort();
             cap = l;
@@ -157,7 +157,7 @@ namespace iProlog {
         }
 
         inline void resize(int l) {
-#ifdef RAW
+#ifdef RAW_CELL_HEAP
             realloc_(l);
 #else
             stack.resize(l);
@@ -167,7 +167,7 @@ namespace iProlog {
         vector<cell> toArray();
 
         inline cell *data() const {
-#ifdef RAW
+#ifdef RAW_CELL_HEAP
 	        return stack;
 #else
 	        return (cell *) stack.data();
@@ -193,7 +193,7 @@ namespace iProlog {
             return;
 	    ensureSize(heap, count);
 
-	    if (is_raw) {
+	    if (has_raw_cell_heap) {
 		    cell* srcp = heap.data() + base + from;
 		    cell* dstp = (cell*)(heap.data() + heap.getTop()) + 1;
 		    heap.setTop(heap.getTop() + count);
@@ -220,7 +220,7 @@ namespace iProlog {
 	    int count = to - from;
 	    ensureSize(heap, count);
 
-        if (is_raw) {
+        if (has_raw_cell_heap) {
             cell* heap_dst = (cell*)(heap.data() + heap.getTop()) + 1;
             heap.setTop(heap.getTop() + count);
             cell::cp_cells(b, cells.data(), heap_dst, count);

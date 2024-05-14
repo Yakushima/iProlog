@@ -104,7 +104,7 @@
     <ClInclude Include="config.h">
       <Filter>ソース ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="goals_list.h">
+    <ClInclude Include="hg_array.h">
       <Filter>ソース ファイル</Filter>
     </ClInclude>
   </ItemGroup>

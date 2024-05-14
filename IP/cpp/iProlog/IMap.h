@@ -47,8 +47,6 @@ public:
         map.reserve(NBUCKETS);
     }
 
-      // static vector<IMap> create(int l);
-
     static vector<IMap> create(int l);
 
       bool put(ClauseNumber, cell this_cell);

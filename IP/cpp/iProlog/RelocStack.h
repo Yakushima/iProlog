@@ -48,12 +48,12 @@ namespace iProlog {
 
 	template <class Ty>
 	class RelocStack
-#ifndef RAW
+#ifndef RAW_CELL_HEAP
 		: vector<Ty>
 #endif    
 	{ /*start class body*/
 
-#ifdef RAW
+#ifdef RAW_CELL_HEAP
 		typedef struct {
 			public:
 				Ty* top;				     // fast access

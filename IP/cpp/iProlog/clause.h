@@ -6,8 +6,7 @@
  */
 
 #include "spine.h"
-#include "goals_list.h"
-
+#include "hg_array.h"
 
 namespace iProlog {
     using namespace std;
@@ -20,8 +19,8 @@ namespace iProlog {
         // Skeletal elements for compiled form:
 
         int len;            // length of heap slice
-        goals_list skeleton; // "head+goals pointing to cells in clauses"
-        size_t skeleton_size;  // (for RAW_GOALS_LIST  pointer implementation)
+        hg_array hga;    // "head+goals pointing to cells in clauses"
+        int hg_len;       // (for RAW_HG_ARR  pointer implementation)
         int base;           // the point in the heap where this clause starts
         int neck;           // first after the end of the head (=length of the head)
         t_index_vector index_vector; // indexables in head. In the video, this is described as
@@ -31,11 +30,11 @@ namespace iProlog {
                           // marking variable positions."
                           // Should it be "outermost termS"?
 
-        Clause() : len(size_t(0)), skeleton_size(0), base(size_t(0)), neck(size_t(0)) {
+        Clause() : len(size_t(0)), hg_len(0), base(size_t(0)), neck(size_t(0)) {
             for (int i = 0; i < IV_LEN; ++i) index_vector[i] = cell::null();
         }
 
-        Clause(int len_0, goals_list skeleton_0, size_t skel_size_0, int base_0, int neck_0);
+        Clause(int len_0, hg_array hga, size_t hg_len, int base_0, int neck_0);
     };
 
 } // end namespace

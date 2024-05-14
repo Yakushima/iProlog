@@ -19,7 +19,7 @@ namespace iProlog {
             int l;
             if (top < 0) l = 4;
             else l = top + 1;
-#ifdef RAW
+#ifdef RAW_CELL_HEAP
             realloc_(l << 1);
 #else
             vector<cell> newstack = vector<cell>(l << 1);
@@ -31,7 +31,7 @@ namespace iProlog {
         vector<cell> CellStack::toArray() {
             vector<cell> array = vector<cell>(size());
             if (size() > 0) {
-#ifdef RAW
+#ifdef RAW_CELL_HEAP
                     // memcpy if it ever matters
                     for (int i = 0; i < size(); ++i)
                         array[i] = stack[i];

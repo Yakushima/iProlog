@@ -39,11 +39,11 @@ namespace iProlog {
 	 * compilation. Constant-folding and dead code elimination
 	 * does the rest.
 	 */
-#define RAW
-#ifdef RAW
-	const bool is_raw = true;
+#define RAW_CELL_HEAP
+#ifdef RAW_CELL_HEAP
+	const bool has_raw_cell_heap = true;
 #else
-	const bool is_raw = false;
+	const bool has_raw_cell_heap = false;
 #endif
 
 	// Some way to pass these on compiler command line????
@@ -73,6 +73,6 @@ namespace iProlog {
 #define RAW_CELL_LIST
 #define MEASURE_CELL_LIST
 
-#define RAW_GOALS_LIST
+#define RAW_HG_ARR
 
 }

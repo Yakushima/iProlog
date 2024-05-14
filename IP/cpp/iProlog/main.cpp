@@ -113,46 +113,44 @@ cell encode(int t, const string s) {
 /**
   * "Places a clause built by the Toks reader on the heap." [Engine.java]
   */
-Clause putClause(vector<cell> cells, vector<cell> &skel, int neck) {
+Clause putClause(vector<cell> cells, vector<cell> &hgav, int neck) {
     int base = heap.getTop()+1;
     cell b = cell::tag(cell::V_, base);
         // ... because b is used later in '+' ops that would otherwise mangle tags.
     int len = int(cells.size());
     CellStack::pushCells(heap, b, 0, len, cells);
 
-    cell* src = skel.data();
-#ifdef RAW_GOALS_LIST
-    cell* dst = (cell*)malloc(skel.size() * sizeof(cell));
+    cell* src = hgav.data();
+#ifdef RAW_HG_ARR
+    cell* dst = (cell*)malloc(hgav.size() * sizeof(cell));
 #else
-    cell* dst = skel.data();
+    cell* dst = hgav.data();
 #endif
 
     // for goals list being C++ vector, in-place reloc
-    if (is_raw) {
-        cell::cp_cells(b, src, dst, (int)skel.size());
-    } else {
-        for (size_t i = 0; i < skel.size(); i++)
+    if (has_raw_cell_heap)
+        cell::cp_cells(b, src, dst, (int)hgav.size());
+    else
+        for (size_t i = 0; i < hgav.size(); i++)
             dst[i] = dst[i].relocated_by(b);
-    }
-#ifdef RAW_GOALS_LIST
-    Clause rc = Clause(len, dst, skel.size(), base, neck);
+
+#ifdef RAW_HG_ARR
+    Clause rc = Clause(len, dst, hgav.size(), base, neck);
 #else
-    Clause rc = Clause(len, skel, skel.size(), base, neck);
+    Clause rc = Clause(len, hgav, hgav.size(), base, neck);
 #endif
     return rc;
 }
-
 
     void linker(unordered_map<string,vector<int>> refs,
                         vector<cell> &cells,
                         vector<cell> &goals,
                         vector<Clause> &compiled_clauses) {
-
+        // Java:
         // final Iterator<IntStack> K = refs.values().iterator();
         // while (K.hasNext())
         
         for (auto kIs = refs.begin(); kIs != refs.end(); ++kIs) {
-// cout << "in for (auto kIS loop...." << endl;
             vector<int> Is = kIs->second;
             if (Is.size() == 0)
                 continue;
@@ -186,17 +184,15 @@ Clause putClause(vector<cell> cells, vector<cell> &skel, int neck) {
                 }
             }
         }
-// cout << "left for (auto kIs loop" << endl;
+
         int neck;
         if (1 == goals.size())
             neck = int(cells.size());
         else
             neck = goals[1L].arg();
 
-// cout << "before putClause call" << endl;
         Clause C = putClause(cells, goals, neck); // safe to pass all?
 
-// cout << "about to push C to compiled_clauses" << endl;
         compiled_clauses.push_back(C);
     }
 
@@ -478,9 +474,6 @@ cout << "---------------------------------------" << endl;
             cout << e.what() << endl;
         }
 
-        cout << "sizeof(vector<cell>)=" << sizeof(vector<cell>) << endl;
-        cout << "sizeof(RelocStack<cell>)=" << sizeof(RelocStack<cell>) << endl;
-
         return 0;
     }
 
@@ -518,7 +511,7 @@ cout << "---------------------------------------" << endl;
             assert(ep->Ip != nullptr);
             for (int i = 0; i < ep->clauses.size(); ++i) {
                 TRY{
-                    cell hd = ep->clauses.at(i).skeleton[0];
+                    cell hd = ep->clauses.at(i).hga[0];
                     assert(ep->clauses[i].base >= 0);
                     assert(ep->clauses[i].base < ep->heap.size());
                 } CATCH("blowing up in check it")

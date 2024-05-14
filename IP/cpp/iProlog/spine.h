@@ -9,7 +9,7 @@
 #include "cell.h"
 #include "CellList.h"
 #include "index.h"
-#include "goals_list.h"
+#include "hg_array.h"
 
 namespace iProlog {
     using namespace std;
@@ -36,7 +36,7 @@ namespace iProlog {
                             // "immutable list of the locations
                             //  of the goal elements accumulated
                             //  by unfolding clauses so far" [HHG doc]
-        int goal_refs_len;
+        int hg_len;
 
         int trail_top;  // "top of the trail when this was created" Spine.java]
                         // "as it was when this clause got unified" [HHG doc]
@@ -79,12 +79,11 @@ namespace iProlog {
          * "Creates a spine - as a snapshot of some runtime elements." [Spine.java]
          */
         static Spine *new_Spine(
-            goals_list &goal_refs_0,       // was gs0/goal_stack_0 [Java]
-            int goal_refs_len,
+            hg_array &hga_0,       // was gs0/goal_stack_0 [Java]
+            int hg_len_0,
             int base_0,               // base
             CL_p goals_0,        // was gs/goal_stack [Java]
             int trail_top_0,
-            int last_clause_tried_0,
             vector<ClauseNumber> &unifiables_0); // was cs [Java]
 
         /**
@@ -98,15 +97,15 @@ namespace iProlog {
         ~Spine();
 
         inline static Spine *alloc() {
-            if (free_list == nullptr) {
+            if (free_list == nullptr)
                 return new Spine();
-            }
             Spine* r = free_list;
             free_list = r->next_free;
             return r;
         }
 
         inline static void free(Spine *sp) {
+            CellList::collect_n(sp->the_goals, sp->hg_len-1);
             sp->next_free = free_list;
             free_list = sp;
         }

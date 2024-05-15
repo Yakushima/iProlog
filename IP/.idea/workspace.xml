@@ -4,21 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4e7fd721-f198-467d-bea4-bb96364d5a56" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cpp/iProlog/CellList.h" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/CellList.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cpp/iProlog/IMap.h" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/IMap.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cpp/iProlog/clause.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/clause.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cpp/iProlog/clause.h" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/clause.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cpp/iProlog/engine.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/engine.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cpp/iProlog/iProlog.vcxproj.user" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/iProlog.vcxproj.user" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cpp/iProlog/index.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/index.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cpp/iProlog/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cpp/iProlog/notes" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/notes" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cpp/iProlog/prog.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/prog.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cpp/iProlog/spine.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/spine.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cpp/iProlog/spine.h" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/spine.h" afterDir="false" />
-    </list>
+    <list default="true" id="4e7fd721-f198-467d-bea4-bb96364d5a56" name="Default" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

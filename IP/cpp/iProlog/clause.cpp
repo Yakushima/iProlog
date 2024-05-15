@@ -14,10 +14,11 @@ namespace iProlog {
 
     using namespace std;
 
-    Clause::Clause(int len_0, unfolding hga_0, size_t hg_len_0, int base_0, int neck_0) {
-        hga = hga_0;
-        hg_len = hg_len_0;
-        if (hg_len == 0) abort();
+    // need head cell plus body array, hg_len becomes . . . body length?
+    Clause::Clause(int len_0, unfolding skel_0, size_t skel_len_0, int base_0, int neck_0) {
+        skel = skel_0;
+        skel_len = skel_len_0;
+        if (skel_len == 0) abort();
         base = base_0;
         len = len_0;
         neck = neck_0;

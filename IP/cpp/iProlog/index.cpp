@@ -74,8 +74,8 @@ namespace iProlog {
 #define TR if(0)
 
 		for (int i = 0; i < clauses.size(); ++i) {
-			cell hd = clauses[i].hga[0];
-			TR cout << " clauses[" << i << "].hga[0]=" << hd.show() << endl;
+			cell hd = clauses[i].skel[0];
+			TR cout << " clauses[" << i << "].skel[0]=" << hd.show() << endl;
 			getIndexables(clauses[i].index_vector, heap, hd);
 		}
 

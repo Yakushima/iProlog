@@ -87,7 +87,9 @@ Spine* Engine::unfold(Spine *G) {
             continue;
 
         cell b = cell::tag(cell::V_, base - C0.base);
-        cell head = pushHeadtoHeap(b, C0);
+        // pushHeadtoHeap:
+        CellStack::pushCells(heap, b, 0, C0.neck, C0.base);
+        cell head = C0.skel[0].relocated_by(b);
  
         unify_stack.clear();  // "set up unification stack" [Engine.java]
         unify_stack.push(head);
@@ -99,37 +101,23 @@ Spine* Engine::unfold(Spine *G) {
             continue;
         }
 
-        int hgs_len = (int)C0.hg_len;
-
-#ifdef RAW_HG_ARR
-        //  "Unlike _alloca, which doesn't require or permit a call
-        //  to free to free the memory so allocated, _malloca requires
-        //  the use of _freea to free memory."
-        // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/malloca?view=msvc-170
-        unfolding new_hgs = (cell*)_malloca(hgs_len * sizeof(cell));
-#else
-        hg_array new_hgs(hgs_len);
-#endif
-        pushBody(new_hgs, hgs_len, b, head, C0);
-
         CL_p remaining_goals = CellList::tail(G->the_goals);
         G->last_clause_tried = k + 1;
 
-        Spine* spr;
+        /** [was in pushBody()]
+         * "Copies and relocates body of clause at offset from heap to heap
+         * while also placing head as the first element of [a buffer array] that,
+         * when returned, contains references to the toplevel spine of the clause."
+         * 
+         * Moved that buffering down into new_Spine to reduce copying
+         * and save space.
+         */
+        CellStack::pushCells(heap, b, C0.neck, C0.len, C0.base);
 
-        if (hgs_len != 0 || remaining_goals != nullptr)
-            spr = Spine::new_Spine(new_hgs, hgs_len, base, remaining_goals, trail_top, clause_list);
+        if ((int)C0.skel_len != 0 || remaining_goals != nullptr)
+            return Spine::new_Spine(C0, b, base, remaining_goals, trail_top, clause_list);
         else
-            spr = answer(trail_top);
-
-        // mystery: I never see this output trace, even though
-        // setting a breakpoint at the return statement causes
-        // a break.
-        TR cout << "unfold: trail_top=" << to_string(trail_top) << " returning answer" << endl;
-#ifdef RAW_HG_ARR
-        _freea((void*)new_hgs);
-#endif
-        return spr;
+            return answer(trail_top);
     }
     return nullptr;
 #undef TR
@@ -243,8 +231,8 @@ Clause Engine::getQuery() {
 Spine *Engine::init() {
     int base = heap_size();
     Clause G = getQuery();
-    Spine *Q = Spine::new_Spine(G.hga, G.hg_len, base, nullptr, trail.getTop(), clause_list);
-
+    cell b = cell::tag(cell::V_, 0);
+    Spine *Q = Spine::new_Spine(G, b, base, nullptr, trail.getTop(), clause_list);
     spines.push_back(Q);
     return Q;
 }
@@ -425,40 +413,15 @@ string Engine::showCell(cell w) const {
 }
 
 /**
- * "Copies and relocates body of clause at offset from heap to heap
- * while also placing head as the first element of [a buffer array] that,
- * when returned, contains references to the toplevel spine of the clause."
- * 
- * The goals list is only temporary in unfold(), passed to make
- * a CellList in a new Spine. If I go to relative addressing, 
- * simply passing the Clause to new Spine() could be enough, and
- * save buffering cost. As things stand (i.e., absolute addressing,
- * passing the "b" offset and "len" instead of "goals" to new Spine()
- * means that what is now the concat() operation could do the relocation.
- */
-inline void Engine::pushBody(unfolding &hga, int len, cell b, cell head, const Clause& C) {
-#define TR if(0)
-    CellStack::pushCells(heap, b, C.neck, C.len, C.base);
-    hga[0] = head;
-
-    if (has_raw_cell_heap)
-        cell::cp_cells(b, hga_data(C.hga) + 1, hga_data(hga) + 1, len - 1);
-    else
-        for (int k = 1; k < len; k++)
-            hga[k] = C.hga[k].relocated_by(b);
-#undef TR
-}
-
-/**
  * Copies and relocates the head of clause C from heap to heap.
  */
 cell Engine::pushHeadtoHeap(cell b, const Clause& C) {
 #define TR if(0)
     TR cout << "push HeadtoHeap entered" << endl;
     CellStack::pushCells(heap, b, 0, C.neck, C.base);
-    cell head = C.hga[0];
-    cell reloc_head = head.relocated_by(b);
-    return reloc_head;
+    cell head = C.skel[0].relocated_by(b);
+ 
+    return head;
 #undef TR
 }
 

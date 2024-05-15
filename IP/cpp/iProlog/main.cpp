@@ -144,7 +144,7 @@ Clause putClause(vector<cell> cells, vector<cell> &hgav, int neck) {
 
     void linker(unordered_map<string,vector<int>> refs,
                         vector<cell> &cells,
-                        vector<cell> &goals,
+                        vector<cell> &goal_refs,  // R_ (ref) cells only
                         vector<Clause> &compiled_clauses) {
         // Java:
         // final Iterator<IntStack> K = refs.values().iterator();
@@ -154,7 +154,7 @@ Clause putClause(vector<cell> cells, vector<cell> &hgav, int neck) {
             vector<int> Is = kIs->second;
             if (Is.size() == 0)
                 continue;
-            assert(goals.size() > 0);
+            assert(goal_refs.size() > 0);
 
             // "finding the A among refs" [Engine.java]
             bool found = false;
@@ -186,12 +186,12 @@ Clause putClause(vector<cell> cells, vector<cell> &hgav, int neck) {
         }
 
         int neck;
-        if (1 == goals.size())
+        if (1 == goal_refs.size())
             neck = int(cells.size());
         else
-            neck = goals[1L].arg();
+            neck = goal_refs[1L].arg();
 
-        Clause C = putClause(cells, goals, neck); // safe to pass all?
+        Clause C = putClause(cells, goal_refs, neck); // safe to pass all?
 
         compiled_clauses.push_back(C);
     }
@@ -205,13 +205,13 @@ vector<Clause> dload(const cstr s) {
         // map<string, IntStack> refs;
         unordered_map<string, vector<int>> refs = unordered_map<string,vector<int>>();
         vector<cell> cells;
-        vector<cell> goals;
+        vector<cell> goal_refs;
         int k = 0;
         for (vector<string> clause_asm : Toks::mapExpand(unexpanded_clause)) {
 
             size_t line_len = clause_asm.size();
 
-            goals.push_back(cell::reference(k++));
+            goal_refs.push_back(cell::reference(k++));
             cells.push_back(cell::argOffset(line_len));
             for (string cell_asm_code : clause_asm) {
                 if (1 == cell_asm_code.length())
@@ -226,12 +226,12 @@ vector<Clause> dload(const cstr s) {
                 case 'h':   refs[arg].push_back(k-1);
                             assert(k > 0);
                             cells[size_t(k-1)] = cell::argOffset(line_len-1);
-                            goals.pop_back();                               break;
+                            goal_refs.pop_back();                               break;
                 default:    throw logic_error(cstr("FORGOTTEN=") + cell_asm_code);
                 }
             }
         }
-        linker(refs, cells, goals, compiled_clauses);
+        linker(refs, cells, goal_refs, compiled_clauses);
     }
 
     size_t clause_count = compiled_clauses.size();
@@ -511,7 +511,7 @@ cout << "---------------------------------------" << endl;
             assert(ep->Ip != nullptr);
             for (int i = 0; i < ep->clauses.size(); ++i) {
                 TRY{
-                    cell hd = ep->clauses.at(i).hga[0];
+                    cell hd = ep->clauses.at(i).skel[0];
                     assert(ep->clauses[i].base >= 0);
                     assert(ep->clauses[i].base < ep->heap.size());
                 } CATCH("blowing up in check it")

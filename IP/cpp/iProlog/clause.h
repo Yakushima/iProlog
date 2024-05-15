@@ -5,7 +5,7 @@
  * Copyright (c) 2017 Paul Tarau
  */
 
-#include "spine.h"
+// #include "spine.h"
 #include "unfolding.h"
 
 namespace iProlog {
@@ -15,12 +15,14 @@ namespace iProlog {
      * "representation of a clause" [Clause.java].
      */
 
-    struct Clause {
+    class Clause {
         // Skeletal elements for compiled form:
-
+    public:
         int len;            // length of heap slice
-        unfolding hga;    // "head+goals pointing to cells in clauses"
-        int hg_len;       // (for RAW_HG_ARR  pointer implementation)
+        unfolding skel;    // "head+goals pointing to cells in clauses"
+        // need body cell or getter for it here,
+        // plus body cell array or getter for it.
+        int skel_len;       // (for RAW_HG_ARR  pointer implementation)
         int base;           // the point in the heap where this clause starts
         int neck;           // first after the end of the head (=length of the head)
         t_index_vector index_vector; // indexables in head. In the video, this is described as
@@ -30,11 +32,13 @@ namespace iProlog {
                           // marking variable positions."
                           // Should it be "outermost termS"?
 
-        Clause() : len(size_t(0)), hg_len(0), base(size_t(0)), neck(size_t(0)) {
-            for (int i = 0; i < IV_LEN; ++i) index_vector[i] = cell::null();
+        Clause() : len(size_t(0)), skel_len(0), base(size_t(0)), neck(size_t(0)) {
+            for (int i = 0; i < IV_LEN; ++i)
+                index_vector[i] = cell::null();
+            skel = init_skel(skel);
         }
 
-        Clause(int len_0, unfolding hga, size_t hg_len, int base_0, int neck_0);
+        Clause(int len_0, unfolding skel_0, size_t skel_len_0, int base_0, int neck_0);
     };
 
 } // end namespace

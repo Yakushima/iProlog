@@ -144,14 +144,14 @@ if(indexing)
     string Prog::showClause(const Clause &s) const {
         string buf;
 
-        size_t l = s.hg_len;
+        size_t l = s.skel_len;
         buf += "\n";
-        buf += showCell(s.hga[0]);
+        buf += showCell(s.skel[0]);
 
         if (l > 1) {
             buf += " :- \n";
             for (int i = 1; i < l; i++) {
-                cell e = s.hga[i];
+                cell e = s.skel[i];
                 buf += "   ";
                 buf += showCell(e);
                 buf += "\n";
@@ -164,10 +164,10 @@ if(indexing)
         buf += cstr("---base:[") + s.base + "] neck: " + s.neck + "-----\n";
         buf += showCells(s.base, s.len); // TODO
         buf += "\n";
-        buf += showCell(s.hga[0]);
+        buf += showCell(s.skel[0]);
         buf += " :- [";
         for (size_t i = 1; i < l; i++) {
-            cell e = s.hga[i];
+            cell e = s.skel[i];
             buf += showCell(e);
             if (i < l - 1)
                 buf += ", ";

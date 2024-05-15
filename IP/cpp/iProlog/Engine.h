@@ -93,7 +93,7 @@ protected:    CellStack unify_stack;
         clear();
     }
 
-    void pushBody(unfolding &hga, int len, cell b, cell head, const Clause& C);
+    // void pushBody(unfolding &hga, int len, cell b, cell head, const Clause& C);
     
     void clear();
 

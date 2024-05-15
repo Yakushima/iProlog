@@ -10,9 +10,12 @@
 #include "CellList.h"
 #include "index.h"
 #include "unfolding.h"
+#include "clause.h"
 
 namespace iProlog {
     using namespace std;
+
+    static Clause xp;
 
     /**
      * "Runtime representation of an immutable list of goals
@@ -36,7 +39,7 @@ namespace iProlog {
                             // "immutable list of the locations
                             //  of the goal elements accumulated
                             //  by unfolding clauses so far" [HHG doc]
-        int hg_len;
+        int skel_len;
 
         int trail_top;  // "top of the trail when this was created" Spine.java]
                         // "as it was when this clause got unified" [HHG doc]
@@ -58,10 +61,12 @@ namespace iProlog {
                 // is not activated, unifiables[i] == i.]
 
         Spine() {
+            next_free = nullptr;
             head = 0;   // head of the clause to which this Spine corresponds
             base = 0L;  // top of the heap when this Spine was created
                         // "base of the heap where the clause starts" [HHG doc]
             the_goals = nullptr;
+            skel_len = 0;
             trail_top = 0;  // "top of the trail when this Spine was created"
                             // "as it was when this clause got unified" [HHG doc]
             last_clause_tried = -1; // "index of the last clause [that]
@@ -78,9 +83,9 @@ namespace iProlog {
         /**
          * "Creates a spine - as a snapshot of some runtime elements." [Spine.java]
          */
-        static Spine *new_Spine(
-            unfolding &hga_0,       // was gs0/goal_stack_0 [Java]
-            int hg_len_0,
+        static Spine* new_Spine(
+            Clause& C0,
+            cell b,
             int base_0,               // base
             CL_p goals_0,        // was gs/goal_stack [Java]
             int trail_top_0,
@@ -105,7 +110,7 @@ namespace iProlog {
         }
 
         inline static void free(Spine *sp) {
-            CellList::collect_n(sp->the_goals, sp->hg_len-1);
+            CellList::collect_n(sp->the_goals, sp->skel_len-1);
             sp->next_free = free_list;
             free_list = sp;
         }

@@ -4,6 +4,8 @@ Hash equal_to
 unify CellStack::pop
 new_Spine alloc call op new & Inty alloc vec
 getIndexables
+
+Done:
 -- fixed: popSpine calling ~Spine?!?!?!
 
 verification:

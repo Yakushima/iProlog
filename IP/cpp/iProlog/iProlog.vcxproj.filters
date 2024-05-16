@@ -104,7 +104,7 @@
     <ClInclude Include="config.h">
       <Filter>ソース ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="unfolding.h">
+    <ClInclude Include="skeleton.h">
       <Filter>ソース ファイル</Filter>
     </ClInclude>
   </ItemGroup>

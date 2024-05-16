@@ -22,11 +22,6 @@ namespace iProlog {
     Spine* Spine::new_Spine(
         Clause& C0,
         cell b,
-#if 0
-        unfolding &skel_0,   // was gs0/goal_stack_0 [Java]
-                                    // temporary in unfold(); allocated in pushBody()
-        int skel_len_0,
-#endif
         int base_0,                 // base
         CL_p goals_0,               // was gs[Java]; tail of G->goals in unfold()
         int trail_top_0,
@@ -44,20 +39,12 @@ namespace iProlog {
             sp->index_vector[i] = cell::BAD;
 
         sp->skel_len = (int)C0.skel_len;
-        unfolding new_skel = alloc_skel(sp->skel_len); // _malloca() !!!!!!
 
-        if (has_raw_cell_heap)
-            cell::cp_cells(b, skel_data(C0.skel), skel_data(new_skel), sp->skel_len);
-        else
-            for (int k = 0; k < sp->skel_len; k++)
-                new_skel[k] = C0.skel[k].relocated_by(b);
-
-        sp->head = new_skel[0];
         CL_p acc = goals_0;
         for (int i = sp->skel_len - 1; i > 0; i--)
-            acc = CellList::cons(new_skel[size_t(i)], acc);
+            acc = CellList::cons(C0.skel[size_t(i)].relocated_by(b), acc);
         sp->the_goals = acc;
-        free_skel(new_skel);
+        sp->head = C0.skel[0].relocated_by(b);
 
         return sp;
 #undef TR

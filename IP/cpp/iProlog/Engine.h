@@ -92,8 +92,6 @@ protected:    CellStack unify_stack;
         heap.resize(size);
         clear();
     }
-
-    // void pushBody(unfolding &hga, int len, cell b, cell head, const Clause& C);
     
     void clear();
 

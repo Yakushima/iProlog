@@ -73,6 +73,6 @@ namespace iProlog {
 #define RAW_CELL_LIST
 #define MEASURE_CELL_LIST
 
-#define RAW_HG_ARR
+#define RAW_SKEL
 
 }

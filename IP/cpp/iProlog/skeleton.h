@@ -7,7 +7,7 @@
 namespace iProlog {
 	using namespace std;
 
-#ifdef RAW_HG_ARR
+#ifdef RAW_SKEL
     //  "Unlike _alloca, which doesn't require or permit a call
     //  to free to free the memory so allocated, _malloca requires
     //  the use of _freea to free memory." This can't necessarily
@@ -17,21 +17,20 @@ namespace iProlog {
     //  because it won't check stack bounds against C++ heap
     //  bounds and call malloc() if there's memory-corruption risk.
     // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/malloca?view=msvc-170
-    #define alloc_skel(skel_len) (cell*)_malloca(skel_len * sizeof(cell));
-    #define free_skel(s) _freea(s)
+    
+    typedef cell* clause_skel;
+
+#   define alloc_skel(skel_len) (cell*)_malloca(skel_len * sizeof(cell));
+#   define free_skel(s) _freea(s)
+#   define skel_data(sk) sk
+#   define init_skel(sk) sk = nullptr
 #else
+    typedef vector<cell> clause_skel;
+
     #define alloc_skel(skel_len) vector<cell>(skel_len)
     #define free_skel(s) s.clear()
-#endif
-
-#ifdef RAW_HG_ARR
-	typedef cell* unfolding;
-	#define skel_data(hgax) hgax
-	#define init_skel(hgax) hgax = nullptr
-#else
-	typedef vector<cell> unfolding;
-	#define skel_data(hgax) hgax.data()
-	#define init_skel(hgax) hgax.clear()
+#   define skel_data(sk) sk.data()
+#   define init_skel(sk) sk.clear()
 #endif
 }
 

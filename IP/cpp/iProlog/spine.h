@@ -9,7 +9,6 @@
 #include "cell.h"
 #include "CellList.h"
 #include "index.h"
-#include "unfolding.h"
 #include "clause.h"
 
 namespace iProlog {

@@ -113,31 +113,31 @@ cell encode(int t, const string s) {
 /**
   * "Places a clause built by the Toks reader on the heap." [Engine.java]
   */
-Clause putClause(vector<cell> cells, vector<cell> &hgav, int neck) {
+Clause putClause(vector<cell> cells, vector<cell> &vskel, int neck) {
     int base = heap.getTop()+1;
     cell b = cell::tag(cell::V_, base);
         // ... because b is used later in '+' ops that would otherwise mangle tags.
     int len = int(cells.size());
     CellStack::pushCells(heap, b, 0, len, cells);
 
-    cell* src = hgav.data();
-#ifdef RAW_HG_ARR
-    cell* dst = (cell*)malloc(hgav.size() * sizeof(cell));
+    cell* src = vskel.data();
+#ifdef RAW_SKEL
+    cell* dst = (cell*)malloc(vskel.size() * sizeof(cell));
 #else
-    cell* dst = hgav.data();
+    cell* dst = vskel.data();
 #endif
 
     // for goals list being C++ vector, in-place reloc
     if (has_raw_cell_heap)
-        cell::cp_cells(b, src, dst, (int)hgav.size());
+        cell::cp_cells(b, src, dst, (int)vskel.size());
     else
-        for (size_t i = 0; i < hgav.size(); i++)
+        for (size_t i = 0; i < vskel.size(); i++)
             dst[i] = dst[i].relocated_by(b);
 
-#ifdef RAW_HG_ARR
-    Clause rc = Clause(len, dst, hgav.size(), base, neck);
+#ifdef RAW_SKEL
+    Clause rc = Clause(len, dst, vskel.size(), base, neck);
 #else
-    Clause rc = Clause(len, hgav, hgav.size(), base, neck);
+    Clause rc = Clause(len, vskel, vskel.size(), base, neck);
 #endif
     return rc;
 }

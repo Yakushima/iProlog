@@ -5,8 +5,7 @@
  * Copyright (c) 2017 Paul Tarau
  */
 
-// #include "spine.h"
-#include "unfolding.h"
+#include "skeleton.h"
 
 namespace iProlog {
     using namespace std;
@@ -19,10 +18,8 @@ namespace iProlog {
         // Skeletal elements for compiled form:
     public:
         int len;            // length of heap slice
-        unfolding skel;    // "head+goals pointing to cells in clauses"
-        // need body cell or getter for it here,
-        // plus body cell array or getter for it.
-        int skel_len;       // (for RAW_HG_ARR  pointer implementation)
+        clause_skel skel;   // "head+goals pointing to cells in clauses"
+        int skel_len;       // (for raw array implementation)
         int base;           // the point in the heap where this clause starts
         int neck;           // first after the end of the head (=length of the head)
         t_index_vector index_vector; // indexables in head. In the video, this is described as
@@ -35,10 +32,10 @@ namespace iProlog {
         Clause() : len(size_t(0)), skel_len(0), base(size_t(0)), neck(size_t(0)) {
             for (int i = 0; i < IV_LEN; ++i)
                 index_vector[i] = cell::null();
-            skel = init_skel(skel);
+            init_skel(skel);
         }
 
-        Clause(int len_0, unfolding skel_0, size_t skel_len_0, int base_0, int neck_0);
+        Clause(int len_0, clause_skel skel_0, size_t skel_len_0, int base_0, int neck_0);
     };
 
 } // end namespace

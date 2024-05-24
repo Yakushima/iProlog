@@ -1068,7 +1068,8 @@ class Engine {
     ///////////////////////////////////////////////
     final int goal = IntList.head(G.goals);
 
-    makeIndexArgs(G, goal);
+    if (clauses.length >= START_INDEX)
+      makeIndexArgs(G, goal);
 
     final int last = G.unifiables.length;
     // Main.println ("unfold: last=" + last);
@@ -1090,7 +1091,7 @@ class Engine {
       // Prog.println ("C0.base=" + C0.base);
       // Prog.println ("     " + showHeap("heap before pushHead"));
 
-        if (!Ip.possible_match(G.index_vector, C0))
+        if (clauses.length >= START_INDEX && !Ip.possible_match(G.index_vector, C0))
           continue;
         else
           ++n_matches;

@@ -4,7 +4,21 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4e7fd721-f198-467d-bea4-bb96364d5a56" name="Default" comment="" />
+    <list default="true" id="4e7fd721-f198-467d-bea4-bb96364d5a56" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cpp/iProlog/IMap.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/IMap.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cpp/iProlog/IMap.h" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/IMap.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cpp/iProlog/IntSet.h" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/IntSet.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cpp/iProlog/cell.h" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/cell.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cpp/iProlog/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/config.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cpp/iProlog/iProlog.vcxproj" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/iProlog.vcxproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cpp/iProlog/iProlog.vcxproj.user" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/iProlog.vcxproj.user" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cpp/iProlog/index.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/index.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cpp/iProlog/index.h" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/index.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cpp/iProlog/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cpp/iProlog/notes" beforeDir="false" afterPath="$PROJECT_DIR$/cpp/iProlog/notes" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/iprolog/Engine.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/iprolog/Engine.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

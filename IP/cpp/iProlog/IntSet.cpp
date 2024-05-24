@@ -19,18 +19,28 @@ namespace iProlog {
         return size > 0 && (size & (size - 1)) == 0;
     }
 
+    IntSet *IntSet::init(IntSet* isp) {
+        int capacity = arraySize(init_cap, m_fillFactor_pc);
+
+        isp->set_mask(capacity);
+        isp->m_data = isp->alloc(capacity);
+        isp->m_threshold = (capacity * m_fillFactor_pc) / 100;
+        isp->m_size = 0;
+
+        return isp;
+    }
+
+    void IntSet::dealloc(IntSet* isp) {
+        if (isp == nullptr) abort();
+        isp->md_free(isp->m_data);
+        free((void*)isp);
+    }
+
     IntSet::IntSet() {
 
         assert(is_a_power_of_2(init_cap));
-           
-        int capacity = arraySize(init_cap, m_fillFactor_pc);
 
-        set_mask(capacity);
-
-        m_data = alloc(capacity);
-
-        m_threshold = (capacity * m_fillFactor_pc)/100;
-        m_size = 0;
+        init(this);
     }
 
     void IntSet::rehash(size_t newCapacity) {

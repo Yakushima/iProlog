@@ -53,12 +53,12 @@ namespace iProlog {
 	const int START_INDEX = 1;	// "if # of clauses < START_INDEX,
 								// turn off indexing" [Engine.java]
 
-	const bool indexing = (MAXIND > 0);
+	const bool indexing = true;
 
 	const int INTMAP_INIT_SIZE = (1 << 2);
 	const float INTMAP_FILL_FACTOR = 0.75f;
 
-#define USE_SIGN_BIT true
+#define USE_SIGN_BIT false
 
 	const bool integrity_check = false;
 	void checkit_();

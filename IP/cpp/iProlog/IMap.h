@@ -25,9 +25,9 @@ namespace iProlog {
     static const int NBUCKETS = 1 << NBUCKETS_2_exp;
     static const int NBUCKETS_mask = NBUCKETS - 1;
 
-    struct CellHash
+    struct ClauseNumberHash
     {
-        inline std::size_t operator()(const cell& s) const noexcept
+        inline std::size_t operator()(const ClauseNumber& s) const noexcept
         {
             return NBUCKETS_mask & (s.as_int() ^ (s.as_int() >> 8));
         }
@@ -37,7 +37,7 @@ namespace iProlog {
 
 class IMap {
 public:
-    unordered_map<cell, cls_no_set, CellHash> map;
+    unordered_map<cell, cls_no_set*, ClauseNumberHash> map;
 
     static const unsigned NBUCKETS_2_exp = 2;
     static const int NBUCKETS = 1 << NBUCKETS_2_exp;
@@ -50,7 +50,7 @@ public:
     static vector<IMap> create(int l);
 
       bool put(ClauseNumber, cell this_cell);
-      cls_no_set get_cls_no_set(cell cx);
+      cls_no_set *get_cls_no_set(cell cx);
       size_t amount() const;
 
 // refactor out in a subclass, for micro version

@@ -79,6 +79,7 @@ namespace iProlog {
 
     public:
         IntSet();
+        ~IntSet() { md_free(m_data); }
 
         inline static int no_value()      { return NO_VALUE;    } 
         inline size_t     length() const  { return md_capacity; }
@@ -94,12 +95,18 @@ namespace iProlog {
         // inline bool delete_(int key)        { return NO_VALUE != remove(key); }
         inline bool isEmpty()         const { return 0 == m_size; }
         inline int  size()            const { return m_size; }
+        
+        static IntSet* alloc_intset() { return (IntSet*)malloc(sizeof(IntSet)); }
+        static IntSet* init(IntSet *isp);
+        static void dealloc(IntSet* isp);
 
         int get(int key) const;
         int put(int key, int value);
         // int remove(int key);
     private:
-        inline void md_free(Vec vs) { free(vs); }
+        inline void md_free(Vec vs) {
+            free(vs);
+        }
         inline int  wraparound(int i) const { return i & m_mask;             }
         inline int  next(int ptr)     const { return wraparound(ptr+1);      }
         inline void set_mask(int cap)       { m_mask = cap - 1;              }
@@ -113,9 +120,6 @@ namespace iProlog {
             return (Vec) p;
         }
 
-
-
-    private:
         static long nextPowerOfTwo(long x);
         static int arraySize(int expected, int f_pc);
         int shiftKeys(int pos);

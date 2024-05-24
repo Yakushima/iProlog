@@ -29,7 +29,7 @@ MAXIND is that maximum.
 namespace iProlog {
 
 	cell index::cell2index(CellStack& heap, cell c) const {
-		cell x = cell::abs_var();
+		cell x = cell::abstr_var();
 		int t = c.s_tag();
 		switch (t) {
 		case cell::R_:
@@ -80,10 +80,10 @@ namespace iProlog {
 		}
 
 	  // was vcreate() in Java version:
-		var_maps = vector<cls_no_set>(MAXIND);
+		// var_maps = vector<cls_no_set*>(IV_LEN);
 
-		for (int arg_pos = 0; arg_pos < MAXIND; arg_pos++) {
-			var_maps[arg_pos] = cls_no_set();
+		for (int arg_pos = 0; arg_pos < IV_LEN; arg_pos++) {
+			var_maps[arg_pos] = new cls_no_set();
 		}
 	  // end vcreate() inlined
 
@@ -94,9 +94,9 @@ namespace iProlog {
 			return;
 		}
 #ifndef RAW_IMAPS
-		imaps = IMap::create(MAXIND);
+		imaps = IMap::create(IV_LEN);
 #else
-		for (int i = 0; i < MAXIND; ++i) {
+		for (int i = 0; i < IV_LEN; ++i) {
 			imaps[i] = IMap();
 		}
 #endif
@@ -136,7 +136,7 @@ namespace iProlog {
 			cell x = sp->index_vector[i];
 			cell y = cl.index_vector[i];
 
-			if (x == cell::abs_var() || y == cell::abs_var())
+			if (x == cell::abstr_var() || y == cell::abstr_var())
 				continue;
 			if (x != y)
 				break;
@@ -192,8 +192,8 @@ namespace iProlog {
 				int c = cls_no.as_int();
 	
 				TR cout << "    var_maps[" << arg_pos << "].add_key(" << c << ")" << endl;
-				var_maps[arg_pos].add_key(c);
-				assert(var_maps[arg_pos].contains(c));
+				var_maps[arg_pos]->add_key(c);
+				assert(var_maps[arg_pos]->contains(c));
 			}
 		}
 #undef TR
@@ -238,31 +238,37 @@ namespace iProlog {
      * having variables in predicate positions (if any)." [HHG/ICLP 2017]
      */
 
-	typedef cls_no_set cls_no_set_vec[MAXIND];
+	typedef cls_no_set *cls_no_set_vec[IV_LEN];
 
-	ClauseNumber* intersect0_p( const cls_no_set& m,      // maps[0] or vmaps[0]
+	ClauseNumber* intersect0_p( const cls_no_set* m,      // maps[0] or vmaps[0]
 								const cls_no_set_vec& maps,
 								const cls_no_set_vec& vmaps,
 								ClauseNumber* cls_nos_p,
 								int push_count) {
 #define TR if(0)
 
-		TR cout << "     intersect0: m.length()=" << m.length() << endl;
+		TR cout << "     intersect0_p: m->length()=" << to_string(m->length()) << endl;
 
 		ClauseNumber* cnp = cls_nos_p;
 
-		for (int k = 0; k < m.length(); k++) {
-			if (!m.is_free(k)) {
+		TR cout << "       m->length()=" << to_string(m->length()) << endl;
 
-				ClauseNumber cn = m.get_key_at(k);
-
+		for (int k = 0; k < m->length(); k++) {
+			if (!m->is_free(k)) {
+				ClauseNumber cn = m->get_key_at(k);
+				TR cout << "cn = " << to_string(cn.as_int()) << endl;
 				bool found = true;
 				for (int i = 1; i < push_count; i++) {
-					ClauseNumber v = maps[i].get(cn.as_int());
-					// TR cout << "      v = " << v.as_int() << endl;
-					if (v == ClauseNumber(cls_no_set::no_value())) {
-						ClauseNumber vcval = vmaps[i].get(cn.as_int());
-						if (vcval == cls_no_set::no_value()) {
+					TR cout << "i loop: i = " << to_string(i) << endl;
+					ClauseNumber v0;
+					if (maps[i] == 0) v0 = cls_no_set::no_value();
+					else v0 = maps[i]->get(cn.as_int());
+					TR cout << "      v = " << to_string(v0.as_int()) << endl;
+					if (v0 == cls_no_set::no_value()) {
+						ClauseNumber v1;
+						if (vmaps[i] == nullptr) v1 = cls_no_set::no_value();
+						else v1 = vmaps[i]->get(cn.as_int());
+						if (v1 == cls_no_set::no_value()) {
 							found = false;
 							break;
 						}
@@ -276,6 +282,7 @@ namespace iProlog {
 			}
 		}
 
+		TR cout << "MAXIND*push_count=" << to_string(MAXIND*push_count) << " cnp - cls_nos_p = " << cnp - cls_nos_p << endl;
 		return cnp;
 #undef TR
 	}
@@ -297,51 +304,60 @@ namespace iProlog {
 
 	vector<ClauseIndex> index::matching_clauses_(t_index_vector& iv) {
 #define TR if(0)
-		TR cout << "Entering matching_clauses" << endl;
+		TR cout << "Entering matching_clauses, IV_LEN=" << to_string(IV_LEN) << endl;
 
-		static cls_no_set_vec msp;
-		static cls_no_set_vec vmsp;
+		cls_no_set_vec msp;
+		cls_no_set_vec vmsp;
+
+		// init empty placeholders
+		for (int i = 0; i < IV_LEN; ++i)
+				msp[i] = vmsp[i] = nullptr;
 
 		TR cout << " ==== matching_clauses: start iv loop, imaps.size()=" << imaps.size() << endl;
 
 		int push_count = 0;
-		/* candidate for unrolling and sentinel search */
-		for (int i = 0; /*i < MAXIND*/; i++)
-			if (iv[i] == cell::abs_var())
+		/* candidate for unrolling? */
+		for (int i = 0; /*i < MAXIND*/; i++) { // sentinel search
+			if (iv[i] == cell::abstr_var())
 				continue;
 			else if (iv[i] == cell::null()) // "index vectors are null-terminated if < MAXIND"
 				break;
 			else {
-				cls_no_set m = imaps[i].map[iv[i]];
-
-				msp[push_count]  = m;
+				TR cout << "OK, starting to add to msp & vmsp with i=" << to_string(i) << endl;
+				cls_no_set* m = imaps[i].map[iv[i]];
+				msp[push_count] = m;
 				vmsp[push_count] = var_maps[i];
 				++push_count;
 
-				TR cout << "  iv[" << i << "]=" << to_string(iv[i].as_int()) << endl;
-				TR cout << "  ms  << " << m.show() << endl;
-				TR cout << "  vms << " << var_maps[i].show() << endl;
-				TR cout << "  push_count =" << push_count << endl;
+				TR cout << "  iv[" << i << "]=" << iv[i].show()
+				        << ", ms:" << (m==nullptr? "_" : m->show())
+				        << ", vms:" << (var_maps[i]==nullptr? "_" : var_maps[i]->show())
+				        << ", push_count =" << push_count << endl;
 			}
+		}
 
 		TR cout << " ==== matching_clauses: rest of processing" << endl;
 
 		// vector<ClauseNumber> cs;
 
-		// intersection must be <= pushcount in # of elts
-		// but _malloca() is iffy if pushcount is really big
-		auto csp = (ClauseNumber*) _malloca(push_count * sizeof(ClauseNumber));
+		int n_to_alloc = MAXIND * push_count; // ????
+
+		auto csp = (ClauseNumber*) _malloca(n_to_alloc * sizeof(ClauseNumber));
 		if (csp == nullptr) abort();
+		// cout << "csp len = " << n_to_alloc << endl;
 
 		// was IntMap.java intersect, expanded here:
-		TR cout << "  msp[0].m_size=" << to_string(msp[0].size()) << endl;
+		TR cout << "  msp[0].m_size=" << to_string(msp[0]->size()) << endl;
 		ClauseNumber *new_end = intersect0_p(msp[0], msp, vmsp, csp, push_count);
 
-		TR cout << "  vms[0].m_size=" << to_string(vmsp[0].size()) << endl;
+		TR cout << "  vms[0].m_size=" << to_string(vmsp[0]->size()) << endl;
 		new_end = intersect0_p(vmsp[0], msp, vmsp, new_end, push_count);
 		long cs_size = new_end - csp;
 
-		TR cout << "  after intersect0_p new_end - csp=" << cs_size << endl;
+		if (cs_size > n_to_alloc)
+			abort();
+
+		// cout << "  after intersect0_p new_end - csp=" << cs_size << endl;
 
 		// is: clause numbers converted to indices
 		vector<ClauseIndex> is;	  /*= cs.toArray() in Java, emulated here but
@@ -400,7 +416,7 @@ namespace iProlog {
 			s += "\n  INDEX: [" + to_string(i);
 			s += "]";
 			s += "\n    imaps:    " + imaps[i].show();
-			s += "\n    var_maps: " + var_maps[i].show();
+			s += "\n    var_maps: " + var_maps[i]->show();
 		}
 
 		s += "\n";

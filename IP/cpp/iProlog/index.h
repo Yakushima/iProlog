@@ -40,14 +40,15 @@ public:
                                 // e.g., use at() in overloaded [] op
     IMaps imaps;
 #else
-    typedef array<IMap, MAXIND> IMaps;
+    typedef array<IMap, IV_LEN> IMaps;
     IMaps imaps;
 #endif
 
   /* "The clauses having variables in an indexed argument position are also
    * collected in a separate set for each argument position."
    */
-    vector<cls_no_set> var_maps;
+    // vector<cls_no_set*> var_maps;
+    array<cls_no_set*, IV_LEN> var_maps;
 
     long n_matches = 0;
 

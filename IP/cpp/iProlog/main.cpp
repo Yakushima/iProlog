@@ -403,6 +403,29 @@ vector<Clause> dload(const cstr s) {
         cout << "************** END test_IntSet() ***********************************" << endl;
     }
 
+    void test_IMap() {
+#define TR if(1)
+        cout << "************** test_IMap() ***********************************" << endl;
+        IMap x;
+        cell c = cell::tag(cell::V_, 3);
+        ClauseNumber cls_no = 7;
+
+        TR cout << "===== calling x.put(cellbox->i=" << c.as_int() << ", cls_no=" << cls_no.as_int() << endl;
+
+        x.put(cls_no, c);
+
+        cls_no_set* the_intset = x.get_cls_no_set(c);
+        TR cout << " got intset, length=" << the_intset->length() << endl;
+        TR cout << "the_intset: " << the_intset->show() << endl;
+
+        TR cout << "Imap x is now " << x.show() << endl;
+
+        assert(the_intset->contains(cls_no.as_int()));
+
+        cout << endl << "************** END test_IMap() ***********************************" << endl;
+#undef TR
+    }
+
     int do_with(int argc, char* argv[])
     {
 #if 0
@@ -413,13 +436,11 @@ vector<Clause> dload(const cstr s) {
         // exit(0);
 
         cout << "...starting execution of " << argv[0] << endl;
-        // Tag tests:
+        test_IMap();
 #if 0
         test_tagging();
-
         testSharedCellList();
 #endif
-
         string where_i_am = current_working_directory();
         string test_directory = where_i_am + "/progs/";
         cout << "... in " << where_i_am << endl;
@@ -475,29 +496,6 @@ cout << "---------------------------------------" << endl;
         }
 
         return 0;
-    }
-
-    void test_IMap() {
-#define TR if(1)
-        cout << "************** test_IMap() ***********************************" << endl;
-        IMap x;
-        cell c = cell::tag(cell::V_, 3);
-        ClauseNumber cls_no = 7;
-
-        TR cout << "===== calling x.put(cellbox->i=" << c.as_int() <<", cls_no=" << cls_no.as_int() << endl;
-
-        x.put(cls_no, c);
-
-        cls_no_set the_intset = x.get_cls_no_set(c);
-        TR cout << " got intset, length=" << the_intset.length() << endl;
-        TR cout << "the_intset: " << the_intset.show() << endl;
-
-        TR cout << "Imap x is now " << x.show() << endl;
-  
-        assert(the_intset.contains(cls_no.as_int()));
-
-        cout << endl << "************** END test_IMap() ***********************************" << endl;
-#undef TR
     }
 
     Engine* ep = nullptr;

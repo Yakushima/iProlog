@@ -63,7 +63,7 @@ namespace iProlog {
     static inline cell null()    { return tag(BAD,0); }
 
     // abs_var is "abstract variable" used in index matching
-    static inline cell abs_var() { return tag(V_, 0); }
+    static inline cell abstr_var() { return tag(V_, 0); }
 
     // For x64, and maybe 32-bit CPU case:
     // By making BAD == 0, and always making sure there's a zero cell at the

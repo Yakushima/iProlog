@@ -76,7 +76,7 @@ namespace iProlog {
 					 // index elements ("based on regs" [HHG] but no regs)
                      // "int[] regs: dereferenced goal registers" [HHG doc]
                      // Comments in Engine.java suggest that xs is regs
-            unifiables = vector<ClauseNumber>(0);
+            unifiables = vector<ClauseIndex>(0);
         }
 
         /**

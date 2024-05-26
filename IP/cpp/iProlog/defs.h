@@ -1,12 +1,12 @@
 #pragma once
 #include <cstddef>
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <array>
 #include <memory>
 #include <climits>
 #include <stdexcept>
-#include <stdint.h>
 
 #include "config.h"
 

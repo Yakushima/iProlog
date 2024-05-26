@@ -86,7 +86,7 @@ namespace iProlog {
         return cell((int)((w << ref_shift) | t));
     }
 
-    inline int arg() {
+    inline int arg() const {
         if (use_sign_bit)
             return (as_int() & ref_mask);
         else

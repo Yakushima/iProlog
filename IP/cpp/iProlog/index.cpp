@@ -221,6 +221,60 @@ namespace iProlog {
 		G->unifiables = matching_clauses_(G->index_vector);
 #undef TR
     }
+	
+// copypasta from 
+//  https://prepinsta.com/data-structures-algorithms/sorting-of-array/
+// Ridiculous that I have to do this, but
+// (1) with the shorter vectors in C++, I needed to use std::sort()
+//     but the CPU+RAM overhead of the vector is high compared to the
+//     actual sorting steps and in-place sort memory requirements;
+// (2) even C's sort() takes a pointer to a comparison function,
+//     when all that's needed here is int comparison;
+// (3) sorting seems to be called only once in all of this code
+//     so the sort function can even be inlined.
+// 
+// Steps to add:
+//   Algorithm: special-casing of arrays of length 1 and 2,
+//              maybe even 3.
+//   In use:    separately sort the two results of calling intersect
+//              then do mergesort on them, although this can't be
+//				done in-place.
+// 
+// 
+
+	// Function to swap two elements
+	inline void swap(ClauseNumber& a, ClauseNumber& b) {
+		ClauseNumber temp = a;
+		a = b;
+		b = temp;
+	}
+
+	// Partition the array and return the pivot index
+	inline int partition(ClauseNumber *arr, int low, int high) {
+		ClauseNumber pivot = arr[high]; // Choose the rightmost element as the pivot
+		int i = low - 1; // Index of the smaller element
+
+		for (int j = low; j <= high - 1; j++) {
+			if (arr[j].as_int() <= pivot.as_int()) {
+				i++;
+				swap(arr[i], arr[j]);
+			}
+		}
+
+		swap(arr[i + 1], arr[high]);
+		return i + 1; // Return the pivot index
+	}
+
+	// "Quick sort implementation"
+	inline void quickSort(ClauseNumber *arr, int low, int high) {
+		if (low < high) {
+			int pivotIndex = partition(arr, low, high);
+
+			// Recursively sort the left and right subarrays
+			quickSort(arr, low, pivotIndex - 1);
+			quickSort(arr, pivotIndex + 1, high);
+		}
+	}
 
 	/* "When looking for the clauses matching an element of
      * the list of goals to solve, for an indexing element x occurring in position i,
@@ -316,8 +370,8 @@ namespace iProlog {
 		TR cout << " ==== matching_clauses: start iv loop, imaps.size()=" << imaps.size() << endl;
 
 		int push_count = 0;
-		/* candidate for unrolling? */
-		for (int i = 0; /*i < MAXIND*/; i++) { // sentinel search
+
+		for (int i = 0; /*i < MAXIND*/; i++) { // sentinel stops this
 			if (iv[i] == cell::abstr_var())
 				continue;
 			else if (iv[i] == cell::null()) // "index vectors are null-terminated if < MAXIND"
@@ -357,6 +411,9 @@ namespace iProlog {
 		if (cs_size > n_to_alloc)
 			abort();
 
+#ifdef RAW_QUICKSORT
+		quickSort(csp, 0, cs_size - 1);
+#endif
 		// cout << "  after intersect0_p new_end - csp=" << cs_size << endl;
 
 		// is: clause numbers converted to indices
@@ -381,10 +438,10 @@ namespace iProlog {
 			*/
 		TR cout << "  (2) is.size()=" << is.size() << endl;
 		TR cout << "  (2) is.capacity()=" << is.capacity() << endl;
-
+#ifndef RAW_QUICKSORT
 		if (is.size() > 1)
 			std::sort(is.begin(), is.end());
-
+#endif
 		TR for (int i = 0; i < cs_size; ++i) {
 			cout << "   is[" << i << "]=" << is[i].as_int() << endl;
 		}

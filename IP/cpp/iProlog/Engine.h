@@ -35,7 +35,7 @@ public:
     vector<Clause> clauses;     // "Trimmed-down clauses ready to be quickly relocated
                                 //  to the heap" [Engine.java]
                                 // [Not clear what "trimmed-down" means.]
-    vector<ClauseIndex> clause_list; // if no indexing, contains [0..clauses.length-1]
+    Spine::Unifiables clause_list; // if no indexing, contains [0..clauses.length-1]
 
     // "Symbol table - made of map (syms) + reverse map from
     //  ints to syms (slist)" [Engine.java]
@@ -64,9 +64,10 @@ public:
 	    }
 
 	    trail.clear();
-	    clause_list = toNums(clauses); // initially an array  [0..clauses.length-1]
+
 	    query = init(); /* initial spine built from query from which execution starts */
-	    base = heap_size();          // should be just after any code on heap
+
+        base = heap_size();          // should be just after any code on heap
 	};
 
     virtual ~Engine();
@@ -84,7 +85,21 @@ public:
 
            inline void   setRef(cell w, cell r)     { set_cell(w.arg(), r);         }
 
-protected:    CellStack unify_stack;
+protected:
+#define UNIFY_STACK_ON_HEAP
+#ifdef UNIFY_STACK_ON_HEAP
+    int unify_stack_depth = 0;
+    inline void unify_stack_clear() { unify_stack_depth = 0; };  // "set up unification stack" [Engine.java]
+    inline void unify_stack_push(cell head) { ++unify_stack_depth;  heap.push(head); }
+    inline cell unify_stack_pop() { --unify_stack_depth;  return heap.pop(); }
+    inline bool unify_stack_isEmpty() { return unify_stack_depth == 0; }
+#else
+    CellStack unify_stack;
+    inline void unify_stack_clear() { unify_stack.clear(); };
+    inline void unify_stack_push(cell head) { unify_stack.push(head); }
+    inline cell unify_stack_pop() { return unify_stack.pop(); }
+    inline bool unify_stack_isEmpty() { unify_stack.isEmpty(); }
+#endif
 
     vector<Spine*> spines;
 

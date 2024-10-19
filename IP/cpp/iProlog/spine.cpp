@@ -25,7 +25,7 @@ namespace iProlog {
         int base_0,                 // base
         CL_p goals_0,               // was gs[Java]; tail of G->goals in unfold()
         int trail_top_0,
-        vector<ClauseNumber> &unifiables_0)
+        Unifiables &unifiables_0)
     {
 #define TR if(0)
         Spine* sp = Spine::alloc();

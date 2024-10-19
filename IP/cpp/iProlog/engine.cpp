@@ -91,9 +91,9 @@ Spine* Engine::unfold(Spine *G) {
         CellStack::pushCells(heap, b, 0, C0.neck, C0.base);
         cell head = C0.skel[0].relocated_by(b);
  
-        unify_stack.clear();  // "set up unification stack" [Engine.java]
-        unify_stack.push(head);
-        unify_stack.push(this_goal);
+        unify_stack_clear();  // "set up unification stack" [Engine.java]
+        unify_stack_push(head);
+        unify_stack_push(this_goal);
 
         if (!unify(base)) {
             unwindTrail(trail_top);
@@ -124,9 +124,9 @@ Spine* Engine::unfold(Spine *G) {
 }
 
 bool Engine::unify(int base) {
-    while (!unify_stack.isEmpty()) {
-        cell x1 = deref(unify_stack.pop());
-        cell x2 = deref(unify_stack.pop());
+    while (!unify_stack_isEmpty()) {
+        cell x1 = deref(unify_stack_pop());
+        cell x2 = deref(unify_stack_pop());
 
         // cout << "unify: x1=" << x1.as_int() << ",x2=" << x2.as_int() << endl;
 
@@ -196,8 +196,8 @@ bool Engine::unify_args(int w1, int w2) { // w1 & w1 already detagged in unify()
         if (u1 == u2)
             continue;
 
-        unify_stack.push(u2);
-        unify_stack.push(u1);
+        unify_stack_push(u2);
+        unify_stack_push(u1);
     }
     return true;
 }
@@ -205,17 +205,6 @@ bool Engine::unify_args(int w1, int w2) { // w1 & w1 already detagged in unify()
 void Engine::clear() {
     heap.setTop(-1);
 }
-
-    //    was iota(clause_list.begin(), clause_list.end(), 0);
-    vector<ClauseIndex> Engine::toNums(vector<Clause> clauses) {
-        int l = (int) clauses.size();
-        vector<ClauseIndex> cls = vector<ClauseIndex>(l);
-        for (int i = 0; i < l; i++) {
-            ClauseIndex x(i);
-            cls[i] = x;
-        }
-        return cls;
-    }
 
  /**
   * Extracts a query - by convention of the form
@@ -232,6 +221,13 @@ Spine *Engine::init() {
     int base = heap_size();
     Clause G = getQuery();
     cell b = cell::tag(cell::V_, 0);
+
+    // clause_list: initially an array [0..clauses.length-1]
+    int l = (int)clauses.size();
+    clause_list = Spine::Unifiables(l);
+    for (int i = 0; i < l; i++)
+        clause_list[i] = ClauseIndex(i);
+
     Spine *Q = Spine::new_Spine(G, b, base, nullptr, trail.getTop(), clause_list);
     spines.push_back(Q);
     return Q;

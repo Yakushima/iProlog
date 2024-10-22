@@ -340,8 +340,8 @@ Object Engine::ask() {
 void Engine::unwindTrail(int savedTop) {
     while (savedTop < trail.getTop()) {
         cell href = trail.pop();
-        int x = href.arg();
-        setRef(href, href);
+        // setRef(href, href);
+        setUnbound(href);
     }
 }
 

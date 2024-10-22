@@ -84,6 +84,7 @@ public:
            inline cell getRef(cell x)  const        { return cell_at(x.arg());      }
 
            inline void   setRef(cell w, cell r)     { set_cell(w.arg(), r);         }
+           inline void   setUnbound(cell href)      { setRef(href, href); }
 
 protected:
 #define UNIFY_STACK_ON_HEAP

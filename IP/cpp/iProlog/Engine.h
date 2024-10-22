@@ -87,20 +87,11 @@ public:
            inline void   setUnbound(cell href)      { setRef(href, href); }
 
 protected:
-#define UNIFY_STACK_ON_HEAP
-#ifdef UNIFY_STACK_ON_HEAP
     int unify_stack_depth = 0;
     inline void unify_stack_clear() { unify_stack_depth = 0; };  // "set up unification stack" [Engine.java]
     inline void unify_stack_push(cell head) { ++unify_stack_depth;  heap.push(head); }
     inline cell unify_stack_pop() { --unify_stack_depth;  return heap.pop(); }
     inline bool unify_stack_isEmpty() { return unify_stack_depth == 0; }
-#else
-    CellStack unify_stack;
-    inline void unify_stack_clear() { unify_stack.clear(); };
-    inline void unify_stack_push(cell head) { unify_stack.push(head); }
-    inline cell unify_stack_pop() { return unify_stack.pop(); }
-    inline bool unify_stack_isEmpty() { unify_stack.isEmpty(); }
-#endif
 
     vector<Spine*> spines;
 

@@ -80,10 +80,10 @@ public class Term {
   
     final private Term set_terms(Term Ts) { Terms = Ts;  return Ts; }
 
-    Term next = null;  // cdr in LISP
+    protected Term next = null;  // cdr in LISP
 
     // deep equality
-    Boolean is_same_as (Term t) {
+    public Boolean is_same_as (Term t) {
         if (t == null) return false;
         if (tag != t.tag) return false;
         if (t.S_ != null) {

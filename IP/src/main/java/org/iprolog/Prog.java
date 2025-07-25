@@ -22,13 +22,13 @@ public class Prog extends Engine implements Spliterator<Object> {
     Main.pp(o);
   }
 
-  static void println(final Object o) {
+  public static void println(final Object o) {
     Main.println(o);
   }
 
   // From Engine
   @Override
-  String showTerm(final Object O) {
+  public String showTerm(final Object O) {
     if (O instanceof Object[]) {
       Object [] OO = (Object[]) O;
       assert OO.length != 0;
@@ -171,7 +171,7 @@ public class Prog extends Engine implements Spliterator<Object> {
     return buf.toString();
   }
 
-  void ppCode() {
+  public void ppCode() {
     pp("\nSYMS:");
     pp(symTab);
     pp("\nCLAUSES:\n");

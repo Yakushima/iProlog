@@ -35,7 +35,7 @@ import java.util.*;
  * [20] u: 15       -- Z
  */
 
-class Engine {
+public class Engine {
 	int n_matches = 0;
 
   Spine query;
@@ -80,7 +80,7 @@ class Engine {
   /**
    * Builds a new engine from a natural-language-style assembler.nl file
    */
-  Engine(final String s, final boolean fromFile) {
+  public Engine(final String s, final boolean fromFile) {
     // syms = new LinkedHashMap<String, Integer>();
     // list = new ArrayList<String>();
 
@@ -1255,7 +1255,7 @@ class Engine {
    * consisting of recursively embedded arrays hosting as leaves,
    * an external representation of symbols, numbers and variables." [HHG doc]
    */
-  Object POJO_ask() {
+  public Object POJO_ask() {
     // Prog.println(" POJO_ask(), spines.peek().last_clause_tried=" + spines.peek().last_clause_tried);
     query = yield();
     if (null == query)

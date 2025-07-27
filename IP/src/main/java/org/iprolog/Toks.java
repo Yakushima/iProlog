@@ -154,11 +154,13 @@ public class Toks extends StreamTokenizer {
           Tokens.add(t);
       }
     }
+    /*
     int i = 0;
     for (ArrayList<ArrayList<String>> cl : Clauses)
 	    for (ArrayList<String> s1 : cl)
 		    for (String s0 : s1)
 			    Main.println ("[" + i++ + "] " + s0);
+     */
     return Clauses;
   }
 

@@ -41,12 +41,14 @@ public class index {
             final Clause c = clauses[i];
             put(imaps, vmaps, c.index_vector, i + 1); // $$$ UGLY INC - convert to clause no
         }
+        /*
         Main.pp("INDEX: imaps");
         Main.pp(show(imaps));
         Main.pp(IMap.show(imaps));
         Main.pp("INDEX: vmaps");
         Main.pp(Arrays.toString(vmaps));
         Main.pp("");
+         */
         return imaps;
     }
 

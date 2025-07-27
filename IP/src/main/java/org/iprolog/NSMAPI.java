@@ -3,7 +3,7 @@ package org.iprolog;
 import java.util.LinkedList;
 
 public class NSMAPI extends JLPAPI {
-    public LinkedList<Clause> said;
+    public LinkedList<Clause> said = new LinkedList<>();
 
     public Clause say_(Clause cl) {
         assert said != null;
@@ -43,7 +43,6 @@ public class NSMAPI extends JLPAPI {
         // Main.println ("   ===== try_it(): after flattening =======");
         // Main.println ("asm_txt = \n" + asm_txt);
 
-        // Main.println ("   ===== try_it(): Calling new Prog: ===============");
         return new Prog(asm_txt.toString(), false);
     }
 }

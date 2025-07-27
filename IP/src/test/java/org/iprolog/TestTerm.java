@@ -62,7 +62,7 @@ public class TestTerm extends NSMAPI {
             assert goal_ans.is_a_compound();
             assert goal_ans.c().compareTo("goal") == 0;
             Term args = goal_ans.args();
-
+/*
             int i = 0;
             String to_compare = "";
             for (Term t = args; t != null; t = t.next) {
@@ -70,17 +70,19 @@ public class TestTerm extends NSMAPI {
                 Prog.println ("  to_compare = " + to_compare);
                 Prog.println ("  goal ["+(i++)+"] = " + t);
             }
+
+ */
  
             String sg = P.showTerm(POJO_goal_answers[0]);
             assert sg.equals("goal");   // because it'll be "[goal, <answer>]"
             assert POJO_goal_answers.length > 1;
             assert POJO_goal_answers.length < 3;
-            Main.println ("POJO_goal_answers[1] is " + POJO_goal_answers[1]);
+//            Main.println ("POJO_goal_answers[1] is " + POJO_goal_answers[1]);
             String show_POJO_object = P.showTerm(POJO_goal_answers[1]);
 
             if (whats_expected != null) {
-                Prog.println ("  to_compare = " + to_compare);
-                Prog.println ("  show_POJO_object = " + show_POJO_object);
+                // Prog.println ("  to_compare = " + to_compare);
+                // Prog.println ("  show_POJO_object = " + show_POJO_object);
                 assert Arrays.asList(whats_expected).contains(show_POJO_object);
             } else {
                 Main.println (" yielding: " + show_POJO_object);
@@ -91,7 +93,7 @@ public class TestTerm extends NSMAPI {
         // Main.println ("complete = " + complete);
         assert whats_expected == null || yielded_something;
 
-        Main.println ("... expect_from exiting.");
+        // Main.println ("... expect_from exiting.");
     }
 
     public void try_it(LinkedList<Clause> said, String[] whats_expected) {
@@ -101,7 +103,7 @@ public class TestTerm extends NSMAPI {
     protected void try_it(LinkedList<Clause> said, String[] whats_expected, boolean complete) {
 
         assert !said.isEmpty();
-        Main.println (" ===== try_it() entering....");
+        // Main.println (" ===== try_it() entering....");
         String s = "[";
 
         if (whats_expected == null)
@@ -118,10 +120,9 @@ public class TestTerm extends NSMAPI {
         // Main.println ("     whats_expected = " + s);
 
         Prog P = compile();
-
         expect_from(P, whats_expected, complete);
 
-        Main.println ("  ===== exiting try_it()");
+        // Main.println ("  ===== exiting try_it()");
     }
 
     private class TryT {

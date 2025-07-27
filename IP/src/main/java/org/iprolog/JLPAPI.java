@@ -170,4 +170,8 @@ public class JLPAPI {
             if (f.getType().getName().endsWith("LPvar"))
                 Main.println("   field name: " + f.getName());
     }
+
+    JLPAPI() {
+        // do nothing
+    }
 }

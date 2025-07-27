@@ -6,10 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="4e7fd721-f198-467d-bea4-bb96364d5a56" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/iprolog/IntMap.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/iprolog/IntMap.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/iprolog/JLPAPI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/iprolog/JLPAPI.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/iprolog/NSMAPI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/iprolog/NSMAPI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/iprolog/Term.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/iprolog/Term.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/iprolog/Toks.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/iprolog/Toks.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/iprolog/index.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/iprolog/index.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/org/iprolog/TestTerm.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/iprolog/TestTerm.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -316,12 +317,12 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/test/java/org/iprolog/TestTerm.java</url>
-          <line>209</line>
+          <line>210</line>
           <option name="timeStamp" value="6" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/test/java/org/iprolog/TestTerm.java</url>
-          <line>216</line>
+          <line>217</line>
           <option name="timeStamp" value="7" />
         </line-breakpoint>
         <breakpoint enabled="true" type="java-exception">

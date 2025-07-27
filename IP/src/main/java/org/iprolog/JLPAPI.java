@@ -4,25 +4,34 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 
+// The JLPAPI class supports construction of logic programs in the
+// slightly more English-like syntax Paul Tarau defined for iProlog
+// by defining some Java construction primitives. At this writing
+// (July 2024) there is still no more direct way to construct the
+// internal representation. This API forces the construction to
+// go through a text-parsing step, which may be a significant
+// performance-limiter in some applications that generate code.
 
 public class JLPAPI {
-    public static Term v_(String s) {    return Term.variable(s); }
-    public String m_() {
+    public static Term v_(String s) {    return Term.variable(s); } // v for variable term
+    public String m_() {                                            // m for method name
         return Thread.currentThread().getStackTrace()[2].getMethodName();
     }
-    public Term v_()                {    return v_(m_());         }
+    public Term v_()                {    return v_(m_());         }  // v for variable term
 
-    public static Term _()          {    return v_("_");        }
-    public static Term c_(String s) {    return Term.constant(s); }
-    public static Term s_(String s) {    return Term.compound(s); }
+    public static Term _()          {    return v_("_");       }  // _ is Prolog-ish for unnamed var
+    public static Term c_(String s) {    return Term.constant(s); } // c for constant
+    public static Term s_(String s) {    return Term.compound(s); } // s for structure
     public static Term s_(String s, Term... ts) {
         Term xt = Term.compound(s);
         for (Term t : ts)
             xt = xt.takes_this(t);
         return xt;
     }
-    public static Term e_(Term lhs, Term rhs) { return Term.equation (lhs,rhs); }
-    public static Term l_(Term... ts) {
+    public static Term e_(Term lhs, Term rhs) {         // e for equation
+        return Term.equation (lhs,rhs);
+    }
+    public static Term l_(Term... ts) {                 // l for list
         if (ts.length == 0)
             return c_("nil");
         return Term.termlist(ts);
@@ -32,7 +41,7 @@ public class JLPAPI {
             return Term.termpair(tal[i], tal[i+1]);
         return Term.termpair (tal[i], pal_(tal, i+1));
     }
-    public static Term p_(Term... Ts) { return pal_(Ts, 0);  }
+    public static Term p_(Term... Ts) { return pal_(Ts, 0);  }  // p for pair
 
     public Clause yes_ (Term hd) {     return Clause.f__(hd); }
 
@@ -46,7 +55,6 @@ public class JLPAPI {
         LPvar r = new LPvar();
         r.run = ()->s_(f.run.fn().toString(), make_xts(ls));
         return r;
-        // return S_(ls);
     }
 
     protected Term[] make_xts(LPvar[] xs) {
@@ -78,25 +86,29 @@ public class JLPAPI {
 
     public Term goal(Term x)  { return s_(m_(),x); }
 
+    // make a structure from a list of arguments
     public LPvar S_(LPvar... xs) {
-        String nm = f_();  // misses the right stack frame if called as arg to s_()
+        String nm = f_();  // misses the correct stack frame if called as arg to s_()
         LPvar r = new LPvar();
         r.run = ()->s_(nm,make_xts(xs));
         return r;
     }
 
+    // make a constant from a string
     public LPvar C_(String c) {
         LPvar r = new LPvar();
         r.run = ()->c_(c);
         return r;
     }
 
+    // make a list from the list of arguments
     public LPvar L_(LPvar... xs) {
         LPvar r = new LPvar();
         r.run = ()->l_(make_xts(xs));
         return r;
     }
 
+    // make a pair from x and y
     public LPvar P_(LPvar x, LPvar y) {
         LPvar r = new LPvar();
         r.run = ()->p_(x.run.fn(),y.run.fn());

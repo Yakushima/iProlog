@@ -198,10 +198,8 @@ class IntMap implements java.io.Serializable {
     }
 
     while (true) {
-      // Prog.println("ptr=" + ptr);
       ptr = ptr + 2 & m_mask2; //that's next index calculation
       k = m_data[ptr];
-      Prog.println("k=" + k);
       if (k == FREE_KEY) {
         m_data[ptr] = key;
         m_data[ptr + 1] = value;

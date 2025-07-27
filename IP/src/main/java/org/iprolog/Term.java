@@ -24,7 +24,7 @@ import java.util.LinkedList;
 // can be reconstructed from Tarau's
 // compiled form.
 
-// For tags, note the correpondence to Engine's V, R, and C.
+// For tags, note the correspondence to Engine's V, R, and C.
 // There may be a reason to merge the tags in Engine with the tags here.
 // For now, tolerate the smelly redundancy. I need to look at whether
 // the equations (e.g., "_1=x") can be Compounds (like ""=(_1,x)"")
@@ -34,15 +34,15 @@ import java.util.LinkedList;
 
 public class Term {
 
-    final private static int Variable = 1;   // correponds to Engine.U (unbound variable)
-    final private static int Compound = 2;   // correponds to Engine.R (reference)
-    final private static int Constant = 3;   // correponds to Engine.C (constant)
+    final private static int Variable = 1;   // corresponds to Engine.U (unbound variable)
+    final private static int Compound = 2;   // corresponds to Engine.R (reference)
+    final private static int Constant = 3;   // corresponds to Engine.C (constant)
     final private static int TermList = 4;   // Not in Engine tags because lists expand
     final private static int TermPair = 5;   // cons/dotted-pair for list construction
 
     // TermPair can be used in the "natural assembly language"; "list" is its
     // corresponding reserved word, "lists" being a plurality of termpairs
-    // arranged as, well, a list. Yeah, I found it cofusing at first myself.
+    // arranged as, well, a list. Yeah, I found it confusing at first myself.
     // If I ever change the "natural assembly language", I might go with "pair"
     // and maybe "just" when the second argument is nil.
 
@@ -316,7 +316,6 @@ public class Term {
 
         String delim = "";
         String s = "";
-
 
         for (Term t = Terms; t != null; t = t.next) {
             s = s + delim;

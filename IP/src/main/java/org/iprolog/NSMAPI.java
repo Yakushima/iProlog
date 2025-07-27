@@ -25,7 +25,6 @@ public class NSMAPI extends JLPAPI {
         assert said != null;
         Clause cl = yes_(hd);
         assert cl != null;
-        if (said == null) System.out.println ("!!!!!!!!! null said !!!!");
         said.add (cl);
         return cl;
     }

@@ -345,12 +345,10 @@ public class Term {
                             if (!this.is_an_equation()) {                                 
                                  r = c() + args_start + terms_to_str(arg_sep) + args_end;
                             } else {
-                                if (rhs().is_lists()) // ?????? WHY ???????? 
-                                {
+                                if (rhs().is_lists()) // ?????? WHY ????????
                                     r = lhs() + " " + this.rhs();
-                                } else {
+                                else
                                     r = lhs() + holds_op + rhs();
-                                }
                             }
                             break;
             case TermList:  if (this.Terms == null)

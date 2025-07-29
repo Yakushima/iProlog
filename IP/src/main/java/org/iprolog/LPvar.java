@@ -2,8 +2,6 @@ package org.iprolog;
 
 public class LPvar {
     public TermFn run;
-
-    public void takes_this(LPvar n) { // TODO
-
-    }
+    LPvar() {}
+    LPvar(TermFn r) { run = r; }
 }

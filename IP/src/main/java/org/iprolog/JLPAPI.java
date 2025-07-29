@@ -89,24 +89,16 @@ public class JLPAPI {
     // make a structure from a list of arguments
     public LPvar S_(LPvar... xs) {
         String nm = f_();  // misses the correct stack frame if called as arg to s_()
-        LPvar r = new LPvar();
-        r.run = ()->s_(nm,make_xts(xs));
-        return r;
+        return new LPvar(()->s_(nm,make_xts(xs)));
     }
 
     // make a constant from a string
-    public LPvar C_(String c) {
-        LPvar r = new LPvar();
-        r.run = ()->c_(c);
-        return r;
-    }
+    public LPvar C_(String c) { return new LPvar(()->c_(c)); }
+
+    public LPvar C_(int n) { return new LPvar(()->c_(Integer.toString(n)));}
 
     // make a list from the list of arguments
-    public LPvar L_(LPvar... xs) {
-        LPvar r = new LPvar();
-        r.run = ()->l_(make_xts(xs));
-        return r;
-    }
+    public LPvar L_(LPvar... xs) { return new LPvar(()->l_(make_xts(xs)));  }
 
     // make a pair from x and y
     public LPvar P_(LPvar x, LPvar y) {

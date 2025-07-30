@@ -3,11 +3,11 @@ package org.iprolog;
 import org.junit.jupiter.api.Test;
 
 public class TestJapaneseCode extends TestTerm {
-        LPvar いきる(LPvar x)    {  return S_(x);      }
-        LPvar  いいです(LPvar x) {  return S_(x);      }
-        LPvar いい(LPvar x)     {  return S_(x);      }
-        LPvar goal(LPvar x)    {  return S_(x);      }
-        LPvar 人;
+        LPv いきる(LPv x)    {  return S_(x);      }
+        LPv いいです(LPv x) {  return S_(x);      }
+        LPv いい(LPv x)     {  return S_(x);      }
+        LPv goal(LPv x)    {  return S_(x);      }
+        LPv 人;
 
         @Test
         public void mainTest() {

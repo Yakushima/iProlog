@@ -4,14 +4,14 @@ import org.junit.jupiter.api.Test;
 
 public class TestMperms extends TestTerm {
 
-    LPvar G,Gs,Bs,Tail;
-    LPvar X,Xs,Y,Ys,Z,Zs;
+    LPv G,Gs,Bs,Tail;
+    LPv X,Xs,Y,Ys,Z,Zs;
 
-    LPvar  sel(LPvar a, LPvar b, LPvar c) { return S_(a, b, c); }
-    LPvar  perm(LPvar x, LPvar y)         { return S_(x, y);    }
-    LPvar  input(LPvar x, LPvar y)        { return S_(x, y);    }
-    LPvar  metaint(LPvar x)               { return S_(x);       }
-    LPvar  cls(LPvar x, LPvar tail)       { return S_(x, tail); }
+    LPv sel(LPv a, LPv b, LPv c) { return S_(a, b, c); }
+    LPv perm(LPv x, LPv y)         { return S_(x, y);    }
+    LPv input(LPv x, LPv y)        { return S_(x, y);    }
+    LPv metaint(LPv x)               { return S_(x);       }
+    LPv cls(LPv x, LPv tail)       { return S_(x, tail); }
 
     @Test
     public void mainTest() {

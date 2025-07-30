@@ -4,22 +4,22 @@ import org.junit.jupiter.api.Test;
 
 public class TestQueens extends TestTerm {
 
-    LPvar QueenColumn;
-    LPvar Q,Qs;
-    LPvar Columns,Rows,LeftDiags,RightDiags,OtherColumns,OtherRows;
-    LPvar _;
+    LPv QueenColumn;
+    LPv Q,Qs;
+    LPv Columns,Rows,LeftDiags,RightDiags,OtherColumns,OtherRows;
+    LPv _;
 
-    LPvar this_queen_doesnt_fight_in(LPvar a, LPvar b, LPvar c, LPvar d) {
+    LPv this_queen_doesnt_fight_in(LPv a, LPv b, LPv c, LPv d) {
         return S_(a, b, c, d);
     }
-    LPvar these_queens_dont_fight_on_these_lines(LPvar a, LPvar b, LPvar c, LPvar d) {
+    LPv these_queens_dont_fight_on_these_lines(LPv a, LPv b, LPv c, LPv d) {
         return S_(a, b, c, d);
     }
-    LPvar these_queens_can_be_in_these_places(LPvar a, LPvar b) {
+    LPv these_queens_can_be_in_these_places(LPv a, LPv b) {
         return S_(a, b);
     }
-    LPvar qs(LPvar cols, LPvar rows)   { return S_(cols, rows); }
-    LPvar goal(LPvar Rows)            { return S_(Rows); }
+    LPv qs(LPv cols, LPv rows)   { return S_(cols, rows); }
+    LPv goal(LPv Rows)            { return S_(Rows); }
 
     @Test
     public void mainTest() {

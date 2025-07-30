@@ -2,25 +2,22 @@ package org.iprolog;
 
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
 public class TestProg extends TestTerm {
 
-    Term pred(LPvar t) {
+    Term pred(LPv t) {
         return s_(m_(),t.run.fn());
     }
 
-    LPvar Nothing;
-    LPvar Something;
-    LPvar some_struct(LPvar x)              { return S_(x);     }
-    LPvar other_struct(LPvar x, LPvar y)    { return S_(x,y);   }
-    LPvar goal(LPvar x)                     { return S_(x);     }
-    LPvar pair(LPvar x, LPvar y)            { return P_(x,y);   }
-    LPvar is_zero(LPvar x) { return S_(x); }
-    LPvar X;
+    LPv Nothing;
+    LPv Something;
+    LPv some_struct(LPv x)              { return S_(x);     }
+    LPv other_struct(LPv x, LPv y)    { return S_(x,y);   }
+    LPv goal(LPv x)                     { return S_(x);     }
+    LPv pair(LPv x, LPv y)            { return P_(x,y);   }
+    LPv is_zero(LPv x) { return S_(x); }
+    LPv X;
 
-    void try_matching (String output, LPvar f) {
+    void try_matching (String output, LPv f) {
         assert output != null;
         assert f != null;
         assert output.compareTo(f.run.fn().toString()) == 0;
@@ -52,7 +49,7 @@ public class TestProg extends TestTerm {
         try_matching ("[Something|Nothing]",pair(Something,Nothing));
         try_matching ("[0|[Something|Nothing]]",P_(C_("0"),Something,Nothing));
 
-        LPvar zero = C_("0");
+        LPv zero = C_("0");
         say_(is_zero(zero));
         say_(goal(X)).if_(is_zero(X));
 

@@ -2,14 +2,12 @@ package org.iprolog;
 
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.Arrays;
 
 public class TestTerm extends NSMAPI {
 
-    public  LPvar C0;
+    public LPv C0;
 
     TestTerm() {
         init_LPvars();

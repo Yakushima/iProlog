@@ -2,7 +2,6 @@ package org.iprolog;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.LinkedList;
 
 // The JLPAPI class supports construction of logic programs in the
 // slightly more English-like syntax Paul Tarau defined for iProlog
@@ -51,16 +50,16 @@ public class JLPAPI {
 
     public Term call(Term f, Term... ts) { return s_(f.v(),ts); }
 
-    public LPvar call(LPvar f, LPvar... ls)       {
-        LPvar r = new LPvar();
+    public LPv call(LPv f, LPv... ls)       {
+        LPv r = new LPv();
         r.run = ()->s_(f.run.fn().toString(), make_xts(ls));
         return r;
     }
 
-    protected Term[] make_xts(LPvar[] xs) {
+    protected Term[] make_xts(LPv[] xs) {
         Term[] xts = new Term[xs.length];
         int i = 0;
-        for (LPvar x : xs) {
+        for (LPv x : xs) {
             xts[i] = xs[i].run.fn();
             ++i;
         }
@@ -87,27 +86,27 @@ public class JLPAPI {
     public Term goal(Term x)  { return s_(m_(),x); }
 
     // make a structure from a list of arguments
-    public LPvar S_(LPvar... xs) {
+    public LPv S_(LPv... xs) {
         String nm = f_();  // misses the correct stack frame if called as arg to s_()
-        return new LPvar(()->s_(nm,make_xts(xs)));
+        return new LPv(()->s_(nm,make_xts(xs)));
     }
 
     // make a constant from a string
-    public LPvar C_(String c) { return new LPvar(()->c_(c)); }
+    public LPv C_(String c) { return new LPv(()->c_(c)); }
 
-    public LPvar C_(int n) { return new LPvar(()->c_(Integer.toString(n)));}
+    public LPv C_(int n) { return new LPv(()->c_(Integer.toString(n)));}
 
     // make a list from the list of arguments
-    public LPvar L_(LPvar... xs) { return new LPvar(()->l_(make_xts(xs)));  }
+    public LPv L_(LPv... xs) { return new LPv(()->l_(make_xts(xs)));  }
 
     // make a pair from x and y
-    public LPvar P_(LPvar x, LPvar y) {
-        LPvar r = new LPvar();
+    public LPv P_(LPv x, LPv y) {
+        LPv r = new LPv();
         r.run = ()->p_(x.run.fn(),y.run.fn());
         return r;
     }
-    LPvar paf_ (LPvar[] taf, int i) {
-        LPvar r = new LPvar();
+    LPv paf_ (LPv[] taf, int i) {
+        LPv r = new LPv();
         if (i == taf.length-2) {
             r.run = () -> (Term.termpair(taf[i].run.fn(), taf[i + 1].run.fn()));
             return r;
@@ -115,7 +114,7 @@ public class JLPAPI {
         r.run = ()->(Term.termpair (taf[i].run.fn(), paf_(taf, i+1).run.fn()));
         return r;
     }
-    public LPvar P_(LPvar... Fs) {  return paf_ (Fs, 0);  }
+    public LPv P_(LPv... Fs) {  return paf_ (Fs, 0);  }
 
     public void init_LPvars (Class<?> tc) {
         // Main.println ("Entering init_LPvars, class: " + tc.getName());
@@ -123,8 +122,8 @@ public class JLPAPI {
 
         try {
             for (Field f : fs)
-                if (f.getType().getName().endsWith("LPvar")) {
-                    LPvar x = new LPvar();
+                if (f.getType().getName().endsWith("LPv")) {
+                    LPv x = new LPv();
                     x.run = () -> v_(f.getName());
                     f.setAccessible(true); // TODO - turn off after running? Security!
                     f.set(this, x);
@@ -148,18 +147,18 @@ public class JLPAPI {
         String sep = "";
         for (Method m : ms) {
             String method_type = m.getReturnType().getName();
-            if (method_type.endsWith("LPvar")) {
+            if (method_type.endsWith("LPv")) {
                 s.append(sep).append(m.getName());
                 sep = ", ";
             }
         }
-        Main.println ("LPvar methods are: " + s);
+        Main.println ("LPv methods are: " + s);
     }
 
     public void show_LPvar_fields() {
         Field[] fs = this.getClass().getDeclaredFields();
         for (Field f : fs)
-            if (f.getType().getName().endsWith("LPvar"))
+            if (f.getType().getName().endsWith("LPv"))
                 Main.println("   field name: " + f.getName());
     }
 

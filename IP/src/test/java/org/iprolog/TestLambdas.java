@@ -4,23 +4,23 @@ import org.junit.jupiter.api.Test;
 
 public class TestLambdas extends TestTerm {
 
-    LPvar X,Xs,Vs,N,A,B,T,L,N1,N2,N3,Lam,Size;
-    LPvar _;
+    LPv X,Xs,Vs,N,A,B,T,L,N1,N2,N3,Lam,Size;
+    LPv _;
 
-    LPvar zero()         {  return C_("0");                }
+    LPv zero()         {  return C_("0");                }
 
-    LPvar l(LPvar a, LPvar b)       { return S_(a,b);     }
-    LPvar s(LPvar a)                { return S_(a);       }
-    LPvar a(LPvar x, LPvar y)       { return S_(x,y);     }
+    LPv l(LPv a, LPv b)       { return S_(a,b);     }
+    LPv s(LPv a)                { return S_(a);       }
+    LPv a(LPv x, LPv y)       { return S_(x,y);     }
 
-    LPvar genLambda(LPvar a, LPvar b, LPvar c, LPvar d)
+    LPv genLambda(LPv a, LPv b, LPv c, LPv d)
                                     { return S_(a,b,c,d); }
-    LPvar memb(LPvar a,LPvar b)     { return S_(a,b);     }
-    LPvar genClosedLambdaTerm(LPvar L, LPvar T)
+    LPv memb(LPv a, LPv b)     { return S_(a,b);     }
+    LPv genClosedLambdaTerm(LPv L, LPv T)
                                     { return S_(L,T);     }
-    LPvar some(LPvar x)             { return S_(x);       }
+    LPv some(LPv x)             { return S_(x);       }
 
-    LPvar goal(LPvar Lam)           { return S_(Lam);    }
+    LPv goal(LPv Lam)           { return S_(Lam);    }
 
     @Test
     public void mainTest() {

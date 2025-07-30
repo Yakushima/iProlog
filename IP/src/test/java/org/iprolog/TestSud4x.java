@@ -4,25 +4,25 @@ import org.junit.jupiter.api.Test;
 
 public class TestSud4x extends TestTerm {
 
-    LPvar S11,S12,S13,S14;
-    LPvar S21,S22,S23,S24;
+    LPv S11,S12,S13,S14;
+    LPv S21,S22,S23,S24;
 
-    LPvar S31,S32,S33,S34;
-    LPvar S41,S42,S43,S44;
+    LPv S31,S32,S33,S34;
+    LPv S41,S42,S43,S44;
 
-    LPvar s4x4(LPvar a) {return S_(a); }
+    LPv s4x4(LPv a) {return S_(a); }
 
-    LPvar sudoku(LPvar a) {return S_(a); }
-    LPvar map1x(LPvar a, LPvar b, LPvar c) {return S_(a,b,c);}
-    LPvar map11(LPvar a, LPvar b, LPvar c) {return S_(a,b,c);}
-    LPvar permute(LPvar a, LPvar b) {return S_(a,b);}
-    LPvar ins(LPvar a, LPvar b, LPvar c) {return S_(a,b,c);}
-    LPvar goal(LPvar a) {return S_(a); }
+    LPv sudoku(LPv a) {return S_(a); }
+    LPv map1x(LPv a, LPv b, LPv c) {return S_(a,b,c);}
+    LPv map11(LPv a, LPv b, LPv c) {return S_(a,b,c);}
+    LPv permute(LPv a, LPv b) {return S_(a,b);}
+    LPv ins(LPv a, LPv b, LPv c) {return S_(a,b,c);}
+    LPv goal(LPv a) {return S_(a); }
 
-    LPvar X,Xs,Y,Ys,Z,Zs;
-    LPvar Xss,Xsss,F;
-    LPvar _;
-    LPvar nil;
+    LPv X,Xs,Y,Ys,Z,Zs;
+    LPv Xss,Xsss,F;
+    LPv _;
+    LPv nil;
 
     @Test
     public void mainTest() {

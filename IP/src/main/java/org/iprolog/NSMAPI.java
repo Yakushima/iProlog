@@ -11,7 +11,7 @@ public class NSMAPI extends JLPAPI {
         return cl;
     }
 
-    public Clause say_(LPvar hd) {
+    public Clause say_(LPv hd) {
         assert said != null;
         Term t = hd.run.fn();
         assert t != null;

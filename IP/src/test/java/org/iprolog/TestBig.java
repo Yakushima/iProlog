@@ -4,17 +4,17 @@ import org.junit.jupiter.api.Test;
 
 public class TestBig extends TestTerm {
 
-    LPvar append(LPvar this_, LPvar that, LPvar result) {
+    LPv append(LPv this_, LPv that, LPv result) {
                                               return S_(this_, that, result);   }
-    LPvar nrev(LPvar x, LPvar y)            { return S_(x, y);                  }
-    LPvar dup(LPvar a, LPvar b, LPvar c)    { return S_(a, b, c);               }
-    LPvar next_number_after(LPvar a, LPvar a_plus_1) {
+    LPv nrev(LPv x, LPv y)            { return S_(x, y);                  }
+    LPv dup(LPv a, LPv b, LPv c)    { return S_(a, b, c);               }
+    LPv next_number_after(LPv a, LPv a_plus_1) {
                                               return S_(a, a_plus_1);           }
-    LPvar goal(LPvar x)                     { return S_(x);                     }
+    LPv goal(LPv x)                     { return S_(x);                     }
 
-    LPvar R,XX,N,N1;
-    LPvar X,Xs,Y,Ys,Z,Zs;
-    LPvar _;
+    LPv R,XX,N,N1;
+    LPv X,Xs,Y,Ys,Z,Zs;
+    LPv _;
 
     @Test
     public void mainTest() {
@@ -23,13 +23,13 @@ public class TestBig extends TestTerm {
                 4
                 // 18
         ;
-        LPvar difficulty = C_(hardness_level.toString());
+        LPv difficulty = C_(hardness_level.toString());
 
-        LPvar a = C_("a");
-        LPvar b = C_("b");
-        LPvar c = C_("c");
-        LPvar d = C_("d");
-        LPvar zero = C_("0");
+        LPv a = C_("a");
+        LPv b = C_("b");
+        LPv c = C_("c");
+        LPv d = C_("d");
+        LPv zero = C_("0");
 
         say_(append(L_(), Ys, Ys));
         say_(append(P_(X, Xs), Ys, P_(X, Zs))).

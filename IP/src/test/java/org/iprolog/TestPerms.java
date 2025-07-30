@@ -4,15 +4,15 @@ import org.junit.jupiter.api.Test;
 
 public class TestPerms extends TestTerm {
 
-    LPvar sel(LPvar a, LPvar b, LPvar c) { return S_(a, b, c); }
-    LPvar perm(LPvar x, LPvar y)         { return S_(x, y);    }
-    LPvar app(LPvar a, LPvar b, LPvar c) { return S_(a, b, c); }
-    LPvar nrev(LPvar x, LPvar y)         { return S_(x, y);    }
-    LPvar input(LPvar x)                 { return S_(x);       }
+    LPv sel(LPv a, LPv b, LPv c) { return S_(a, b, c); }
+    LPv perm(LPv x, LPv y)         { return S_(x, y);    }
+    LPv app(LPv a, LPv b, LPv c) { return S_(a, b, c); }
+    LPv nrev(LPv x, LPv y)         { return S_(x, y);    }
+    LPv input(LPv x)                 { return S_(x);       }
 
-    LPvar eq(LPvar x, LPvar y)           { return S_(x,y);     }
-    LPvar X,Xs,Y,Ys,Z,Zs;
-    LPvar goal(LPvar x)                  { return S_(x);       }
+    LPv eq(LPv x, LPv y)           { return S_(x,y);     }
+    LPv X,Xs,Y,Ys,Z,Zs;
+    LPv goal(LPv x)                  { return S_(x);       }
 
     @Test
     public void mainTest() {
@@ -46,7 +46,7 @@ public class TestPerms extends TestTerm {
         }
         output = "[" + output + "]";
         String expected[] = {output};
-        LPvar nL = new LPvar();
+        LPv nL = new LPv();
         nL.run = ()->(nlist);
         say_( input(nL) );
 

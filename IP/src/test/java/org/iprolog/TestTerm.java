@@ -10,7 +10,7 @@ public class TestTerm extends NSMAPI {
     public LPv C0;
 
     TestTerm() {
-        init_LPvars();
+        init_LPvs();
     }
 
     public void start_new_test() {

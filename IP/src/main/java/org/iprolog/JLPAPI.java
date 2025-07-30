@@ -116,8 +116,8 @@ public class JLPAPI {
     }
     public LPv P_(LPv... Fs) {  return paf_ (Fs, 0);  }
 
-    public void init_LPvars (Class<?> tc) {
-        // Main.println ("Entering init_LPvars, class: " + tc.getName());
+    public void init_LPvs (Class<?> tc) {
+        // Main.println ("Entering init_LPvs, class: " + tc.getName());
         Field[] fs = tc.getDeclaredFields();
 
         try {
@@ -134,11 +134,11 @@ public class JLPAPI {
         }
     }
 
-    public void init_LPvars() {
+    public void init_LPvs() {
         Class tc = this.getClass();
-        init_LPvars(tc);
+        init_LPvs(tc);
         tc = tc.getSuperclass();
-        init_LPvars(tc);
+        init_LPvs(tc);
     }
 
     public void show_LPvar_methods() {

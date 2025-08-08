@@ -398,7 +398,9 @@ public class Term {
  * ... build the arguments before you build the outer terms.
  * For example, you must build a(K, C) before you can build h(..., a(K, C), ...),
  * and you must build that before you can build p(..., h(..., a(K, C), ...), ...).
- * Here is one legal order for p(Z,h(Y,a(K,C),K),f(C)):
+ *
+ * Here is one legal order for
+ *          p(Z,h(Y,a(K,C),K),f(C)):
 
           _4 = a(K, C)
      _2 = h(Y, _4, K)
@@ -464,43 +466,32 @@ _1 = p(Z, _2, _3)
 
     private static int limit = 20; 
 
-    private  void flappin (LinkedList<nvpair> buf, LinkedList<nvpair> result) {
+    // flappin -- recursively flatten
+
+    private  void flatten (LinkedList<nvpair> nested, LinkedList<nvpair> result) {
         assert --limit > 0;
-        // indent();
-        String s_ = "";
-        if (S_ != null) s_ = S_;
-        if (S_ != null) s_ = S_;
-        // Main.println (tabs()+s_+annote());
+
         Term new_terms = null;
-        for (Term t = terms(); t != null; t = t.next)
+        for (Term t = Terms; t != null; t = t.next)
             if (t.is_simple()) {
                 if (t.is_a_variable() && t.v().compareTo("_") == 0) {
                     t.set_v(Term.gensym());
                 }
-                // Main.println (tabs() + "Adding <<<"+t+">>> to new_terms");
                 new_terms = Term.append_elt_to_ll(t.shallow_copy(), new_terms);
-                // buf.add (new nvpair(null, t));
             } else {
-                // Main.println (tabs() + "Adding <<<"+t+">>> to new_terms");
                 Term v = variable(Term.gensym());
                 new_terms = append_elt_to_ll (v, new_terms);
                 nvpair nvp = new nvpair(v.v(),t);
-                buf.add (nvp);
+                nested.add (nvp);
             }
         
-        while (!buf.isEmpty()) {
-            nvpair x = buf.pop();
-            // Main.println (tabs() + " .... buf.pop(): "+x.n+" = "+x.v);
-            // Main.println (tabs() + " .... recursion on that:");
-            x.v.flappin (buf, result);
-            // Main.println (tabs() + "now, x is " + x.n + "="+x.v);
-            // result.add (x);
+        while (!nested.isEmpty()) {
+            nvpair x = nested.pop();
+            x.v.flatten (nested, result);
             result.push(x);
         }
                 
         Terms = new_terms;
-        // Main.println (tabs() + "Finishing with " + this);
-        // dedent();
     }
 
     public Term flatten() {
@@ -513,7 +504,7 @@ _1 = p(Z, _2, _3)
         LinkedList<nvpair> buf = new LinkedList<nvpair>();
         LinkedList<nvpair> result = new LinkedList<nvpair>();
 
-        this.flappin(buf, result);
+        this.flatten(buf, result);  // will start with existing Terms list
 
         Term tt = this;
 

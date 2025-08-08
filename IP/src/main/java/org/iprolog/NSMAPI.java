@@ -18,6 +18,7 @@ public class NSMAPI extends JLPAPI {
         Clause cl = yes_(hd.run.fn());
         assert cl != null;
         said.add(cl);
+        // System.out.println ("say_: "+cl.toString());
         return cl;
     }
     public Clause say_(Term hd)   {
@@ -26,6 +27,7 @@ public class NSMAPI extends JLPAPI {
         Clause cl = yes_(hd);
         assert cl != null;
         said.add (cl);
+        // System.out.println ("say_: "+cl.toString());
         return cl;
     }
 

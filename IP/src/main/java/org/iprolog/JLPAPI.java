@@ -94,7 +94,7 @@ public class JLPAPI {
     // make a constant from a string
     public LPv C_(String c) { return new LPv(()->c_(c)); }
 
-    public LPv C_(int n) { return new LPv(()->c_(Integer.toString(n)));}
+    public LPv C_(int n) { return C_(Integer.toString(n));}
 
     // make a list from the list of arguments
     public LPv L_(LPv... xs) { return new LPv(()->l_(make_xts(xs)));  }
@@ -163,6 +163,6 @@ public class JLPAPI {
     }
 
     JLPAPI() {
-        // do nothing
+        init_LPvs();
     }
 }

@@ -1,7 +1,7 @@
 package org.iprolog;
 
 public class LPv {
-    public TermFn run;
-    LPv() {}
+    TermFn run;
+    LPv() { run = null; }
     LPv(TermFn r) { run = r; }
 }

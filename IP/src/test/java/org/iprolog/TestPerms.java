@@ -4,19 +4,11 @@ import org.junit.jupiter.api.Test;
 
 public class TestPerms extends TestTerm {
 
-    LPv sel(LPv a, LPv b, LPv c) { return S_(a, b, c); }
-    LPv perm(LPv x, LPv y)         { return S_(x, y);    }
-    LPv app(LPv a, LPv b, LPv c) { return S_(a, b, c); }
-    LPv nrev(LPv x, LPv y)         { return S_(x, y);    }
-    LPv input(LPv x)                 { return S_(x);       }
+    String expected[] = {""};
 
-    LPv eq(LPv x, LPv y)           { return S_(x,y);     }
     LPv X,Xs,Y,Ys,Z,Zs;
-    LPv goal(LPv x)                  { return S_(x);       }
 
-    @Test
-    public void mainTest() {
-        start_new_test();
+    TestPerms() {
 
         int difficulty = 2;
 
@@ -45,17 +37,27 @@ public class TestPerms extends TestTerm {
             output = i.toString() + "," + output;
         }
         output = "[" + output + "]";
-        String expected[] = {output};
+        expected[0] = output;
         LPv nL = new LPv();
         nL.run = ()->(nlist);
         say_( input(nL) );
 
-        say_(goal(Y)).
+        say_(good_(Y)).
                 if_(    input(X),
                         nrev(X, Y),
                         perm(X, Y),
                         perm(Y, X)  );
+    }
 
+    LPv sel(LPv a, LPv b, LPv c)   { return S_(a, b, c); }
+    LPv perm(LPv x, LPv y)         { return S_(x, y);    }
+    LPv app(LPv a, LPv b, LPv c)   { return S_(a, b, c); }
+    LPv nrev(LPv x, LPv y)         { return S_(x, y);    }
+    LPv input(LPv x)               { return S_(x);       }
+    LPv eq(LPv x, LPv y)           { return S_(x,y);     }
+
+    @Test
+    public void mainTest() {
         try_it(said, expected);
     }
 }

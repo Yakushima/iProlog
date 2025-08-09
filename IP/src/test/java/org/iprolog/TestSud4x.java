@@ -4,30 +4,10 @@ import org.junit.jupiter.api.Test;
 
 public class TestSud4x extends TestTerm {
 
-    LPv S11,S12,S13,S14;
-    LPv S21,S22,S23,S24;
-
-    LPv S31,S32,S33,S34;
-    LPv S41,S42,S43,S44;
-
-    LPv s4x4(LPv a) {return S_(a); }
-
-    LPv sudoku(LPv a) {return S_(a); }
-    LPv map1x(LPv a, LPv b, LPv c) {return S_(a,b,c);}
-    LPv map11(LPv a, LPv b, LPv c) {return S_(a,b,c);}
-    LPv permute(LPv a, LPv b) {return S_(a,b);}
-    LPv ins(LPv a, LPv b, LPv c) {return S_(a,b,c);}
-    LPv goal(LPv a) {return S_(a); }
-
-    LPv X,Xs,Y,Ys,Z,Zs;
-    LPv Xss,Xsss,F;
+    LPv X,Xs,Y,Ys,Z,Zs, Xss,Xsss,F;
     LPv _;
-    LPv nil;
 
-    @Test
-    public void mainTest() {
-        start_new_test();
-
+    TestSud4x() {
         say_(s4x4(L_(
                 L_(
                         L_(S11,S12, S13,S14),
@@ -77,7 +57,26 @@ public class TestSud4x extends TestTerm {
         say_(ins(X,P_(Y,Xs),P_(Y,Ys)))
                 .if_(   ins(X,Xs,Ys)  );
 
-        say_(goal(Xss)).if_(  sudoku(Xss));
+        say_(good_(Xss)).if_(  sudoku(Xss));
+    }
+
+    LPv S11,S12,S13,S14;
+    LPv S21,S22,S23,S24;
+
+    LPv S31,S32,S33,S34;
+    LPv S41,S42,S43,S44;
+
+    LPv s4x4(LPv a)                 {return S_(a); }
+
+    LPv sudoku(LPv a)               {return S_(a); }
+    LPv map1x(LPv a, LPv b, LPv c)  {return S_(a,b,c);}
+    LPv map11(LPv a, LPv b, LPv c)  {return S_(a,b,c);}
+    LPv permute(LPv a, LPv b)       {return S_(a,b);}
+    LPv ins(LPv a, LPv b, LPv c)    {return S_(a,b,c);}
+    LPv good_(LPv a)                {return S_(a); }
+
+    @Test
+    public void mainTest() {
 
         String expected[] = {
                 "[[1,2,3,4],[3,4,1,2],[2,3,4,1],[4,1,2,3]]",

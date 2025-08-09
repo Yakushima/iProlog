@@ -9,22 +9,7 @@ public class TestQueens extends TestTerm {
     LPv Columns,Rows,LeftDiags,RightDiags,OtherColumns,OtherRows;
     LPv _;
 
-    LPv this_queen_doesnt_fight_in(LPv a, LPv b, LPv c, LPv d) {
-        return S_(a, b, c, d);
-    }
-    LPv these_queens_dont_fight_on_these_lines(LPv a, LPv b, LPv c, LPv d) {
-        return S_(a, b, c, d);
-    }
-    LPv these_queens_can_be_in_these_places(LPv a, LPv b) {
-        return S_(a, b);
-    }
-    LPv qs(LPv cols, LPv rows)   { return S_(cols, rows); }
-    LPv goal(LPv Rows)            { return S_(Rows); }
-
-    @Test
-    public void mainTest() {
-        start_new_test();
-
+    TestQueens() {
         say_( this_queen_doesnt_fight_in(
                 QueenColumn,
                 P_(QueenColumn, _),
@@ -65,10 +50,26 @@ public class TestQueens extends TestTerm {
                         these_queens_dont_fight_on_these_lines(
                                 Columns,Rows,_,_ )
                 );
-        say_( goal(Rows)).
+        say_( good_(Rows)).
                 if_(    qs(L_(C_("0"),C_("1"),C_("2"),C_("3")),Rows)
                 );
+    }
 
+    LPv this_queen_doesnt_fight_in(LPv a, LPv b, LPv c, LPv d) {
+        return S_(a, b, c, d);
+    }
+    LPv these_queens_dont_fight_on_these_lines(LPv a, LPv b, LPv c, LPv d) {
+        return S_(a, b, c, d);
+    }
+    LPv these_queens_can_be_in_these_places(LPv a, LPv b) {
+        return S_(a, b);
+    }
+    LPv qs(LPv cols, LPv rows) {
+        return S_(cols, rows);
+    }
+
+    @Test
+    public void mainTest() {
         String[] these_answers = {
                 "[1,3,0,2]",
                 "[2,0,3,1]"

@@ -26,11 +26,6 @@ public class TestProg extends TestTerm {
     @Test
     public void mainTest() {
 
-        start_new_test();
-
-        // show_LPvar_fields();
-        // show_LPvar_methods();
-
         Term.set_Prolog();
 
         assert Something != null;
@@ -51,7 +46,7 @@ public class TestProg extends TestTerm {
 
         LPv zero = C_("0");
         say_(is_zero(zero));
-        say_(goal(X)).if_(is_zero(X));
+        say_(good_(X)).if_(is_zero(X));
 
         String expected[] = { "0" };
 

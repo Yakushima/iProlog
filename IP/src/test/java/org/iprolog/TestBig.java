@@ -10,7 +10,7 @@ public class TestBig extends TestTerm {
     LPv dup(LPv a, LPv b, LPv c)    { return S_(a, b, c);               }
     LPv next_number_after(LPv a, LPv a_plus_1) {
                                               return S_(a, a_plus_1);           }
-    LPv goal(LPv x)                     { return S_(x);                     }
+    LPv good_(LPv x)                     { return S_(x);                     }
 
     LPv R,XX,N,N1;
     LPv X,Xs,Y,Ys,Z,Zs;
@@ -51,7 +51,7 @@ public class TestBig extends TestTerm {
                         append(X, X, XX),
                         dup(N1, XX, R) );
 
-        say_(goal(L_(X, Y)))
+        say_(good_(L_(X, Y)))
                 .if_(   dup(difficulty, L_(a, b, c, d), P_(X, Y, _)) );
 
         String[] expected = {"[a,b]"};

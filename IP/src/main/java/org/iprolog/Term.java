@@ -63,11 +63,11 @@ public class Term {
     
     private String S_;
     final public String v() { assert tag == Variable; assert S_ != null; return S_; };
-    final String set_v(String v) { assert v != null; S_ = v; return S_; }
+    final String set_v(String v) { assert v != null; return S_ = v; /*return S_;*/ }
 
     // c/C_  -- constant or the functor of a compound
     final public String c() { assert tag == Compound || tag == Constant; return S_; }
-    final String set_c(String c) { S_ = c; return S_; }
+    final String set_c(String c) { return S_ = c; }
 
     // terms -- args of compound,
     //       or elements of "lists",
@@ -163,7 +163,6 @@ public class Term {
     // Maybe in getword() this could be detected and removed,
     // but the v tag kept.
     // Similar hacky treatment for constants starting upper case.
-
 
     private static Boolean notStdPrologAtomStart(Character c) {
         if (c == '_') return false;
@@ -453,24 +452,9 @@ _1 = p(Z, _2, _3)
         return type;
     }
 
-    // Need to figure out side effects:
-    //
-    private static int tab = 0;
-    private static String tabs() {
-        String s = "";
-        for (int i = tab; i > 0; --i) s += "| ";
-        return s;
-    }
-    private static final void indent() { ++tab; }
-    private static final void dedent() { assert tab > 0; --tab; }
+    // flatten -- recursively flatten
 
-    private static int limit = 20; 
-
-    // flappin -- recursively flatten
-
-    private  void flatten (LinkedList<nvpair> nested, LinkedList<nvpair> result) {
-        assert --limit > 0;
-
+    private  LinkedList<nvpair> flatten (LinkedList<nvpair> nested, LinkedList<nvpair> result) {
         Term new_terms = null;
         for (Term t = Terms; t != null; t = t.next)
             if (t.is_simple()) {
@@ -492,19 +476,16 @@ _1 = p(Z, _2, _3)
         }
                 
         Terms = new_terms;
+
+        return result;
     }
 
     public Term flatten() {
         // save successor of this and isolate it
         Term save_next = this.next;
         this.next = null;
-        tab = 0;
-        limit = 20;
 
-        LinkedList<nvpair> buf = new LinkedList<nvpair>();
-        LinkedList<nvpair> result = new LinkedList<nvpair>();
-
-        this.flatten(buf, result);  // will start with existing Terms list
+        LinkedList<nvpair> result = this.flatten(new LinkedList<nvpair>(), new LinkedList<nvpair>());
 
         Term tt = this;
 

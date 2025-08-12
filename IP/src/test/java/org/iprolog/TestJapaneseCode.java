@@ -11,10 +11,10 @@ public class TestJapaneseCode extends TestTerm {
             say_(いいです (人)).if_( いきる (人),いい(人));
             say_(good_(人)).if_(いいです (人));
         }
-        LPv いきる(LPv x)    {  return S_(x);      }
-        LPv いいです(LPv x)  {  return S_(x);      }
-        LPv いい(LPv x)     {  return S_(x);      }
-        LPv 人;
+        LP_ いきる(LP_ x)    {  return S_(x);      }
+        LP_ いいです(LP_ x)  {  return S_(x);      }
+        LP_ いい(LP_ x)     {  return S_(x);      }
+        LP_ 人;
         String expected[] = {"私", "あなた"};
 
         @Test

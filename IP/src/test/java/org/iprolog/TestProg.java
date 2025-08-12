@@ -4,19 +4,19 @@ import org.junit.jupiter.api.Test;
 
 public class TestProg extends TestTerm {
 
-    Term pred(LPv t) {
+    Term pred(LP_ t) {
         return s_(m_(),t.run.fn());
     }
 
-    LPv Nothing;
-    LPv Something;
-    LPv some_struct(LPv x)            { return S_(x);     }
-    LPv other_struct(LPv x, LPv y)    { return S_(x,y);   }
-    LPv pair(LPv x, LPv y)            { return P_(x,y);   }
-    LPv is_zero(LPv x)                { return S_(x); }
-    LPv X;
+    LP_ Nothing;
+    LP_ Something;
+    LP_ some_struct(LP_ x)            { return S_(x);     }
+    LP_ other_struct(LP_ x, LP_ y)    { return S_(x,y);   }
+    LP_ pair(LP_ x, LP_ y)            { return P_(x,y);   }
+    LP_ is_zero(LP_ x)                { return S_(x); }
+    LP_ X;
 
-    void try_matching (String output, LPv f) {
+    void try_matching (String output, LP_ f) {
         assert output != null;
         assert f != null;
         assert output.compareTo(f.run.fn().toString()) == 0;
@@ -43,7 +43,7 @@ public class TestProg extends TestTerm {
         try_matching ("[Something|Nothing]",pair(Something,Nothing));
         try_matching ("[0|[Something|Nothing]]",P_(C_("0"),Something,Nothing));
 
-        LPv zero = C_("0");
+        LP_ zero = C_("0");
         say_(is_zero(zero));
         say_(good_(X)).if_(is_zero(X));
 

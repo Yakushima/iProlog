@@ -6,14 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="4e7fd721-f198-467d-bea4-bb96364d5a56" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/iprolog/LPv.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/iprolog/LPv.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/iprolog/TestAdd.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/iprolog/TestAdd.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/iprolog/TestBig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/iprolog/TestBig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/iprolog/TestLambdas.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/iprolog/TestLambdas.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/iprolog/TestProg.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/iprolog/TestProg.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/iprolog/TestQueens.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/iprolog/TestQueens.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/iprolog/TestSud4x.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/iprolog/TestSud4x.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/iprolog/TestTerm.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/iprolog/TestTerm.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -196,7 +188,37 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="TestTerm (4)" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="TestTerm" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="IP" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.iprolog.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="org.iprolog" />
+      <option name="MAIN_CLASS_NAME" value="org.iprolog.TestTerm" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TestTerm" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="IP" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.iprolog.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="org.iprolog" />
+      <option name="MAIN_CLASS_NAME" value="org.iprolog.TestTerm" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TestTerm" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="IP" />
       <extension name="coverage">
         <pattern>

@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Test;
 
 public class TestMperms extends TestTerm {
 
-    LPv G,Gs,Bs,Tail;
-    LPv X,Xs,Y,Ys,Z,Zs;
+    LP_ G,Gs,Bs,Tail;
+    LP_ X,Xs,Y,Ys,Z,Zs;
 
     TestMperms() {
         say_(metaint(L_()));
@@ -23,11 +23,11 @@ public class TestMperms extends TestTerm {
                         metaint(L_(perm(X, Y), perm(Y,X)))  );
     }
 
-    LPv sel(LPv a, LPv b, LPv c)   { return S_(a, b, c); }
-    LPv perm(LPv x, LPv y)         { return S_(x, y);    }
-    LPv input(LPv x, LPv y)        { return S_(x, y);    }
-    LPv metaint(LPv x)             { return S_(x);       }
-    LPv cls(LPv x, LPv tail)       { return S_(x, tail); }
+    LP_ sel(LP_ a, LP_ b, LP_ c)   { return S_(a, b, c); }
+    LP_ perm(LP_ x, LP_ y)         { return S_(x, y);    }
+    LP_ input(LP_ x, LP_ y)        { return S_(x, y);    }
+    LP_ metaint(LP_ x)             { return S_(x);       }
+    LP_ cls(LP_ x, LP_ tail)       { return S_(x, tail); }
 
     @Test
     public void mainTest() {

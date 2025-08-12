@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 public class TestLambdas extends TestTerm {
 
-    LPv X,Xs,Vs,N,A,B,T,L,N1,N2,N3,Lam,Size;
+    LP_ X,Xs,Vs,N,A,B,T,L,N1,N2,N3,Lam,Size;
 
     TestLambdas() {
         say_(genLambda(X,Vs,N,N))
@@ -27,20 +27,20 @@ public class TestLambdas extends TestTerm {
                         genClosedLambdaTerm(Size,Lam) );
     }
 
-    LPv zero()                { return C_("0");  }
+    LP_ zero()                { return C_("0");  }
 
-    LPv l(LPv a, LPv b)       { return S_(a,b);     }
-    LPv s(LPv a)              { return S_(a);       }
-    LPv a(LPv x, LPv y)       { return S_(x,y);     }
+    LP_ l(LP_ a, LP_ b)       { return S_(a,b);     }
+    LP_ s(LP_ a)              { return S_(a);       }
+    LP_ a(LP_ x, LP_ y)       { return S_(x,y);     }
 
-    LPv genLambda(LPv a, LPv b, LPv c, LPv d)
+    LP_ genLambda(LP_ a, LP_ b, LP_ c, LP_ d)
                               { return S_(a,b,c,d); }
-    LPv memb(LPv a, LPv b)    { return S_(a,b);     }
-    LPv genClosedLambdaTerm(LPv L, LPv T)
+    LP_ memb(LP_ a, LP_ b)    { return S_(a,b);     }
+    LP_ genClosedLambdaTerm(LP_ L, LP_ T)
                               { return S_(L,T);     }
-    LPv some(LPv x)           { return S_(x);       }
+    LP_ some(LP_ x)           { return S_(x);       }
 
-    LPv good_(LPv Lam)        { return S_(Lam);     }
+    LP_ good_(LP_ Lam)        { return S_(Lam);     }
 
     @Test
     public void mainTest() {

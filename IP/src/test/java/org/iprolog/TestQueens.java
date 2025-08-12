@@ -4,9 +4,9 @@ import org.junit.jupiter.api.Test;
 
 public class TestQueens extends TestTerm {
 
-    LPv QueenColumn;
-    LPv Q,Qs;
-    LPv Columns,Rows,LeftDiags,RightDiags,OtherColumns,OtherRows;
+    LP_ QueenColumn;
+    LP_ Q,Qs;
+    LP_ Columns,Rows,LeftDiags,RightDiags,OtherColumns,OtherRows;
 
     TestQueens() {
         say_( this_queen_doesnt_fight_in(
@@ -54,16 +54,16 @@ public class TestQueens extends TestTerm {
                 );
     }
 
-    LPv this_queen_doesnt_fight_in(LPv a, LPv b, LPv c, LPv d) {
+    LP_ this_queen_doesnt_fight_in(LP_ a, LP_ b, LP_ c, LP_ d) {
         return S_(a, b, c, d);
     }
-    LPv these_queens_dont_fight_on_these_lines(LPv a, LPv b, LPv c, LPv d) {
+    LP_ these_queens_dont_fight_on_these_lines(LP_ a, LP_ b, LP_ c, LP_ d) {
         return S_(a, b, c, d);
     }
-    LPv these_queens_can_be_in_these_places(LPv a, LPv b) {
+    LP_ these_queens_can_be_in_these_places(LP_ a, LP_ b) {
         return S_(a, b);
     }
-    LPv qs(LPv cols, LPv rows) {
+    LP_ qs(LP_ cols, LP_ rows) {
         return S_(cols, rows);
     }
 

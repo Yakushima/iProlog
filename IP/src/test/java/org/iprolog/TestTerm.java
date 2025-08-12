@@ -7,11 +7,11 @@ import java.util.Arrays;
 
 public class TestTerm extends NSMAPI {
 
-    LPv _;
+    LP_ _;
 
 // now has to be last "said" arg in a TestTerm subclass
 // I should fix this
-    LPv good_(LPv x) { return S_(x); }
+    LP_ good_(LP_ x) { return S_(x); }
 
     TestTerm() {
 

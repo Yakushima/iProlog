@@ -80,11 +80,11 @@ public class Clause {
     return this;
   }
 
-  public Clause if_(LPv... body_list) {
+  public Clause if_(LP_... body_list) {
     adding_args = false;
     assert body == null;
 
-    for (LPv f : body_list) {
+    for (LP_ f : body_list) {
       // Main.println ("   Clause.if__: adding <<<" + t + ">>> to body...");
       if (body == null) {
         body = f.run.fn();

@@ -6,7 +6,7 @@ public class TestPerms extends TestTerm {
 
     String expected[] = {""};
 
-    LPv X,Xs,Y,Ys,Z,Zs;
+    LP_ X,Xs,Y,Ys,Z,Zs;
 
     TestPerms() {
 
@@ -38,7 +38,7 @@ public class TestPerms extends TestTerm {
         }
         output = "[" + output + "]";
         expected[0] = output;
-        LPv nL = new LPv();
+        LP_ nL = new LP_();
         nL.run = ()->(nlist);
         say_( input(nL) );
 
@@ -49,12 +49,12 @@ public class TestPerms extends TestTerm {
                         perm(Y, X)  );
     }
 
-    LPv sel(LPv a, LPv b, LPv c)   { return S_(a, b, c); }
-    LPv perm(LPv x, LPv y)         { return S_(x, y);    }
-    LPv app(LPv a, LPv b, LPv c)   { return S_(a, b, c); }
-    LPv nrev(LPv x, LPv y)         { return S_(x, y);    }
-    LPv input(LPv x)               { return S_(x);       }
-    LPv eq(LPv x, LPv y)           { return S_(x,y);     }
+    LP_ sel(LP_ a, LP_ b, LP_ c)   { return S_(a, b, c); }
+    LP_ perm(LP_ x, LP_ y)         { return S_(x, y);    }
+    LP_ app(LP_ a, LP_ b, LP_ c)   { return S_(a, b, c); }
+    LP_ nrev(LP_ x, LP_ y)         { return S_(x, y);    }
+    LP_ input(LP_ x)               { return S_(x);       }
+    LP_ eq(LP_ x, LP_ y)           { return S_(x,y);     }
 
     @Test
     public void mainTest() {

@@ -50,16 +50,16 @@ public class JLPAPI {
 
     public Term call(Term f, Term... ts) { return s_(f.v(),ts); }
 
-    public LPv call(LPv f, LPv... ls)       {
-        LPv r = new LPv();
+    public LP_ call(LP_ f, LP_... ls)       {
+        LP_ r = new LP_();
         r.run = ()->s_(f.run.fn().toString(), make_xts(ls));
         return r;
     }
 
-    protected Term[] make_xts(LPv[] xs) {
+    protected Term[] make_xts(LP_[] xs) {
         Term[] xts = new Term[xs.length];
         int i = 0;
-        for (LPv x : xs) {
+        for (LP_ x : xs) {
             xts[i] = xs[i].run.fn();
             ++i;
         }
@@ -86,27 +86,27 @@ public class JLPAPI {
     public Term goal(Term x)  { return s_(m_(),x); }
 
     // make a structure from a list of arguments
-    public LPv S_(LPv... xs) {
+    public LP_ S_(LP_... xs) {
         String nm = f_();  // misses the correct stack frame if called as arg to s_()
-        return new LPv(()->s_(nm,make_xts(xs)));
+        return new LP_(()->s_(nm,make_xts(xs)));
     }
 
     // make a constant from a string
-    public LPv C_(String c) { return new LPv(()->c_(c)); }
+    public LP_ C_(String c) { return new LP_(()->c_(c)); }
 
-    public LPv C_(int n) { return C_(Integer.toString(n));}
+    public LP_ C_(int n) { return C_(Integer.toString(n));}
 
     // make a list from the list of arguments
-    public LPv L_(LPv... xs) { return new LPv(()->l_(make_xts(xs)));  }
+    public LP_ L_(LP_... xs) { return new LP_(()->l_(make_xts(xs)));  }
 
     // make a pair from x and y
-    public LPv P_(LPv x, LPv y) {
-        LPv r = new LPv();
+    public LP_ P_(LP_ x, LP_ y) {
+        LP_ r = new LP_();
         r.run = ()->p_(x.run.fn(),y.run.fn());
         return r;
     }
-    LPv paf_ (LPv[] taf, int i) {
-        LPv r = new LPv();
+    LP_ paf_ (LP_[] taf, int i) {
+        LP_ r = new LP_();
         if (i == taf.length-2) {
             r.run = () -> (Term.termpair(taf[i].run.fn(), taf[i + 1].run.fn()));
             return r;
@@ -114,7 +114,7 @@ public class JLPAPI {
         r.run = ()->(Term.termpair (taf[i].run.fn(), paf_(taf, i+1).run.fn()));
         return r;
     }
-    public LPv P_(LPv... Fs) {  return paf_ (Fs, 0);  }
+    public LP_ P_(LP_... Fs) {  return paf_ (Fs, 0);  }
 
     public void init_LPvs (Class<?> tc) {
         // Main.println ("Entering init_LPvs, class: " + tc.getName());
@@ -122,8 +122,8 @@ public class JLPAPI {
 
         try {
             for (Field f : fs)
-                if (f.getType().getName().endsWith("LPv")) {
-                    LPv x = new LPv();
+                if (f.getType().getName().endsWith("LP_")) {
+                    LP_ x = new LP_();
                     x.run = () -> v_(f.getName());
                     f.setAccessible(true); // TODO - turn off after running? Security!
                     f.set(this, x);
@@ -147,18 +147,18 @@ public class JLPAPI {
         String sep = "";
         for (Method m : ms) {
             String method_type = m.getReturnType().getName();
-            if (method_type.endsWith("LPv")) {
+            if (method_type.endsWith("LP_")) {
                 s.append(sep).append(m.getName());
                 sep = ", ";
             }
         }
-        Main.println ("LPv methods are: " + s);
+        Main.println ("LP_ methods are: " + s);
     }
 
     public void show_LPvar_fields() {
         Field[] fs = this.getClass().getDeclaredFields();
         for (Field f : fs)
-            if (f.getType().getName().endsWith("LPv"))
+            if (f.getType().getName().endsWith("LP_"))
                 Main.println("   field name: " + f.getName());
     }
 

@@ -7,9 +7,14 @@ import java.util.Arrays;
 
 public class TestTerm extends NSMAPI {
 
+    LPv _;
+
+// now has to be last "said" arg in a TestTerm subclass
+// I should fix this
     LPv good_(LPv x) { return S_(x); }
 
     TestTerm() {
+
         init_LPvs();
         start_new_test();
     }
@@ -139,7 +144,6 @@ public class TestTerm extends NSMAPI {
                 say_(live_(c_(s)));
 
             say_(good_(Person())).if_(live_(Person()));
-            say_(goal(Person())).if_(good_(Person()));
 
             try_it(said, expected);
         }
@@ -148,6 +152,7 @@ public class TestTerm extends NSMAPI {
 private class TrySimple {
     private Term   Foo()            { return  v_(m_());    }
     private Term   dookie(Term x)   { return  s_(m_(), x); }
+    private Term   good_(Term x)    { return  s_(m_(), x); }
 
     private void test() {
         // Main.println(" ======== TrySimple.test() entering....");
@@ -156,7 +161,7 @@ private class TrySimple {
 
         say_(dookie(l_()));
         say_(dookie(c0()));
-        // BROKEN say_(good_(Foo())).if_(dookie(Foo()));
+        say_(good_(Foo())).if_(dookie(Foo()));
 
         String expected[] = {"nil", "0"};
         try_it(said, expected);
@@ -166,6 +171,7 @@ private class TrySimple {
 };
 
     private class TryBar {
+        private Term good_(Term x)      { return s_(m_(), x);    }
         private Term F()                { return v_(m_());       }
         private Term eq(Term x, Term y) { return s_(m_(), x, y); }
         private Term foo(Term x)        { return s_(m_(), x);    }
@@ -186,7 +192,7 @@ private class TrySimple {
             say_(foo(l_(X(), Y()))).
                     if_(    eq( X(), c2()),
                             eq( Y(), c3()));
-            // BROKEN say_(good_(F())).if_(    foo(F()));
+            say_(good_(F())).if_(    foo(F()));
 
             String expected[] = {"[1]", "[2|3]", "[2,3]"};
             try_it(said, expected);
@@ -197,9 +203,11 @@ private class TrySimple {
 
 private class TryList {
 
-    private Term zero_and_one(Term x) { return s_(m_(), x); }
-    private Term metaint(Term x)      { return s_(m_(), x); }
-    private Term perm(Term x )        { return s_(m_(), x); }
+    private Term good_(Term x)         { return s_(m_(), x);    }
+
+    private Term zero_and_one(Term x)  { return s_(m_(), x);    }
+    private Term metaint(Term x)       { return s_(m_(), x);    }
+    private Term perm(Term x )         { return s_(m_(), x);    }
     private Term dumb2(Term x, Term y) { return s_(m_(), x, y); }
     private Term dumb3(Term x, Term y) { return s_(m_(), x, y); }
 
@@ -215,7 +223,6 @@ private class TryList {
         Term.reset_gensym();
     }
 
-    /* BROKEN
     private void test() {
 
         Term.reset_gensym();
@@ -257,8 +264,6 @@ private class TryList {
 
         // Main.println(" ======== TryList.test() exiting...");
     }
-
-     */
 }
 
     private void test_gensym() {
@@ -428,11 +433,11 @@ private class TryList {
          */
         Term yyy = p_(xxx,c3());
 
-        // BROKEN new TryBar().test();
-        // BROKEN new TrySimple().test();
-        // BROKEN new TryList().test();
+        new TryBar().test();
+        new TrySimple().test();
+        new TryList().test();
         new TestFlatten().test();
-        // new TryT().test();
+        new TryT().test();
 
         Main.println ("\n======== End Term test ====================");
     }

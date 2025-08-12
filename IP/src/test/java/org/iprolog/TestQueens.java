@@ -7,7 +7,6 @@ public class TestQueens extends TestTerm {
     LPv QueenColumn;
     LPv Q,Qs;
     LPv Columns,Rows,LeftDiags,RightDiags,OtherColumns,OtherRows;
-    LPv _;
 
     TestQueens() {
         say_( this_queen_doesnt_fight_in(

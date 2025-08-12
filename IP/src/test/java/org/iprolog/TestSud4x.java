@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 public class TestSud4x extends TestTerm {
 
     LPv X,Xs,Y,Ys,Z,Zs, Xss,Xsss,F;
-    LPv _;
 
     TestSud4x() {
         say_(s4x4(L_(

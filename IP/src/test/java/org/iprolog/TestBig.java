@@ -14,7 +14,6 @@ public class TestBig extends TestTerm {
 
     LPv R,XX,N,N1;
     LPv X,Xs,Y,Ys,Z,Zs;
-    LPv _;
 
     @Test
     public void mainTest() {

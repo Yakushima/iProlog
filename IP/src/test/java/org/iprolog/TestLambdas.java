@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 public class TestLambdas extends TestTerm {
 
     LPv X,Xs,Vs,N,A,B,T,L,N1,N2,N3,Lam,Size;
-    LPv _;
 
     TestLambdas() {
         say_(genLambda(X,Vs,N,N))

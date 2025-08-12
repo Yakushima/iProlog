@@ -10,11 +10,10 @@ public class TestProg extends TestTerm {
 
     LPv Nothing;
     LPv Something;
-    LPv some_struct(LPv x)              { return S_(x);     }
+    LPv some_struct(LPv x)            { return S_(x);     }
     LPv other_struct(LPv x, LPv y)    { return S_(x,y);   }
-    LPv goal(LPv x)                     { return S_(x);     }
     LPv pair(LPv x, LPv y)            { return P_(x,y);   }
-    LPv is_zero(LPv x) { return S_(x); }
+    LPv is_zero(LPv x)                { return S_(x); }
     LPv X;
 
     void try_matching (String output, LPv f) {

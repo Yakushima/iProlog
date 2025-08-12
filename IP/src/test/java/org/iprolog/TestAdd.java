@@ -22,7 +22,6 @@ public class TestAdd extends TestTerm {
         String[] answer = {
                 "one_plus_(one_plus_(one_plus_(one_plus_(nil))))"
         };
-        System.out.println ("Code so far-------------\n" + this.said.toString() + "\n---------");
         try_it(said, answer);
     }
 }

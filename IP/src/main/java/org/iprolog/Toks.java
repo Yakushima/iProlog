@@ -117,6 +117,21 @@ public class Toks extends StreamTokenizer {
     final Toks toks = makeToks(s, fromFile);
     String t = null;
 
+    // preface with a "not(...)" that must fail
+
+    Tokens.add("c:not");
+    Tokens.add("v:_0");
+    Structures.add(Tokens);
+    Tokens = new ArrayList<String>();
+    Tokens.add("h:_0");
+    Tokens.add("c:something");
+    Tokens.add("c:c");
+    Structures.add(Tokens);      // add this finished (?) structure
+    Clauses.add(Structures);    // add it to this finished clause
+    // prepare for (possible) new clause and structure
+    Structures = new ArrayList<ArrayList<String>>();
+    Tokens = new ArrayList<String>();
+
     while (null != (t = toks.getWord())) {
       if (DOT.equals(t)) {
           Structures.add(Tokens);      // add this finished (?) structure
@@ -134,6 +149,7 @@ public class Toks extends StreamTokenizer {
       } else if (("c:" + HOLDS).equals(t)) {
 
           final String w = Tokens.get(0);
+          Prog.println(">>>>>>> Toks: w = " + w);
           Tokens.set(0, "h:" + w.substring(2));
 
       } else 

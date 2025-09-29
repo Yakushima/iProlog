@@ -1066,24 +1066,29 @@ public class Engine {
    */
   final private Spine unfold(final Spine G) {
 
+    if (G.goals == null)
+      return null;
+
     final boolean tr=false; // trace on/off
+
     final int trail_top = trail.getTop();
     // Prog.println("unfold: trail_top=" + trail_top);
     // Prog.println("unfold: get_heap_top()=" + get_heap_top());
     final int saved_heap_top = get_heap_top();
     final int base = heap_top + 1;
-    ///////////////////////////////////////////////
-    if (G.goals == null) {
-      return null;
-    }
-    ///////////////////////////////////////////////
+
     final int goal = IntList.head(G.goals);
-    boolean negating = (showCell(heap[detag(goal)+1]).compareTo("c:not") == 0);
+    final int fn = heap[detag(goal)+1];
+
+    // This only works if "not(...)" is prefixed to heap
+    boolean negating = (detag(fn) == 0);
+    // boolean negating = (showCell(fn).compareTo("c:not") == 0);
 
     if(tr)Prog.println ("unfold: " + showGoal(goal));
-    if (negating) {
+    if (tr && negating) {
       int neg_arg = heap[detag(goal) + 2];
       if(tr)Prog.println("unfold: negation on " + showGoal(neg_arg));
+      if(tr)Prog.println("unfold: detag(fn)=" + detag(fn));
     }
 
     if (clauses.length >= START_INDEX)

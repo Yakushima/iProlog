@@ -118,14 +118,14 @@ public class Toks extends StreamTokenizer {
     String t = null;
 
     // preface with a "not(...)" that must fail
-
+    // Note that negation in unfold() depends on not being based at heap[0]
     Tokens.add("c:not");
     Tokens.add("v:_0");
     Structures.add(Tokens);
     Tokens = new ArrayList<String>();
     Tokens.add("h:_0");
     Tokens.add("c:something");
-    Tokens.add("c:c");
+    Tokens.add("c:x_x_x_must_fail_x_x_x");
     Structures.add(Tokens);      // add this finished (?) structure
     Clauses.add(Structures);    // add it to this finished clause
     // prepare for (possible) new clause and structure

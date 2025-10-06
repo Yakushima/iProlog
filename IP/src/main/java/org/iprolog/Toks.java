@@ -123,11 +123,16 @@ public class Toks extends StreamTokenizer {
     Tokens.add("v:_0");
     Structures.add(Tokens);
     Tokens = new ArrayList<String>();
+/*
     Tokens.add("h:_0");
     Tokens.add("c:something");
-    Tokens.add("c:x_x_x_must_fail_x_x_x");
+    Tokens.add("c:foo_bar_quux");
+ */
+ //   Tokens.add("u:_0");
+    Tokens.add("n:0");
     Structures.add(Tokens);      // add this finished (?) structure
     Clauses.add(Structures);    // add it to this finished clause
+
     // prepare for (possible) new clause and structure
     Structures = new ArrayList<ArrayList<String>>();
     Tokens = new ArrayList<String>();
@@ -149,7 +154,7 @@ public class Toks extends StreamTokenizer {
       } else if (("c:" + HOLDS).equals(t)) {
 
           final String w = Tokens.get(0);
-          Prog.println(">>>>>>> Toks: w = " + w);
+          // Prog.println(">>>>>>> Toks: w = " + w);
           Tokens.set(0, "h:" + w.substring(2));
 
       } else 

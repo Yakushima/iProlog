@@ -35,7 +35,7 @@ import java.util.*;
  * [20] u: 15       -- Z
  */
 
-public class Engine {
+public class Engine implements Cloneable {
 	int n_matches = 0;
 
   Spine query;
@@ -43,14 +43,16 @@ public class Engine {
   final static int MAXIND = 3; // number of index args
   final static int START_INDEX = 2;  // if # of clauses < START_INDEX, turn off indexing
 
+  /* (definalized a lot of these because I needed default constructor--MT)
+
   /* Trimmed-down clauses ready to be quickly relocated to the heap: */
   /* (Not clear what "trimmed-down" means.) */
-  final Clause[] clauses;
+  /*final*/ Clause[] clauses;
 
-  final int[] clause_list; // if no indexing, [0..clauses.length-1]
+  /*final*/ int[] clause_list; // if no indexing, [0..clauses.length-1]
 
   /* Symbol table - made of map (syms) + reverse map from ints to syms (slist) */
-  final protected sym_tab symTab;
+  /*final*/ protected sym_tab symTab;
 
     /** Runtime areas: **/
 
@@ -63,27 +65,65 @@ public class Engine {
   /* trail - undo list for variable bindings; facilitates retrying failed goals
    *   with alternative matching clauses
    */
-  final private IntStack trail;
+  /*final*/ private IntStack trail;
   
   /* unify_stack
    * - unification stack; helps to handle term unification non-recursively
    */
-  final private IntStack unify_stack;
+  /*final*/ private IntStack unify_stack;
   
   /* spines - stack of abstractions of clauses and goals;
    *    both a choice-point stack and goal stack
    */
-  final private ObStack<Spine> spines = new ObStack<>();
+  /*final*/ private ObStack<Spine> spines = new ObStack<>();
 
   index Ip;
 
-  /**
+  ArrayList<Engine> engines;
+
+  public Engine clone() throws CloneNotSupportedException {
+    Prog.println("Entered Engine.clone");
+    return (Engine) super.clone();
+  }
+
+  Engine clone_me(Engine s) throws CloneNotSupportedException {
+    if (engines == null || engines.isEmpty()) {
+      Prog.println("Engine list empty");
+    }
+    Engine e = this.clone();
+    return e;
+  }
+
+  // apparently required for clone()
+  public Engine() throws CloneNotSupportedException {
+    symTab = null;
+    heap = null;
+    trail = null;
+    unify_stack = null;
+    clauses = null;
+    clause_list = null;
+    query = null;
+    Ip = null;
+  }
+
+  public void init_engine() {
+    // I think we want symTab and heap shared
+    symTab = new sym_tab();
+    makeHeap();
+    // Not yet clear whether these can be shared between engines
+    trail = new IntStack();
+    unify_stack = new IntStack();
+    /* no clauses yet */
+    // query = init();  /* initial spine built from query from which execution starts */
+    // Ip = new index(clauses);
+  }
+
+  /*
    * Builds a new engine from a natural-language-style assembler.nl file
    */
-  public Engine(final String s, final boolean fromFile) {
+  public Engine(final String s, final boolean fromFile) throws CloneNotSupportedException {
     // syms = new LinkedHashMap<String, Integer>();
     // list = new ArrayList<String>();
-
     symTab = new sym_tab();
     makeHeap();
 
@@ -479,8 +519,10 @@ public class Engine {
 
   }
 
-  private static int[]
+  // made public to make it callable from Prog
+  public static int[]
   toNums(final Clause[] clauses) {
+    assert(clauses != null);
     final int l = clauses.length;
     final int[] cls = new int[l];
     for (int i = 0; i < l; i++) {
@@ -685,7 +727,7 @@ public class Engine {
   final String showCell(final int w) {
     final int t = tagOf(w);
     final int val = detag(w);
-    String s;
+    String s = "";
     switch (t) {
       case V:        s = "v:" + val;          break;
       case U:        s = "u:" + val;          break;
@@ -750,99 +792,97 @@ public class Engine {
   /**
    * Unification algorithm for cells X1 and X2 on unify_stack
    * that also takes care to trail bindings below a given heap address "base".
+   *
+   * w <= base means ...?
+   * w2 > w1 means ...?
    */
   private boolean unify(final int base) {
-    // Prog.println ("  Entering unify(), unify_stack.getTop()=" + unify_stack.getTop());
-    while (!unify_stack.isEmpty()) {
-      final int x1 = deref(unify_stack.pop());
-      final int x2 = deref(unify_stack.pop());
-      // Prog.println("      unify loop: x1=" + showCell(x1) + " x2=" + showCell(x2));
-      // Prog.println("      unify loop: unify_stack.getTop() =" + unify_stack.getTop());
-      if (x1 != x2) {
-        final int t1 = tagOf(x1);
-        final int t2 = tagOf(x2);
+    boolean tr=false;
+    if(tr)Prog.println("    unify: base="+base);
+
+    while (!unify_stack.isEmpty()) {                if(tr)Prog.println("      unify loop: while unify stack not empty...");
+      final int x1 = deref(unify_stack.pop());      if(tr && tagOf(x1)==R) Prog.println("      unify loop:  "+showGoal("x1->", x1));
+      final int x2 = deref(unify_stack.pop());      if(tr && tagOf(x2)==R) Prog.println("      unify loop:  "+showGoal("x2->", x2));
+
+      if (x1 != x2) {                               if(tr)Prog.println("      unify loop:  x1(="+showCell(x1)+") != x2(="+showCell(x2)+")");
         final int w1 = detag(x1);
         final int w2 = detag(x2);
 
-        if (isVAR(x1)) { /* unb. var. v1 */
-          if (isVAR(x2) && w2 > w1) { /* unb. var. v2 */
-            heap[w2] = x1;
-            if (w2 <= base) {
-              trail.push(x2);
-              // Prog.println("x1 & x2 vars, w2>w1, x2 pushed: " + showCell(x2));
+        if (isVAR(x1)) { /* unb. var. v1 */         if(tr)Prog.println("      unify loop:   unb. var. v1="+showCell(x1));
+          if (isVAR(x2) && w2 > w1) {               if(tr)Prog.println("      unify loop:     unb. var. v2="+showCell(x2)+" && w2 > w1");
+            heap[w2] = x1;                          if(tr)Prog.println("      unify loop:       heap[w2="+w2+"] = x1(="+showCell(x1));
+            if (w2 <= base) {                       if(tr)Prog.println("      unify loop:       x1 & x2 vars, w2>w1, w2<=base:");
+              trail.push(x2);                       if(tr)Prog.println("      unify loop:         x2(=" + showCell(x2) + ") pushed");
             }
-          } else { // x2 nonvar or older
-            heap[w1] = x2;
-            if (w1 <= base) {
-              trail.push(x1);
-              // Prog.println("x1 var, x2 nonvar or older, x1 pushed: " + showCell(x1));
+          } else {                                  if(tr)Prog.println("      unify loop:     x1 var, x2 nonvar or older:");
+            heap[w1] = x2;                          if(tr)Prog.println("      unify loop:       heap[w1="+w1+"] = x2(="+showCell(x2)+")");
+            if (w1 <= base) {                       if(tr)Prog.println("      unify loop:       w1 <= base:");
+              trail.push(x1);                       if(tr)Prog.println("      unify loop:         x1 pushed: " + showCell(x1));
             }
           }
-        } else if (isVAR(x2)) { /* x1 is NONVAR */
-          heap[w2] = x1;
-          if (w2 <= base) {
-            trail.push(x2);
-            // Prog.println("x1 nonvar, x2 older, x2 pushed: " + showCell(x2));
+        } else if (isVAR(x2)) {                     if(tr)Prog.println("      unify loop:   x1="+showCell(x2)+" is NONVAR, isVAR(x2="+showCell(x2)+")");
+          heap[w2] = x1;                            if(tr)Prog.println("      unify loop:     heap[w2="+w2+"] = x1(="+showCell(x1));
+          if (w2 <= base) {                         if(tr)Prog.println("      unify loop:     x1 nonvar, x2 var, w2 <= base, x2 older:");
+            trail.push(x2);                         if(tr)Prog.println("      unify loop:       x2 pushed: " + showCell(x2));
           }
-        } else if (R == t1 && R == t2) { // both should be R
-          if (!unify_args(w1, w2))
+        } else if (R==tagOf(x1) && R==tagOf(x2)) {  if(tr)Prog.println("      unify loop:   both t1,t2 shd be R, unify_args("+w1+","+w2+")");
+                                                    if(tr)Prog.println("      unify loop:    " + showGoal("x1->",x1) + " " + showGoal("x2->",x2));
+          if (!unify_args(base, w1, w2)) {          if(tr)Prog.println("      unify loop:     unify_args failed, returning FALSE");
             return false;
-        } else
+          }                                         if(tr)Prog.println("      unify loop:     unify_args succeeded, continue while loop");
+        } else {                                    if(tr)Prog.println("      unify loop:   not (R == t1 && R == t2), return FALSE");
           return false;
-        // Prog.println("      unify loop: unify_stack.getTop() NOW =" + unify_stack.getTop());
-      }
-    }
+        }
+      }                                             if(tr)Prog.println("      unify loop:  x1 == x2, loop again");
+    }                                               if(tr)Prog.println("      unify loop: all unified, returning true");
     return true;
   }
 
-  String showCS(String prompt, IntStack cs) {
+  String showCS(String prompt, int from, IntStack cs) {
     String s = prompt + ":";
-    for (int i = 0; i < cs.size(); ++i) {
+    for (int i = from; i < cs.size(); ++i) {
       s += " ";
-      s += showCell(cs.get(i));
+      s += ("@"+i+":"+showCell(cs.get(i)));
     }
     return s;
   }
 
-  String showHeap(String prompt) {
+  String showHeap(String prompt, int from) {
     String s = prompt + ":";
-    for (int i = 0; i < heap_size(); ++i) {
+    for (int i = from; i < heap_size(); ++i) {
       s += " ";
-      s += showCell(heap[i]);
+      s += ("@"+i+":"+showCell(heap[i]));
     }
     return s;
   }
 
-  private boolean unify_args(final int w1, final int w2) {
-    // Prog.println("                Entered unify_args(" + w1 + "," + w2 + ")");
+  // (I have "n_args" here, but it seems it checks to also see if the functors are identical.
+  // With indexing on, this should be guaranteed before entering unify_args.)
+  private boolean unify_args(final int base, final int w1, final int w2) {
+    final boolean tr=false;            if(tr)Prog.println("             |       Entered unify_args(" + w1 + "," + w2 + ")");
     final int v1 = heap[w1];
-    final int v2 = heap[w2];
-    // both should be A
     assert tagOf(v1) == A;
+    final int v2 = heap[w2];          if(tr)Prog.println("             |       v1=" + showCell(v1) + " v2=" + showCell(v2));
     assert tagOf(v2) == A;
-    final int n1 = detag(v1);
-    final int n2 = detag(v2);
-    // Prog.println("               n1=" + n1 + " n2=" + n2);
-    if (n1 != n2)
+
+    int n_args = detag(v1);           if(tr)Prog.println("             |       v1 n_args=" + n_args);
+    if (n_args != detag(v2)) {        if(tr)Prog.println("             |       diff arity, returning false");
       return false;
-    // Prog.println("               continuing");
-    final int b1 = 1 + w1;
-    final int b2 = 1 + w2;
-    // Prog.println("                n1-1=" + (n1-1));
-    for (int i = n1 - 1; i >= 0; i--) {
-      final int i1 = b1 + i;
-      final int i2 = b2 + i;
-      // Prog.println("                       i1=" + i1 + " i2=" + i2);
-      final int u1 = heap[i1];
-      final int u2 = heap[i2];
-      if (u1 == u2) {
+    }                                 if(tr)Prog.println("             |       arity match, maybe unify...");
+                                      if(tr)Prog.println("             |       entering " + n_args + "...1 loop");
+    while (n_args > 0) {              if(tr)Prog.println("             |         loop: n_args="+n_args+"...");
+      final int u1 = heap[w1+n_args]; if(tr)Prog.println("             |           u1=heap[" +(w1 + n_args)+ "]="+showCell(u1));
+      if(tagOf(u1)==R)                if(tr)Prog.println("             |             " + showGoal("u1->",u1));
+      final int u2 = heap[w2+n_args]; if(tr)Prog.println("             |           u2=heap[" +(w2 + n_args)+ "]="+showCell(u2));
+      if(tagOf(u2)==R)                if(tr)Prog.println("             |             " + showGoal("u2->",u2));
+      --n_args;
+      if (u1 == u2) {                 if(tr)Prog.println("             |           u1 == u2, looping w/o unify stack push");
         continue;
-      }
+      }                               if(tr)Prog.println("             |           u1 != u2, so push u2,u1 to--");
       unify_stack.push(u2);
-      unify_stack.push(u1);
-      // Prog.println("                       "+ showCS("unify_stack", unify_stack));
-      // Prog.println("                       "+ showHeap("heap"));
-    }
+      unify_stack.push(u1);           if(tr)Prog.println("             |           "+ showCS("unify_stack", 0, unify_stack));
+                                      if(tr)Prog.println("             |           "+ showHeap("heap", base));
+    }                                 if(tr)Prog.println("             |       exiting " + n_args + "...1 loop, returning true");
     return true;
   }
 
@@ -886,23 +926,11 @@ public class Engine {
    * b has cell structure, i.e, index, shifted left 3 bits, with tag 0 (==V)
    */
   private void pushCells(final int b, final int from, final int to, final int base) {
-  if (false) {
-    // Prog.println("");
-    // Prog.println("??? pushCells(" + showCell(b) + " from=" + from + " to=" + to
-    //        + " with base=" + base);
-    }
     assert tagOf(b) == V;
     assert V == 0;
     ensureSize(to - from);
-    for (int i = from; i < to; i++) {
-      int c = heap[base+i];
-      int cr = relocate(b,c);
-    // if (false) {
-    //   Prog.println("???    heap.get(" + (base + i) + ")=" + showCell(c)
-    //          + " relocated by " + showCell(b) + " =" + showCell(cr));
-    // }
-      push_to_heap(cr);
-    }
+    for (int i = from; i < to; i++)
+      push_to_heap(relocate(b,heap[base+i]));
   }
 
   /**
@@ -1040,13 +1068,18 @@ public class Engine {
     return true;
   }
 
-  final private String showGoal(int goal) {
-    String buf = "";
-    buf += ("goal="+showCell(goal));
-    int goal_loc = detag(goal);
+  final private String showGoal(String buf, int goal) {
+    int goal_loc = detag(goal)+1;
     int n_more = detag(cell2index(goal));
-    while (n_more-- > 0)
-      buf += (" ["+goal_loc+"]->"+showCell(heap[++goal_loc]));
+    while (n_more-- > 0) {
+      int g = heap[goal_loc];
+
+      if(tagOf(g) == R)
+        buf += (showGoal("(", g) + ")");
+      else
+        buf += (/*"@" + goal_loc + "=" +*/ showCell(heap[goal_loc]) + " ");
+      goal_loc++;
+    }
     return buf;
   }
 
@@ -1071,69 +1104,56 @@ public class Engine {
 
     final boolean tr=false; // trace on/off
 
+    if(tr)Prog.println("\nunfold: entered...");
+
     final int trail_top = trail.getTop();
     // Prog.println("unfold: trail_top=" + trail_top);
     // Prog.println("unfold: get_heap_top()=" + get_heap_top());
     final int saved_heap_top = get_heap_top();
-    final int base = heap_top + 1;
+    final int base_for_unfold = heap_top + 1;
 
-    final int goal = IntList.head(G.goals);
-    final int fn = heap[detag(goal)+1];
+    final int first_goal = IntList.head(G.goals);
+    final int fn = heap[detag(first_goal)+1]; // "+1" for past a:2
 
-    // This only works if "not(...)" is prefixed to heap
-    boolean negating = (detag(fn) == 0);
-    // boolean negating = (showCell(fn).compareTo("c:not") == 0);
-
-    if(tr)Prog.println ("unfold: " + showGoal(goal));
-    if (tr && negating) {
-      int neg_arg = heap[detag(goal) + 2];
-      if(tr)Prog.println("unfold: negation on " + showGoal(neg_arg));
-      if(tr)Prog.println("unfold: detag(fn)=" + detag(fn));
-    }
+    if(tr)Prog.println ("unfold: " + showGoal("", first_goal));
 
     if (clauses.length >= START_INDEX)
-      makeIndexArgs(G, goal);
+      // blows up on seeing u:n first
+      // but this happens only after
+      makeIndexArgs(G, first_goal);
 
     final int last = G.unifiables.length;
       // G.last_clause_tried: "index of the last clause [that]
             // the top goal of [this] Spine [G]
             // has tried to match so far " [HHG doc]
 
-    // Prog.println("before unfold loop: G->kount=" + G.last_clause_tried);
-    // for (int i = 0; i<G.unifiables.length; ++i)
-    //   Prog.println ("G.unifiables[" + i + "]=" + G.unifiables[i]);
-    // for (int k = G.last_clause_tried; k < last; k++) {
-    //   Prog.println("clauses[" +G.unifiables[k] + "].base=" + clauses[G.unifiables[k]].base);
-    // }
-
     for (int k = G.last_clause_tried; k < last; k++) {
       // Prog.println("unfold loop: G.unifiables[" + k + "]=" + G.unifiables[k]);
-      final Clause C0 = clauses[G.unifiables[k]];
+      final Clause clause_to_try = clauses[G.unifiables[k]];
       // Prog.println ("     " + showHeap("heap before pushHead"));
 
-        if (clauses.length >= START_INDEX && !Ip.possible_match(G.index_vector, C0))
-          continue;
-        else
-          ++n_matches;
+      if (clauses.length >= START_INDEX && !Ip.possible_match(G.index_vector, clause_to_try))
+        continue;
+      else
+        ++n_matches;
 
       // Prog.println("??????? possible match? ???????");
-      final int base0 = base - C0.base;
-      final int b = tag(V, base0);
+      final int offset_from_clause_to_try = base_for_unfold - clause_to_try.base;
+      final int reloc_offset = tag(V, offset_from_clause_to_try);
       assert V == 0;
-      final int head = pushHead(b, C0);
+      final int relocated_head = pushHead(reloc_offset, clause_to_try);
 
-      if(tr)Prog.println("unfold:   referring to " + showGoal(head));
+      if(tr)Prog.println("unfold:   " + showGoal("referring to ", relocated_head));
 
       unify_stack.clear(); // set up unification stack
 
-      unify_stack.push(head);
-      unify_stack.push(goal);
-      // Prog.println("pushed to unify_stack: head=" + showCell(head) + " goal=" + showCell(goal));
-      // Prog.println("                       "+ showCS("unify_stack", unify_stack));
-      // Prog.println("                       "+ showHeap("heap"));
-      // Prog.println("                       base=" + base);
+      unify_stack.push(relocated_head);
+      unify_stack.push(first_goal);
 
-      if (!unify(base)) {
+      // This unify works regardless of whether indexing is enabled
+      // Some optimizations are possible if indexing is on, so that
+      // functor and arity match are pre-assured.
+      if (!unify(base_for_unfold)) {
         unwindTrail(trail_top);
         set_heap_top(saved_heap_top);
         if(tr)Prog.println ("unfold:   unify failed, now trail.getTop()=" + trail.getTop() + " heap_top=" + get_heap_top());
@@ -1141,27 +1161,22 @@ public class Engine {
       }
       if(tr)Prog.println("unfold: unify succeeded...");
 
-      if (negating) {
-        G.last_clause_tried = G.unifiables.length;
-        if(tr)Prog.println("unfold: negating -> cutting, returning null");
-        return null;
-      }
-
-      final int[] goals = pushBody(b, head, C0);
+      // possible to pre-compute length and do this later, after the length test?
+      // subsequent operations may depend on status of the heap, however...
+      final int[] rebased_skeleton = pushBody(reloc_offset, relocated_head, clause_to_try);
 
       // Prog.println("$$$$$$$$$$$ goals after pushBody:");
       // for (int i = 0; i < goals.length; ++i)
       //   Prog.println(" " + showCell(goals[i]));
-      IntList tl = IntList.tail(G.goals);
+
+      // possible to test for G.goals.next == null first?
+      IntList rest_of_goals = IntList.tail(G.goals);
       G.last_clause_tried = k + 1;
 
-      // Prog.println("\n     *** spine.base = " + G.base + " UPDATED spine.last_clause_tried=" + G.last_clause_tried + "\n");
-
-      // if (!IntList.isEmpty(new_goals)) {
-      if (goals.length != 0 || tl != null) {
+      if (rebased_skeleton.length != 0 || rest_of_goals != null) {
         // Prog.println("\n     *** new_goals NOT empty --new Spine with initial kount=0\n");
         if(tr)Prog.println("unfold: returning with full (non-answer) Spine");
-        return new Spine(goals, base, tl, trail_top, 0, clause_list);
+        return new Spine(rebased_skeleton, base_for_unfold, rest_of_goals, trail_top, 0, clause_list);
       } else {
         // Prog.println("\n     *** new_goals empty--new Spine being generated by answer()\n");
         if(tr)Prog.println ("unfold: answer(" + trail_top + ")");
@@ -1169,11 +1184,6 @@ public class Engine {
       }
     } // end for
 
-    if (negating) {
-      if(tr)Prog.println("unfold: negating, cutting, returning answer(trail_top=" + trail_top +") at end");
-      G.last_clause_tried = G.unifiables.length;
-      return answer(trail_top);
-    }
     if(tr)Prog.println("unfold: returning null at end");
     return null;
   }
@@ -1191,12 +1201,8 @@ public class Engine {
    */
   Spine init() {
     final int base = heap_size();
-    // Prog.println("init(): base=" + base);
-
     final Clause G = getQuery();
-    // Prog.println("trail.getTop()=" + trail.getTop());
     final Spine Q = new Spine(G.skeleton, base, IntList.empty, trail.getTop(), 0, clause_list);
-    // Prog.println("Q.last_clause_tried=" + Q.last_clause_tried);
     spines.push(Q);
     return Q;
   }
@@ -1215,7 +1221,6 @@ public class Engine {
    * top goal of this spine.
    */
   private boolean hasClauses(final Spine S) {
-    // Prog.println("hasClauses: S.base= "+S.base+" S.last_clause_tried=" + S.last_clause_tried + " S.unifiables.length=" + S.unifiables.length);
     return S.last_clause_tried < S.unifiables.length;
   }
 
@@ -1233,7 +1238,9 @@ public class Engine {
    * up to that point.
    */
   private void popSpine() {
+    assert(spines != null);
     final Spine G = spines.pop();
+    assert(G != null);
     unwindTrail(G.trail_top);
     set_heap_top(G.base - 1);
   }
@@ -1245,11 +1252,9 @@ public class Engine {
    * returns null.
    */
   final Spine yield() {
-	  // Prog.println("Entering yield()");
     while (!spines.isEmpty()) {
       final Spine G = spines.peek(); // "The active component of a Spine is the topmost goal
                                      // in [its]] immutable [goal_stack]" [HHG doc]
-      // Prog.println ("  yield: G.last_clause_tried=" + G.last_clause_tried);
       if (!hasClauses(G)) {
         popSpine(); // no clauses left
         continue;
@@ -1261,7 +1266,6 @@ public class Engine {
                     // the topmost Spine is popped off." [HHG doc]
         continue;
       }
-      // Prog.println ("  yield: C.last_clause_tried=" + C.last_clause_tried);
       if (any_goals_left(C)) {
         spines.push(C);
         continue;
@@ -1317,6 +1321,7 @@ public class Engine {
     // Prog.println(" &&&& run(): spines.peek().last_clause_tried=" + spines.peek().last_clause_tried);
 
     for (;; ctr++) {
+      // Prog.println("about to call POJO_ask()...");
       final Object A = POJO_ask();
       if (null == A) {
         break;

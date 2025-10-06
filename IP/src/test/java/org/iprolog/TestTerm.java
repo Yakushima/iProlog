@@ -220,7 +220,12 @@ private class TryList {
         for (Clause cl : said)
             asm_txt += cl.toString() + System.lineSeparator();
 
-        Prog P = new Prog(asm_txt, false);
+        Prog P;
+        try {
+            P = new Prog(asm_txt, false);
+        }catch(Exception CloneNotSupportedException) {
+            Prog.println("TestTerm.test: CloneNotSupportedException");
+        }
 
         Term.set_Prolog();
 

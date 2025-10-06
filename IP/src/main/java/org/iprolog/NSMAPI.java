@@ -45,6 +45,12 @@ public class NSMAPI extends JLPAPI {
         // Main.println ("   ===== try_it(): after flattening =======");
         // Main.println ("asm_txt = \n" + asm_txt);
 
-        return new Prog(asm_txt.toString(), false);
+        Prog p = null;
+        try {
+            p = new Prog(asm_txt.toString(), false);
+        } catch (Exception CloneNotSupportedException) {
+            Prog.println("Prog.compile: CloneNotSupportedException");
+        }
+        return p;
     }
 }

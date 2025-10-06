@@ -11,10 +11,20 @@ import java.util.stream.StreamSupport;
 /* Prog is mainly an Engine with some extended trace output */
 
 public class Prog extends Engine implements Spliterator<Object> {
-  Prog(final String fname) {
-    super(fname, true);
+  Prog(final String fname) throws CloneNotSupportedException {
+    super();
+    this.init_engine(); // w/o clauses
+    try {
+      clauses = dload(fname);
+      assert(clauses != null);
+      clause_list = toNums(clauses); // initially an array  [0..clauses.length-1]
+      query = init();  /* initial spine built from query from which execution starts */
+      Ip = new index(clauses);
+    } catch(Exception CloneNotSupportedException) {
+      Prog.println("Prog constructor (fname): CloneNotSupportedException");
+    }
   }
-  Prog (final String s, Boolean fromFile) {
+  Prog (final String s, Boolean fromFile) throws CloneNotSupportedException {
     super(s, fromFile);
   }
 

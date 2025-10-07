@@ -45,8 +45,9 @@ public class Main {
     Engine P;
 
     if (p) {
-      P = new Prog(fname);
-      pp("CODE");
+      Prog P0 = new Prog(fname);
+      P = P0.fork();
+      pp("CODE:");
       ((Prog) P).ppCode();
     } else {
       P = new Engine(fname, true);

@@ -27,10 +27,14 @@ public class Prog extends Engine implements Spliterator<Object> {
   Prog (final String s, Boolean fromFile) throws CloneNotSupportedException {
     super(s, fromFile);
   }
+  public Prog fork() throws CloneNotSupportedException {
+    return (Prog) this.clone();
+  }
 
   static void pp(final Object o) {
     Main.pp(o);
   }
+
 
   public static void println(final Object o) {
     Main.println(o);

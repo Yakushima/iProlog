@@ -8,10 +8,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/iprolog/Engine.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/iprolog/Engine.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/iprolog/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/iprolog/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/iprolog/NSMAPI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/iprolog/NSMAPI.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/iprolog/Prog.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/iprolog/Prog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/iprolog/Toks.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/iprolog/Toks.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/iprolog/TestTerm.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/iprolog/TestTerm.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

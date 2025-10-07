@@ -1198,6 +1198,8 @@ public class Engine implements Cloneable {
 
   /**
    * Returns the initial spine built from the query from which execution starts.
+   *
+   * (This might work for new Engines, if a query is copied starting from clauses.length?)
    */
   Spine init() {
     final int base = heap_size();

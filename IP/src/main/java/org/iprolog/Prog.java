@@ -13,13 +13,11 @@ import java.util.stream.StreamSupport;
 public class Prog extends Engine implements Spliterator<Object> {
   Prog(final String fname) throws CloneNotSupportedException {
     super();
-    this.init_engine(); // w/o clauses
+    this.init_engine();
     try {
       clauses = dload(fname);
       assert(clauses != null);
-      clause_list = toNums(clauses); // initially an array  [0..clauses.length-1]
-      query = init();  /* initial spine built from query from which execution starts */
-      Ip = new index(clauses);
+      prep_clauses();
     } catch(Exception CloneNotSupportedException) {
       Prog.println("Prog constructor (fname): CloneNotSupportedException");
     }

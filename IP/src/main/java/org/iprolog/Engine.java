@@ -69,29 +69,31 @@ public class Engine implements Cloneable {
   
   /* unify_stack
    * - unification stack; helps to handle term unification non-recursively
+   *
+   * (This could theoretically be made dynamically allocated by unfold()
+   * and passed to unify/unify_args. Static saves time, even if it makes
+   * cloning slightly slower.)
    */
   /*final*/ private IntStack unify_stack;
   
   /* spines - stack of abstractions of clauses and goals;
    *    both a choice-point stack and goal stack
+   *
+   * (Used pretty widely, needed as global.)
    */
   /*final*/ private ObStack<Spine> spines = new ObStack<>();
 
+  /* (index - Initialized from clauses after clauses loaded. Clones
+   * should be able to use this too.)
+   */
   index Ip;
 
-  ArrayList<Engine> engines;
+  /* (Engine pool of pre-warmed/used engines. UNIMPLEMENTED.) */
+  static ArrayList<Engine> engines;
 
   public Engine clone() throws CloneNotSupportedException {
     Prog.println("Entered Engine.clone");
     return (Engine) super.clone();
-  }
-
-  Engine clone_me(Engine s) throws CloneNotSupportedException {
-    if (engines == null || engines.isEmpty()) {
-      Prog.println("Engine list empty");
-    }
-    Engine e = this.clone();
-    return e;
   }
 
   // apparently required for clone()
@@ -107,38 +109,28 @@ public class Engine implements Cloneable {
   }
 
   public void init_engine() {
-    // I think we want symTab and heap shared
     symTab = new sym_tab();
     makeHeap();
-    // Not yet clear whether these can be shared between engines
     trail = new IntStack();
     unify_stack = new IntStack();
-    /* no clauses yet */
-    // query = init();  /* initial spine built from query from which execution starts */
-    // Ip = new index(clauses);
+  }
+
+  public void prep_clauses() {
+    clause_list = toNums(clauses); // initially an array  [0..clauses.length-1]
+    query = init();  /* initial spine built from query from which execution starts */
+    Ip = new index(clauses);
   }
 
   /*
    * Builds a new engine from a natural-language-style assembler.nl file
    */
   public Engine(final String s, final boolean fromFile) throws CloneNotSupportedException {
-    // syms = new LinkedHashMap<String, Integer>();
-    // list = new ArrayList<String>();
-    symTab = new sym_tab();
-    makeHeap();
-
-    trail = new IntStack();
-    unify_stack = new IntStack();
+    this.init_engine();
 
     // Main.println ("Calling dload_from_x");
     clauses = dload_from_x(s, fromFile); // load "natural language" source
 
-    clause_list = toNums(clauses); // initially an array  [0..clauses.length-1]
-      // Used in indexing (somehow)
-
-    query = init();  /* initial spine built from query from which execution starts */
-
-    Ip = new index(clauses);
+    prep_clauses();
   }
 
   /**
@@ -881,7 +873,6 @@ public class Engine implements Cloneable {
       }                               if(tr)Prog.println("             |           u1 != u2, so push u2,u1 to--");
       unify_stack.push(u2);
       unify_stack.push(u1);           if(tr)Prog.println("             |           "+ showCS("unify_stack", 0, unify_stack));
-                                      if(tr)Prog.println("             |           "+ showHeap("heap", base));
     }                                 if(tr)Prog.println("             |       exiting " + n_args + "...1 loop, returning true");
     return true;
   }

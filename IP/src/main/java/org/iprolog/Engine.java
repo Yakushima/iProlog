@@ -1098,11 +1098,8 @@ public class Engine implements Cloneable {
     if(tr)Prog.println("\nunfold: entered...");
 
     final int trail_top = trail.getTop();
-    // Prog.println("unfold: trail_top=" + trail_top);
-    // Prog.println("unfold: get_heap_top()=" + get_heap_top());
     final int saved_heap_top = get_heap_top();
     final int base_for_unfold = heap_top + 1;
-
     final int first_goal = IntList.head(G.goals);
 
     if(tr)Prog.println ("unfold: " + showGoal("", first_goal));
@@ -1127,46 +1124,29 @@ public class Engine implements Cloneable {
       else
         ++n_matches;
 
-      // Prog.println("??????? possible match? ???????");
-      final int offset_from_clause_to_try = base_for_unfold - clause_to_try.base;
-      final int reloc_offset = tag(V, offset_from_clause_to_try);
+      final int reloc_offset = tag(V, base_for_unfold - clause_to_try.base);
       assert V == 0;
       final int relocated_head = pushHead(reloc_offset, clause_to_try);
 
       if(tr)Prog.println("unfold:   " + showGoal("referring to ", relocated_head));
 
       unify_stack.clear(); // set up unification stack
-
       unify_stack.push(relocated_head);
       unify_stack.push(first_goal);
 
       // This unify works regardless of whether indexing is enabled
       // Some optimizations are possible if indexing is on, so that
       // functor and arity match are pre-assured.
-      if (!unify(base_for_unfold)) {
-        unwindTrail(trail_top);
-        set_heap_top(saved_heap_top);
-        if(tr)Prog.println ("unfold:   unify failed, now trail.getTop()=" + trail.getTop() + " heap_top=" + get_heap_top());
-        continue;
+      if (unify(base_for_unfold)) { // this part used to have "return answer(trail_top)", but this seems faster
+        if(tr)Prog.println("unfold: unify succeeded...");
+        G.last_clause_tried = k + 1;
+        final int[] rebased_skel = pushBody(reloc_offset, relocated_head, clause_to_try);
+        return new Spine(rebased_skel, base_for_unfold, IntList.tail(G.goals), trail_top, 0, clause_list);
       }
-      if(tr)Prog.println("unfold: unify succeeded...");
-            /* Not clear that return answer(ttop) was ever executed....
-             * Maybe in original it was a functionjng optimization?
-             * ORIGINALLY:
-            final int[] gs = pushBody(b, head, C0);
-            final IntList newgs = IntList.tail(IntList.app(gs, IntList.tail(G.gs)));
-            G.k = k + 1;
-            if (!IntList.isEmpty(newgs))
-              return new Spine(gs, base, IntList.tail(G.gs), ttop, 0, cls);
-            else
-              return answer(ttop);
-            */
-      final int[] rebased_skeleton = pushBody(reloc_offset, relocated_head, clause_to_try);
-      IntList rest_of_goals = IntList.tail(G.goals);
-      G.last_clause_tried = k + 1;
 
-      if(tr)Prog.println("unfold: returning with full (non-answer) Spine");
-      return new Spine(rebased_skeleton, base_for_unfold, rest_of_goals, trail_top, 0, clause_list);
+      unwindTrail(trail_top);
+      set_heap_top(saved_heap_top);
+      if(tr)Prog.println ("unfold:   unify failed, now trail.getTop()=" + trail.getTop() + " heap_top=" + get_heap_top());
     } // end for
 
     if(tr)Prog.println("unfold: returning null at end");

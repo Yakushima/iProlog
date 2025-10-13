@@ -36,6 +36,13 @@ import java.util.*;
  */
 
 public class Engine implements Cloneable {
+  interface trace {
+    void l(String str);
+  }
+  static trace l_on = (s) -> { Prog.println(s); };
+  static trace l_off = (s) -> { };
+  void foo() { trace l_ = l_on; l_.l("dumb"); }
+
 	int n_matches = 0;
 
   Spine query;
@@ -781,13 +788,14 @@ public class Engine implements Cloneable {
     // override
   }
 
-  void ppSpine(String hdr, Spine sp) {
+  String showSpine(String hdr, Spine sp) {
     String s = hdr + ":\n";
 
     s += ("  head="+showCell(sp.head) + " ");
     s += (" base="+sp.base);
     s += (" trail_top=" + sp.trail_top);
     s += (" last_clause_tried=" + sp.last_clause_tried + "\n");
+
     s += "  goals = [";
     String sep="";
     for (IntList ip = sp.goals; ip != null; ip = IntList.tail(ip)) {
@@ -804,7 +812,7 @@ public class Engine implements Cloneable {
     }
     s += "]";
 
-    Prog.println(s);
+    return s;
   }
 
   /**
@@ -1115,33 +1123,30 @@ public class Engine implements Cloneable {
    * clause at the top of the new list of goals, in reverse order.
    */
   final private Spine unfold(final Spine G) {
-    final boolean tr=false; // trace on/off
+    trace l_ = l_off;
 
-    if (G.goals == null) {                            if(tr)Prog.println ("unfold: entered, G has no goals, returning null");
+    if (G.goals == null) {                            l_.l("unfold: entered, G has no goals, returning null");
       return null;
     }
-
-    if(tr)ppSpine("\nunfold: entered with G", G);
-
+                                                      l_.l(showSpine("\nunfold: entered with G", G));
     final int trail_top = trail.getTop();
     final int saved_heap_top = get_heap_top();
     final int base_for_unfold = heap_top + 1;
-    final int first_goal = IntList.head(G.goals);     if(tr)Prog.println ("unfold: " + showGoal("", first_goal));
+    final int first_goal = IntList.head(G.goals);     l_.l("unfold: " + showGoal("", first_goal));
 
     if (clauses.length >= START_INDEX) {
-      makeIndexArgs(G, first_goal);                   if (tr) ppSpine("unfold: after makeIndexArgs, G", G);
+      makeIndexArgs(G, first_goal);                   l_.l(showSpine("unfold: after makeIndexArgs, G", G));
     }
 
-    final int last = G.unifiables.length;
+    final int last = G.unifiables.length;             l_.l("unfold: before loop: G.last_clause_tried="+G.last_clause_tried+" last="+last);
       // G.last_clause_tried: "index of the last clause [that]
             // the top goal of [this] Spine [G]
             // has tried to match so far " [HHG doc]
-                                                      if(tr)Prog.println("unfold: before loop: G.last_clause_tried="+G.last_clause_tried+" last="+last);
-    for (int k = G.last_clause_tried; k < last; k++) {       if(tr)Prog.println("  unfold loop: G.unifiables[" + k + "]=" + G.unifiables[k]);
-      final Clause clause_to_try = clauses[G.unifiables[k]]; if(tr)Prog.println ("     clause_to_try:" + clause_to_try.othershow());
+    for (int k = G.last_clause_tried; k < last; k++) {       l_.l("  unfold loop: G.unifiables[" + k + "]=" + G.unifiables[k]);
+      final Clause clause_to_try = clauses[G.unifiables[k]]; l_.l("     clause_to_try:" + clause_to_try.othershow());
 
       if (clauses.length >= START_INDEX
-        & !Ip.possible_match(G.index_vector,clause_to_try)){ if(tr)Prog.println("  unfold loop: no possible match, loop again");
+        & !Ip.possible_match(G.index_vector,clause_to_try)){ l_.l("  unfold loop: no possible match, loop again");
         continue;
       }
       else ++n_matches;
@@ -1149,24 +1154,24 @@ public class Engine implements Cloneable {
       assert V == 0;
       final int reloc_offset = tag(V, base_for_unfold - clause_to_try.base);
       final int relocated_head = pushHead(reloc_offset, clause_to_try);
-                                                            if(tr)Prog.println("  unfold loop:   " + showGoal("referring to ", relocated_head));
+                                                            l_.l("  unfold loop:   " + showGoal("referring to ", relocated_head));
       unify_stack.clear(); // set up unification stack
       unify_stack.push(relocated_head);
       unify_stack.push(first_goal);
 
-      if (unify(base_for_unfold)) {                         if(tr)Prog.println("unfold: unify succeeded...");
+      if (unify(base_for_unfold)) {                         l_.l("unfold: unify succeeded...");
         G.last_clause_tried = k + 1;
         final int[] rebased_skel = pushBody(reloc_offset, relocated_head, clause_to_try);
         // if(rebased_skel.length == 0 || IntList.tail(G.goals)==null) return answer(trail_top); // BROKEN, why?
         Spine sp = new Spine(rebased_skel, base_for_unfold, IntList.tail(G.goals), trail_top, 0, clause_list);
-                                                            if(tr)ppSpine("unfold: new Spine to return",sp);
+                                                            l_.l(showSpine("unfold: new Spine to return",sp));
         return sp;
       }
-                                                            if(tr)Prog.println ("unfold:   unify failed, unwinding, loop again");
+                                                            l_.l("unfold:   unify failed, unwinding, loop again");
       unwindTrail(trail_top);
       set_heap_top(saved_heap_top);
     } // end for
-                                                            if(tr)Prog.println("unfold: returning null at end");
+                                                            l_.l("unfold: returning null at end");
     return null;
   }
 

@@ -116,18 +116,14 @@ public class Toks extends StreamTokenizer {
     ArrayList<String> Tokens = new ArrayList<String>();
     final Toks toks = makeToks(s, fromFile);
     String t = null;
-
+/*
     // preface with a "not(...)" that must fail
     // Note that negation in unfold() depends on not being based at heap[0]
     Tokens.add("c:not");
     Tokens.add("v:_0");
     Structures.add(Tokens);
     Tokens = new ArrayList<String>();
-/*
-    Tokens.add("h:_0");
-    Tokens.add("c:something");
-    Tokens.add("c:foo_bar_quux");
- */
+
  //   Tokens.add("u:_0");
     Tokens.add("n:0");
     Structures.add(Tokens);      // add this finished (?) structure
@@ -136,7 +132,7 @@ public class Toks extends StreamTokenizer {
     // prepare for (possible) new clause and structure
     Structures = new ArrayList<ArrayList<String>>();
     Tokens = new ArrayList<String>();
-
+*/
     while (null != (t = toks.getWord())) {
       if (DOT.equals(t)) {
           Structures.add(Tokens);      // add this finished (?) structure

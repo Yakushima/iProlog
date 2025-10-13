@@ -41,7 +41,7 @@ public class Engine implements Cloneable {
   Spine query;
 
   final static int MAXIND = 3; // number of index args
-  final static int START_INDEX = 2;  // if # of clauses < START_INDEX, turn off indexing
+  final static int START_INDEX = 1;  // if # of clauses < START_INDEX, turn off indexing
 
   /* (definalized a lot of these because I needed default constructor--MT)
 
@@ -775,10 +775,36 @@ public class Engine implements Cloneable {
   }
 
   /**
-   * to be overridden as a printer for spines
+   * "to be overridden as a printer for spines"
    */
   void ppSpines() {
     // override
+  }
+
+  void ppSpine(String hdr, Spine sp) {
+    String s = hdr + ":\n";
+
+    s += ("  head="+showCell(sp.head) + " ");
+    s += (" base="+sp.base);
+    s += (" trail_top=" + sp.trail_top);
+    s += (" last_clause_tried=" + sp.last_clause_tried + "\n");
+    s += "  goals = [";
+    String sep="";
+    for (IntList ip = sp.goals; ip != null; ip = IntList.tail(ip)) {
+      s += (sep + showCell(IntList.head(ip)));
+      sep=",";
+    }
+    s += "]\n";
+
+    s += ("  unifiables = [");
+    sep="";
+    for (int i : sp.unifiables) {
+      s += (sep+sp.unifiables[i]);
+      sep =",";
+    }
+    s += "]";
+
+    Prog.println(s);
   }
 
   /**
@@ -1089,67 +1115,58 @@ public class Engine implements Cloneable {
    * clause at the top of the new list of goals, in reverse order.
    */
   final private Spine unfold(final Spine G) {
-
-    if (G.goals == null)
-      return null;
-
     final boolean tr=false; // trace on/off
 
-    if(tr)Prog.println("\nunfold: entered...");
+    if (G.goals == null) {                            if(tr)Prog.println ("unfold: entered, G has no goals, returning null");
+      return null;
+    }
+
+    if(tr)ppSpine("\nunfold: entered with G", G);
 
     final int trail_top = trail.getTop();
     final int saved_heap_top = get_heap_top();
     final int base_for_unfold = heap_top + 1;
-    final int first_goal = IntList.head(G.goals);
+    final int first_goal = IntList.head(G.goals);     if(tr)Prog.println ("unfold: " + showGoal("", first_goal));
 
-    if(tr)Prog.println ("unfold: " + showGoal("", first_goal));
-
-    if (clauses.length >= START_INDEX)
-      // blows up on seeing u:n first
-      // but this happens only after
-      makeIndexArgs(G, first_goal);
+    if (clauses.length >= START_INDEX) {
+      makeIndexArgs(G, first_goal);                   if (tr) ppSpine("unfold: after makeIndexArgs, G", G);
+    }
 
     final int last = G.unifiables.length;
       // G.last_clause_tried: "index of the last clause [that]
             // the top goal of [this] Spine [G]
             // has tried to match so far " [HHG doc]
+                                                      if(tr)Prog.println("unfold: before loop: G.last_clause_tried="+G.last_clause_tried+" last="+last);
+    for (int k = G.last_clause_tried; k < last; k++) {       if(tr)Prog.println("  unfold loop: G.unifiables[" + k + "]=" + G.unifiables[k]);
+      final Clause clause_to_try = clauses[G.unifiables[k]]; if(tr)Prog.println ("     clause_to_try:" + clause_to_try.othershow());
 
-    for (int k = G.last_clause_tried; k < last; k++) {
-      // Prog.println("unfold loop: G.unifiables[" + k + "]=" + G.unifiables[k]);
-      final Clause clause_to_try = clauses[G.unifiables[k]];
-      // Prog.println ("     " + showHeap("heap before pushHead"));
-
-      if (clauses.length >= START_INDEX && !Ip.possible_match(G.index_vector, clause_to_try))
+      if (clauses.length >= START_INDEX
+        & !Ip.possible_match(G.index_vector,clause_to_try)){ if(tr)Prog.println("  unfold loop: no possible match, loop again");
         continue;
-      else
-        ++n_matches;
+      }
+      else ++n_matches;
 
-      final int reloc_offset = tag(V, base_for_unfold - clause_to_try.base);
       assert V == 0;
+      final int reloc_offset = tag(V, base_for_unfold - clause_to_try.base);
       final int relocated_head = pushHead(reloc_offset, clause_to_try);
-
-      if(tr)Prog.println("unfold:   " + showGoal("referring to ", relocated_head));
-
+                                                            if(tr)Prog.println("  unfold loop:   " + showGoal("referring to ", relocated_head));
       unify_stack.clear(); // set up unification stack
       unify_stack.push(relocated_head);
       unify_stack.push(first_goal);
 
-      // This unify works regardless of whether indexing is enabled
-      // Some optimizations are possible if indexing is on, so that
-      // functor and arity match are pre-assured.
-      if (unify(base_for_unfold)) { // this part used to have "return answer(trail_top)", but this seems faster
-        if(tr)Prog.println("unfold: unify succeeded...");
+      if (unify(base_for_unfold)) {                         if(tr)Prog.println("unfold: unify succeeded...");
         G.last_clause_tried = k + 1;
         final int[] rebased_skel = pushBody(reloc_offset, relocated_head, clause_to_try);
-        return new Spine(rebased_skel, base_for_unfold, IntList.tail(G.goals), trail_top, 0, clause_list);
+        // if(rebased_skel.length == 0 || IntList.tail(G.goals)==null) return answer(trail_top); // BROKEN, why?
+        Spine sp = new Spine(rebased_skel, base_for_unfold, IntList.tail(G.goals), trail_top, 0, clause_list);
+                                                            if(tr)ppSpine("unfold: new Spine to return",sp);
+        return sp;
       }
-
+                                                            if(tr)Prog.println ("unfold:   unify failed, unwinding, loop again");
       unwindTrail(trail_top);
       set_heap_top(saved_heap_top);
-      if(tr)Prog.println ("unfold:   unify failed, now trail.getTop()=" + trail.getTop() + " heap_top=" + get_heap_top());
     } // end for
-
-    if(tr)Prog.println("unfold: returning null at end");
+                                                            if(tr)Prog.println("unfold: returning null at end");
     return null;
   }
 

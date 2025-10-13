@@ -48,14 +48,17 @@ class Spine {
        ,final int     last_clause_tried
        ,final int[]   unifiables
        ) {
-    this.head = skeleton[0];
-    this.base = base;
+    boolean tr = false;
+    this.head = skeleton[0];          if(tr)Prog.println("Spine: head = " + this.head);
+    this.base = base;                 if(tr)Prog.println("Spine: base = " + this.base);
+
     // prepends the goals of clause with head:
     this.goals = IntList.tail(IntList.concat(skeleton, goal_stack));
-    this.trail_top = trail_top;
+                                      if(tr)Prog.println("Spine: goals = " + this.goals);
+    this.trail_top = trail_top;       if(tr)Prog.println("Spine: trail_top = " + this.trail_top);
     this.last_clause_tried = last_clause_tried;
-    // Prog.println("\n     *** in new Spine() spine.base = " + base + " spine.kount=" + this.k + "\n");
-    this.unifiables = unifiables;
+                                      if(tr)Prog.println("Spine: last_clause_tried = " + this.last_clause_tried);
+    this.unifiables = unifiables;     if(tr)Prog.println("Spine: unifiables set");
   }
 
   /**

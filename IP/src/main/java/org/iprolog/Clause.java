@@ -112,7 +112,7 @@ public class Clause {
   }
 
   public String toString() {
-    String s = "";
+    String s = "Clause show stub";
     String sep = "";
     for (Term x = head; x != null; x = x.next) {
       s += sep + x.toString();
@@ -158,6 +158,21 @@ public class Clause {
                   // term of the head of the clause, with zero values
                   // marking variable positions."
                   // Should it be "outermost termS"?
+
+  public String othershow() {
+    String s = "\n";
+
+    s += ("      len="+len);
+    s += ("  base="+base);
+    s += ("  neck="+neck);
+    s += ("  index_vector=(TBD)\n");
+    s += ("      skeleton=[");
+    String sep ="";
+    for (int i : skeleton) { s += (sep+i); sep=","; }
+    s += "]\n";
+
+    return s;
+  }
 
 // Placeholders for Prolog abstract parse tree representation.
 // The API here should also be useful for construction, manipulation

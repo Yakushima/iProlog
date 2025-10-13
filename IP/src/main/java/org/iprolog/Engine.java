@@ -35,13 +35,14 @@ import java.util.*;
  * [20] u: 15       -- Z
  */
 
-public class Engine implements Cloneable {
+public class Engine {
+  // this approach to tracing adds a lot to runtimes
+  // can be disabled completely with global search and replace "l_.l" -> "//l_.l"
   interface trace {
     void l(String str);
   }
-  static trace l_on = (s) -> { Prog.println(s); };
+  static trace l_on  = (s) -> { Prog.println(s); };
   static trace l_off = (s) -> { };
-  void foo() { trace l_ = l_on; l_.l("dumb"); }
 
 	int n_matches = 0;
 
@@ -98,13 +99,7 @@ public class Engine implements Cloneable {
   /* (Engine pool of pre-warmed/used engines. UNIMPLEMENTED.) */
   static ArrayList<Engine> engines;
 
-  public Engine clone() throws CloneNotSupportedException {
-    Prog.println("Entered Engine.clone");
-    return (Engine) super.clone();
-  }
-
-  // apparently required for clone()
-  public Engine() throws CloneNotSupportedException {
+  public Engine() {
     symTab = null;
     heap = null;
     trail = null;
@@ -131,7 +126,7 @@ public class Engine implements Cloneable {
   /*
    * Builds a new engine from a natural-language-style assembler.nl file
    */
-  public Engine(final String s, final boolean fromFile) throws CloneNotSupportedException {
+  public Engine(final String s, final boolean fromFile) {
     this.init_engine();
 
     // Main.println ("Calling dload_from_x");
@@ -804,9 +799,10 @@ public class Engine implements Cloneable {
     }
     s += "]\n";
 
+    assert(sp.unifiables!=null);
     s += ("  unifiables = [");
     sep="";
-    for (int i : sp.unifiables) {
+    for (int i = 0; i < sp.unifiables.length; ++i) {
       s += (sep+sp.unifiables[i]);
       sep =",";
     }

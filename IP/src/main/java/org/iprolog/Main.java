@@ -28,7 +28,7 @@ public class Main {
 
     // Main.println("************** END test_IntSet() ***********************************");
   }
-  public static void run(final String fname0) throws CloneNotSupportedException {
+  public static void run(final String fname0) {
 
     Prog.println("run: about to call test_IntSet");
     test_IntSet();
@@ -43,10 +43,9 @@ public class Main {
     Prog.println("==============================================================");
 
     Engine P;
-
     if (p) {
-      Prog P0 = new Prog(fname);
-      P = P0.fork();
+      P = new Prog(fname);
+      // P = P0.fork(); // left over from supporting clone()
       pp("CODE:");
       ((Prog) P).ppCode();
     } else {
@@ -64,7 +63,7 @@ public class Main {
 
   }
 
-  public static void srun(final String fname0) throws CloneNotSupportedException {
+  public static void srun(final String fname0) {
     final String fname = fname0 + ".nl";
     Main.println ("Setting Taraulog....");
     Term.set_TarauLog();
@@ -99,11 +98,8 @@ public class Main {
     System.out.println("Current dir using System:" + currentDir);
 
     String fname=args[0];
-    try {
+
       Prog.println("about to run...");
       run(fname);
-    } catch(Exception CloneNotSupportedException) {
-      Prog.println ("main: CloneNotSupportedException ******");
-    }
   }
 }
